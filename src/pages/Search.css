@@ -2,6 +2,7 @@
     width: 100%;
     max-width: 400px;
     padding: 12px;
+    margin-top: 10px;
     border-radius: 20px;
     border: 1px solid rgba(255,255,255,0.1);
     background: rgba(255,255,255,0.05);
@@ -103,7 +104,7 @@
 
 /* El truco para las opciones (la lista que se despliega) */
 .sort-select option {
-    background-color: #1a1a1a; /* Un gris muy oscuro casi negro */
+    background-color: #1a1a1a; 
     color: white;
     padding: 10px;
 }
@@ -112,4 +113,49 @@
 .sort-select:hover {
     background-color: rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, 0.4);
+}
+
+
+.historial-section {
+  margin-top: 40px;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.historial-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 25px;
+  color: #ff2d55; /* El rojo que venimos usando */
+}
+
+.albums-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 25px;
+}
+
+.album-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.album-card:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-5px);
+}
+
+.album-card img {
+  width: 100%;
+  aspect-ratio: 1/1;
+  border-radius: 10px;
+  object-fit: cover;
+  margin-bottom: 12px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

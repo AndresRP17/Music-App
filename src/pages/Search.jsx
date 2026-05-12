@@ -1,13 +1,44 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Agregamos useNavigate
 import './Search.css';
 
 function Search() {
+  const [historial, setHistorial] = useState([]);
   const [busqueda, setBusqueda] = useState('');
   const [albumes, setAlbumes] = useState([]);
-  const [orden, setOrden] = useState('popular'); // Estado para el select
-  // ... arriba con tus otros estados
+  const [orden, setOrden] = useState('popular');
+  const navigate = useNavigate(); 
 
+  // Cargar el historial apenas abre la página
+  useEffect(() => {
+    const guardados = JSON.parse(localStorage.getItem('historialBusqueda')) || [];
+    setHistorial(guardados);
+  }, []);
+
+  // 2. Función para guardar en historial y navegar
+  const manejarClickAlbum = (album) => {
+    const nombreArtista = typeof album.artist === 'object' ? album.artist.name : album.artist;
+    
+    const historialActual = JSON.parse(localStorage.getItem('historialBusqueda')) || [];
+    
+    const itemHistorial = {
+        name: album.name,
+        artist: nombreArtista,
+        image: album.image
+    };
+
+    const nuevoHistorial = [
+      itemHistorial,
+      ...historialActual.filter(item => item.name !== album.name)
+    ].slice(0, 5);
+
+    localStorage.setItem('historialBusqueda', JSON.stringify(nuevoHistorial));
+    
+    // Navegamos al detalle
+    navigate(`/album/${encodeURIComponent(album.name)}/${encodeURIComponent(nombreArtista)}`);
+  };
+
+  // 3. Lógica de búsqueda con Debounce (500ms)
   useEffect(() => {
     const buscar = async () => {
       if (busqueda.trim().length > 2) {
@@ -21,7 +52,6 @@ function Search() {
             const listaRaw = data.topalbums.album;
             const nombresVistos = new Set();
             
-            // 1. Filtramos duplicados (Remasters, Deluxe, etc)
             let resultados = listaRaw.filter(album => {
               const nombreLimpio = album.name
                 .toLowerCase()
@@ -35,12 +65,11 @@ function Search() {
               return false;
             });
 
-            // 2. Aplicamos el orden según el Select
             if (orden === 'az') {
               resultados.sort((a, b) => a.name.localeCompare(b.name));
             }
 
-            setAlbumes(resultados.slice(0, 15)); // Mostramos un top 15 limpio
+            setAlbumes(resultados.slice(0, 15));
           }
         } catch (error) {
           console.error("Error conectando con la API:", error);
@@ -52,7 +81,7 @@ function Search() {
 
     const timeoutId = setTimeout(buscar, 500);
     return () => clearTimeout(timeoutId);
-  }, [busqueda, orden]); // Se dispara si cambia la búsqueda O el orden
+  }, [busqueda, orden]);
 
   return (
     <div className="content">
@@ -73,39 +102,73 @@ function Search() {
         />
       </div>
 
-      <div className="filter-bar">
-        <span>{albumes.length} álbumes encontrados</span>
-        <select 
-          className="sort-select" 
-          value={orden} 
-          onChange={(e) => setOrden(e.target.value)}
-        >
-          <option value="popular">Más populares</option>
-          <option value="az">A - Z</option>
-        </select>
-      </div>
-
-      <div className="album-grid">
-        {albumes.map((album, index) => {
-          const nombreArtista = typeof album.artist === 'object' ? album.artist.name : album.artist;
-          return (
-            <Link 
-              key={`${album.name}-${index}`} 
-              to={`/album/${encodeURIComponent(album.name)}/${encodeURIComponent(nombreArtista)}`} 
-              className="album-link"
-            >
-              <div className="album-card">
-                <img 
-                  src={album.image[3]['#text'] || 'https://via.placeholder.com/300'} 
-                  alt={album.name} 
-                />
-                <h3>{album.name}</h3>
-                <p>{nombreArtista}</p>
+      {/* --- SECCIÓN HISTORIAL (Solo si no hay búsqueda) --- */}
+      {busqueda.length === 0 && (
+        <div className="historial-section">
+          {historial.length > 0 ? (
+            <>
+              <h2>Buscado recientemente</h2>
+              <div className="album-grid">
+                {historial.map((album, index) => (
+                  <div key={index} className="album-card" onClick={() => manejarClickAlbum(album)}>
+                    <img 
+                      src={album.image[3]['#text'] || 'https://via.placeholder.com/300'} 
+                      alt={album.name} 
+                    />
+                    <h3>{album.name}</h3>
+                    <p>{album.artist}</p>
+                  </div>
+                ))}
               </div>
-            </Link>
-          );
-        })}
-      </div>
+            </>
+          ) : (
+            <div className="no-history">
+              <h2>¿No sabés qué escuchar?</h2>
+              
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* --- RESULTADOS DE BÚSQUEDA --- */}
+      {busqueda.length > 0 && (
+        <>
+          <div className="filter-bar">
+            <span>{albumes.length} álbumes encontrados</span>
+            <select 
+              className="sort-select" 
+              value={orden} 
+              onChange={(e) => setOrden(e.target.value)}
+            >
+              <option value="popular">Más populares</option>
+              <option value="az">A - Z</option>
+            </select>
+          </div>
+
+          <div className="album-grid">
+            {albumes.map((album, index) => {
+              const nombreArtista = typeof album.artist === 'object' ? album.artist.name : album.artist;
+              return (
+                <div 
+                  key={`${album.name}-${index}`} 
+                  className="album-link"
+                  onClick={() => manejarClickAlbum(album)}
+                  style={{cursor: 'pointer'}}
+                >
+                  <div className="album-card">
+                    <img 
+                      src={album.image[3]['#text'] || 'https://via.placeholder.com/300'} 
+                      alt={album.name} 
+                    />
+                    <h3>{album.name}</h3>
+                    <p>{nombreArtista}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 }

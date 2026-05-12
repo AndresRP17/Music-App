@@ -26,11 +26,7 @@ function AlbumDetail() {
 
   return (
     <div className="album-detail-container">
-      <main className="content">
-        <div className="maina">
-          <h1>Una gran elección, a disfrutar</h1>
-        </div>
-      </main>
+      
 
       <header className="album-header">
         <img 
@@ -56,7 +52,8 @@ function AlbumDetail() {
           <div className="tracklist-header">
             <span>#</span>
             <span>Título</span>
-            <span></span> {/* Espacio para el botón play */}
+            <span>
+              </span> {/* Espacio para el botón play */}
             <span className="text-right">Duración</span>
           </div>
           <hr />
