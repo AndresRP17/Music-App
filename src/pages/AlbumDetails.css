@@ -1,0 +1,275 @@
+/* --- RESET Y FUENTE --- */
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    margin: 0;
+    background-color: #121212;
+}
+
+/* --- CONTENEDOR PRINCIPAL --- */
+.album-detail-container {
+    padding: 40px;
+    min-height: 100vh;
+    color: white;
+    width: 100%;
+    background: linear-gradient(to bottom, #1e1e1e 0%, #121212 100%);
+    box-sizing: border-box;
+}
+
+/* --- HEADER (PORTADA Y TÍTULOS) --- */
+.album-header {
+    display: flex;
+    gap: 40px;
+    align-items: flex-end;
+    margin-bottom: 50px;
+    padding-top: 20px;
+}
+
+.detail-cover {
+    width: 280px;
+    height: 280px;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.6);
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.header-info {
+    flex: 1;
+}
+
+.type {
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+    color: #b3b3b3;
+}
+
+.header-info h1 {
+    font-size: 4rem;
+    margin: 5px 0 15px 0;
+    font-weight: 800;
+}
+
+.album-metadata {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.artist-name-main {
+    color: #fff;
+}
+
+.genre-tag {
+    color: #ff2d55;
+    text-transform: capitalize;
+}
+
+.extra-info {
+    color: #b3b3b3;
+}
+
+/* --- LAYOUT DE DOS COLUMNAS --- */
+.detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 50px;
+    margin-top: 20px;
+}
+
+/* --- LISTA DE CANCIONES --- */
+.tracklist-section {
+    width: 100%;
+}
+
+.tracklist-header, .track-row {
+    display: grid;
+    /* N°, Nombre, Play, Duración */
+    grid-template-columns: 50px 1fr 50px 100px; 
+    padding: 12px 10px;
+    align-items: center;
+}
+
+.tracklist-header {
+    color: #b3b3b3;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+}
+
+.tracklist-section hr {
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 10px;
+}
+
+.track-row {
+    transition: background 0.2s ease;
+    border-radius: 8px;
+}
+
+.track-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.track-number {
+    color: #b3b3b3;
+    font-size: 0.9rem;
+}
+
+.track-name {
+    font-weight: 500;
+    color: #fff;
+}
+
+.track-duration {
+    color: #b3b3b3;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    margin-left: 80px;
+}
+
+/* --- BOTÓN PLAY YOUTUBE --- */
+.btn-play-yt {
+    background: none;
+    border: none;
+    color: #ff0000;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.track-row:hover .btn-play-yt {
+    opacity: 1;
+    transform: scale(1.3);
+}
+
+.btn-play-yt:hover {
+    color: #ff4d4d;
+}
+
+/* --- SIDEBAR (WIKI) --- */
+.album-sidebar {
+    display: flex;
+    flex-direction: column;
+}
+
+.wiki-card {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    position: sticky;
+    top: 30px;
+}
+
+.wiki-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    color: #fff;
+}
+
+.wiki-text {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #b3b3b3;
+}
+
+.release-date {
+    margin-top: 25px;
+    font-size: 0.85rem;
+    color: #ff2d55;
+    font-weight: 600;
+}
+
+/* --- MODAL YOUTUBE --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    width: 90%;
+    max-width: 850px;
+    aspect-ratio: 16/9;
+    position: relative;
+    background: #000;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(255, 0, 0, 0.3);
+}
+
+.close-modal {
+    position: absolute;
+    top: -45px;
+    right: 0;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2.5rem;
+    cursor: pointer;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 1100px) {
+    .detail-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .album-sidebar {
+        order: 2;
+    }
+
+    .wiki-card {
+        position: static;
+    }
+
+    .header-info h1 {
+        font-size: 2.5rem;
+    }
+
+    .album-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .detail-cover {
+        width: 220px;
+        height: 220px;
+    }
+
+    .btn-play-yt {
+        opacity: 1; /* Siempre visible en móviles */
+    }
+
+    .tracklist-header, .track-row {
+        grid-template-columns: 40px 1fr 40px 80px;
+    }
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #ff2d55;
+    font-size: 1.5rem;
+    background-color: #121212;
+}
