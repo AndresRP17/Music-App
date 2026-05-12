@@ -10,7 +10,7 @@
 .hero-section {
     height: 350px;
     width: 100%;
- background: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.3)), 
+ background: linear-gradient(to right, rgba(0,0,0,0.8) 20%, rgba(0,0,0,0) 80%), 
                 url('https://preview.redd.it/whats-the-cover-art-for-after-hours-deluxe-shouldve-been-v0-dkxn9xp5n3u71.jpg?width=1080&crop=smart&auto=webp&s=d1acab865e34ea5471173493cdc0226b6fe40442');
     background-size: contain;
     background-position: center;
