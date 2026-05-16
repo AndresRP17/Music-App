@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-// 🆕 IMPORTS ADAPTADOS PARA EL GRÁFICO DE DONA/TORTA
+// IMPORTS PARA EL GRÁFICO DE DONA/TORTA
 import { Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
-  ArcElement, // Elemento esencial para los arcos de la torta
+  ArcElement,
   Tooltip,
   Legend
 } from "chart.js";
@@ -16,27 +16,25 @@ function Admin() {
   const [genres, setGenres] = useState([]);
   const [loadingChart, setLoadingChart] = useState(true);
 
-  // Estados para el buscador del Admin (Fijo para no romper tu buscador actual)
+  // Estados para el buscador del Admin
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState(null);
   const [loadingSearch, setLoadingSearch] = useState(false);
 
-  const proxyUrl = "https://corsproxy.io/?";
-
-  // EFFECT 1: Trae los géneros globales (¡Esta data NUNCA viene vacía!)
+  // EFFECT 1: Trae los géneros globales usando el proxy de Netlify (¡Siempre tiene data!)
   useEffect(() => {
     setLoadingChart(true);
-    const targetUrl = "https://api.deezer.com/genre";
+    const targetUrl = "/deezer/genre";
 
-    fetch(proxyUrl + encodeURIComponent(targetUrl))
+    fetch(targetUrl)
       .then((res) => res.json())
       .then((data) => {
         if (data && data.data) {
-          // Filtramos ID 0 ("All") y otros que no sean música pura para que quede más facha
+          // Filtramos categorías genéricas
           const cleanGenres = data.data.filter(
             (g) => g.name !== "All" && g.name !== "Audiobooks" && g.id !== 0
           );
-          // Nos quedamos con los primeros 7 para que el gráfico no se sature de porciones
+          // Nos quedamos con los primeros 7 para el gráfico
           setGenres(cleanGenres.slice(0, 7));
         }
         setLoadingChart(false);
@@ -47,21 +45,21 @@ function Admin() {
       });
   }, []);
 
-  // FUNCIÓN: Busca un artista para ver sus métricas de admin
+  // FUNCIÓN: Busca un artista usando ÚNICAMENTE el proxy interno de Netlify
   const handleAdminSearch = (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
 
     setLoadingSearch(true);
-    const searchUrl = `https://api.deezer.com/search/artist?q=${searchQuery}`;
+    const searchUrl = `/deezer/search/artist?q=${searchQuery}`;
 
-    fetch(proxyUrl + encodeURIComponent(searchUrl))
+    fetch(searchUrl)
       .then((res) => res.json())
       .then((data) => {
         if (data.data && data.data.length > 0) {
           const artistId = data.data[0].id;
-          const artistUrl = `https://api.deezer.com/artist/${artistId}`;
-          return fetch(proxyUrl + encodeURIComponent(artistUrl));
+          const artistUrl = `/deezer/artist/${artistId}`;
+          return fetch(artistUrl);
         }
         throw new Error("Artista no encontrado");
       })
@@ -77,10 +75,10 @@ function Admin() {
       });
   };
 
-  // 🆕 CONFIGURACIÓN DEL GRÁFICO DE DONA (DOUGHNUT)
+  // CONFIGURACIÓN DEL GRÁFICO DE DONA (DOUGHNUT)
   const chartLabels = genres.map((g) => g.name);
   
-  // Simulamos una métrica de distribución para renderizar las porciones (KPI del ecosistema)
+  // Métrica de distribución simulada para renderizar las porciones
   const baseValues = [35, 25, 18, 12, 10, 8, 5]; 
   const chartValues = baseValues.slice(0, genres.length);
 
@@ -92,14 +90,14 @@ function Admin() {
         data: chartValues,
         backgroundColor: [
           "#1db954", // Verde principal
-          "#128c3e", // Variaciones de verde y oscuros estéticos
-          "#0f6b30",
-          "#1ed760",
-          "#2ebd59",
-          "#1aa34a",
-          "#0b4d22"
+          "#d6e109", // Variaciones estéticas oscuras
+          "#051a67",
+          "#e70404",
+          "#be1588",
+          "#0e7187",
+          "#0c0c0c"
         ],
-        borderColor: "#121212", // Bordes oscuros para que se integre al fondo del Dashboard
+        borderColor: "#121212",
         borderWidth: 2,
       },
     ],
@@ -110,12 +108,12 @@ function Admin() {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: "bottom", // Mandamos la leyenda abajo
+        position: "bottom",
         labels: {
-          color: "#fff", // Letras blancas para el modo oscuro
+          color: "#fff",
           font: { size: 12, weight: "500" },
           padding: 15,
-          usePointStyle: true, // Bolitas en vez de cuadrados feos
+          usePointStyle: true,
         },
       },
       tooltip: {
@@ -131,7 +129,7 @@ function Admin() {
         }
       },
     },
-    cutout: "70%", // Hace que el centro sea más grande (estilo anillo moderno)
+    cutout: "70%",
   };
 
   return (
@@ -190,7 +188,7 @@ function Admin() {
           )}
         </section>
 
-        {/* COLUMNA DERECHA: INSPECTOR DE ARTISTAS (Tu buscador intacto) */}
+        {/* COLUMNA DERECHA: INSPECTOR DE ARTISTAS */}
         <section className="graph-section" style={{ margin: 0, display: "flex", flexDirection: "column" }}>
           <h2>🔍 Inspector de Datos</h2>
           <p className="graph-subtitle">Audita la metadata profunda de Deezer</p>
