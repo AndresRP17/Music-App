@@ -69,3 +69,204 @@
 .reproductor-cerrar:hover {
     color: #ff2d55;
 }
+
+
+/* ==========================================================================
+   ESTILOS FACHAS PARA EL PANEL DE ADMIN
+   ========================================================================== */
+
+.admin-dashboard-container {
+  font-family: system-ui, -apple-system, sans-serif;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #222;
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+}
+
+.admin-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0 0 5px 0;
+  background: linear-gradient(135deg, #fff 0%, #888 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.admin-header .subtitle {
+  color: #b3b3b3;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.status-badge {
+  background: rgba(29, 185, 84, 0.1);
+  color: #1db954;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  border: 1px solid rgba(29, 185, 84, 0.3);
+}
+
+/* Grilla de Tarjetas */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.stat-card {
+  background: #181818;
+  border: 1px solid #282828;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  border-color: #383838;
+}
+
+.stat-icon {
+  font-size: 1.8rem;
+  background: #222;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.stat-card h3 {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-number {
+  margin: 5px 0 0 0;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* Sección del Gráfico */
+.graph-section {
+  background: #181818;
+  border: 1px solid #282828;
+  border-radius: 16px;
+  padding: 30px;
+}
+
+.graph-section h2 {
+  margin: 0 0 5px 0;
+  font-size: 1.3rem;
+  color: #fff;
+}
+
+.graph-subtitle {
+  color: #aaa;
+  margin: 0 0 25px 0;
+  font-size: 0.9rem;
+}
+
+.loader {
+  color: #1db954;
+  font-weight: bold;
+  padding: 20px 0;
+}
+
+/* El Gráfico de Barras Custom */
+.custom-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.chart-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.track-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 280px; /* Ancho fijo para nombres de canciones */
+  flex-shrink: 0;
+}
+
+.rank-number {
+  font-weight: bold;
+  color: #1db954;
+  font-size: 1.1rem;
+  width: 25px;
+}
+
+.track-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.track-names {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.track-title {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-artist {
+  color: #aaa;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Contenedor y Animación de Barras */
+.bar-container {
+  flex-grow: 1;
+  background: #252525;
+  height: 24px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  background: linear-gradient(90deg, #1db954 0%, #1ed760 100%);
+  height: 100%;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  transition: width 1s cubic-bezier(0.1, 0.8, 0.2, 1);
+}
+
+.bar-label {
+  color: #000;
+  font-size: 0.75rem;
+  font-weight: bold;
+}

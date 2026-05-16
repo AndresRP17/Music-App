@@ -29,10 +29,17 @@ body {
 .detail-cover {
     width: 280px;
     height: 280px;
-    box-shadow: 0 15px 50px rgba(0,0,0,0.6);
+    box-shadow: 0 0px 20px rgba(250, 236, 236, 0.6);
     border-radius: 12px;
     object-fit: cover;
+    transition: transform 0.3s ease-in-out;
 }
+
+.detail-cover:hover {
+    transform: scale(1.05); /* Agranda suavemente sin dar vuelta la foto */
+    cursor: pointer;        /* De paso le pone la manito al mouse */
+}
+
 
 .header-info {
     flex: 1;
@@ -48,9 +55,9 @@ body {
 }
 
 .header-info h1 {
-    font-size: 4rem;
+    font-size: 3rem;
     margin: 5px 0 15px 0;
-    font-weight: 800;
+    font-weight: 600;
 }
 
 .album-metadata {
