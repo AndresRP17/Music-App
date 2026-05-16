@@ -99,7 +99,6 @@ function AlbumDetail({ setTrackActual }) {
             {albumInfo.tags?.tag?.length > 0 && (
               <span className="genre-tag"> • {albumInfo.tags.tag[0].name}</span>
             )}
-            <span className="extra-info"> • {albumInfo.tracks?.track?.length || 0} canciones</span>
           </div>
         </div>
       </header>
