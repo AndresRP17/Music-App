@@ -5,6 +5,8 @@ body {
     background-color: #121212;
 }
 
+
+
 /* --- CONTENEDOR PRINCIPAL --- */
 .album-detail-container {
     padding: 40px;
@@ -116,10 +118,75 @@ body {
     background: rgba(255, 255, 255, 0.05);
 }
 
+/* --- CONTENEDOR NUEVO (N° Y PLAY EN EL MISMO LUGAR) --- */
+.track-number-wrapper {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* El número visible por defecto */
 .track-number {
     color: #b3b3b3;
     font-size: 0.9rem;
+    opacity: 1;
+    transition: opacity 0.15s ease;
+    margin: 0
 }
+
+/* El botón circular de Play (arranca invisible y en el centro exacto) */
+.play-row-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    /* El translate(-50%, -50%) lo centra perfecto sin importar el tamaño del botón */
+    transform: translate(-50%, -50%) scale(0.8); 
+    background: transparent;
+    border: none;
+    color: #e4d9db; /* Rojo Apple Music directo */
+    font-size: 12px;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none; /* Desactivado para que no estorbe si no hay hover */
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ===================================================
+   ¡EFECTO HOVER ESTILO APPLE MUSIC! 
+   =================================================== */
+   
+/* Cuando pasas el mouse por la fila, el número se desvanece */
+.track-row:hover .track-number {
+    opacity: 0;
+}
+
+/* Al mismo tiempo, el botón de play aparece y toma su tamaño normal */
+.track-row:hover .play-row-btn {
+    opacity: 1;
+    pointer-events: auto; /* Habilitamos el click */
+    transform: translate(-50%, -50%) scale(1);
+    background: rgba(243, 241, 241, 0.1);
+    border-radius: 50%;
+    padding: 8px;
+}
+
+.play-row-btn:active {
+    transform: translate(-50%, -50%) scale(0.9);
+}
+
+/* Estilo sutil de cargando */
+.mini-spinner {
+    font-size: 11px;
+    color: #ff2d55;
+    font-weight: bold;
+}
+
 
 .track-name {
     font-weight: 500;
@@ -130,7 +197,7 @@ body {
     color: #b3b3b3;
     text-align: right;
     font-variant-numeric: tabular-nums;
-    margin-left: 80px;
+    margin-left: 0px;
 }
 
 /* --- BOTÓN PLAY YOUTUBE --- */
@@ -155,6 +222,8 @@ body {
 .btn-play-yt:hover {
     color: #ff4d4d;
 }
+
+
 
 /* --- SIDEBAR (WIKI) --- */
 .album-sidebar {

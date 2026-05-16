@@ -15,6 +15,7 @@ body {
 .container {
     display: flex;
     min-height: 100vh;
+    
 }
 
 /* --- SIDEBAR IZQUIERDO (FIJO) --- */
@@ -72,6 +73,8 @@ body {
     transform: translateX(8px);
     cursor: pointer;
 }
+
+
 
 /* --- CONTENIDO PRINCIPAL --- */
 .content {
@@ -147,9 +150,33 @@ audio {
     to { transform: translate(-50%, 0); opacity: 1; }
 }
 
+
+/* El estilo base de tus botones de menú */
+.menu-btn {
+    padding: 12px 20px;
+    color: #b3b3b3; /* Gris apagado cuando no está activo */
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+/* El estado cuando pasás el mouse por encima */
+.menu-btn:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* ==========================================
+   ¡ESTA ES LA MAGIA! 
+   El estilo que se va a quedar fijo cuando estés en Home 
+   ========================================== */
+
+
 /* Limpieza de links en el sidebar */
 .sidebar a {
     text-decoration: none;
     color: inherit;
     width: 100%;
 }
+

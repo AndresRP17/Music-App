@@ -1,7 +1,7 @@
 .search-input {
     width: 100%;
     max-width: 400px;
-    padding: 12px;
+    padding: 15px;
     margin-top: 10px;
     border-radius: 20px;
     border: 1px solid rgba(255,255,255,0.1);
@@ -9,6 +9,27 @@
     color: white;
     outline: none;
 }
+
+/* EL EFECTO FOCUS PARA TU BARRA DE BÚSQUEDA */
+.search-input:focus {
+    /* 1. Cambiamos el fondo a un blanco un toque más opaco para que se note activo */
+    background: rgba(255, 255, 255, 0.1);
+    
+    /* 2. El borde se ilumina pasando de opaco a blanco pleno (o el color que te guste) */
+    border-color: rgba(255, 255, 255, 0.6);
+    
+    /* 3. Una sombra muy sutil alrededor que acompaña la estética translúcida */
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+/* DETALLE EXTRA: Para que el cambio de color no sea brusco, 
+   agregale esta línea adentro de tu clase `.search-input` original */
+.search-input {
+    /* ... todo lo que ya tenías ... */
+    transition: all 0.3s ease; /* Hace que el destello del focus sea suave */
+}
+
+
 
 /* Contenedor principal de los resultados */
 .album-grid {
@@ -56,7 +77,6 @@
     color: #fff;
     /* Evita que nombres muy largos rompan la card */
     display: -webkit-box;
-    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -70,6 +90,9 @@
     text-decoration: none;
     color: inherit;
 }
+
+
+
 
 
 .filter-bar {

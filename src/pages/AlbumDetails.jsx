@@ -1,36 +1,99 @@
-import  { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { FaPlay } from 'react-icons/fa'; 
 import './AlbumDetails.css';
 
-function AlbumDetail() {
+function AlbumDetail({ setTrackActual }) {
   const { albumName, artistName } = useParams();
   const [albumInfo, setAlbumInfo] = useState(null);
+  const [trackCargando, setTrackCargando] = useState(null); 
 
-  useEffect(() => {
-    const fetchAlbumDetails = async () => {
-      try {
-        const response = await fetch(
-          `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=aa182e9e95ab101a5f7ae68eba441e09&artist=${encodeURIComponent(artistName)}&album=${encodeURIComponent(albumName)}&format=json`
-        );
-        const data = await response.json();
-        setAlbumInfo(data.album);
-      } catch (error) {
-        console.error("Error al traer el detalle:", error);
+useEffect(() => {
+  const fetchAlbumDetails = async () => {
+    try {
+      // 1. Normalizamos el nombre: le sacamos los espacios y barras para comparar
+      const nombreLimpio = artistName.toUpperCase().replace(/[\s/]/g, "");
+      
+      let artistaParaLastFm = artistName;
+
+      // 2. Si el usuario buscó "ACDC" o "AC/DC", forzamos el formato que Last.fm ama
+      if (nombreLimpio === "ACDC") {
+        artistaParaLastFm = "AC/DC"; 
       }
-    };
-    fetchAlbumDetails();
-  }, [albumName, artistName]);
 
+      // 3. Hacemos el fetch con el nombre que Last.fm sí entiende
+      
+const response = await fetch(
+  `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=aa182e9e95ab101a5f7ae68eba441e09&artist=${encodeURIComponent(artistaParaLastFm)}&album=${encodeURIComponent(albumName)}&format=json&autocorrect=1`
+);      
+      const data = await response.json();
+      
+      if (data.album) {
+        setAlbumInfo(data.album);
+      } else {
+        console.warn("Last.fm no encontró el álbum con ese formato de nombre.");
+      }
+    } catch (error) {
+      console.error("Error al traer el detalle:", error);
+    }
+  };
+  
+  if (artistName && albumName) {
+    fetchAlbumDetails();
+  }
+}, [albumName, artistName]);
+
+  // ==========================================
+// ==========================================
+  // ¡EL PUENTE CON DEEZER CORREGIDO CON PROXY Y FILTRO DE CARACTERES!
+  // ==========================================
+  const reproducirPista = async (trackName, index) => {
+    setTrackCargando(index); 
+    
+    try {
+      // 1. FILTRO DE CARACTERES: Limpiamos ideogramas chinos, japoneses y coreanos si existen
+      const trackLimpio = trackName.replace(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f\u1100-\u11ff\u3130-\u318f\uac00-\ud7af]/g, "").trim();
+
+      // 2. Armamos la búsqueda: Artista + la canción ya limpia de caracteres raros
+      const query = `${albumInfo.artist} ${trackLimpio}`;
+      
+      // 3. Le pegamos a Deezer pasando por el CORS proxy para que no tire error en Localhost
+      const urlDeezer = `https://api.deezer.com/search?q=${encodeURIComponent(query)}`;
+      const response = await fetch(`https://corsproxy.io/?${encodeURIComponent(urlDeezer)}`);
+      const data = await response.json();
+
+      // 4. Si Deezer encontró la canción...
+      if (data.data && data.data.length > 0) {
+        const trackEncontrado = data.data[0]; 
+
+        // Conseguimos la portada de Last.fm de forma segura
+        const portadaLastFm = albumInfo.image?.[2]?.['#text'] || 'https://via.placeholder.com/150';
+
+        // 5. Mandamos la data al reproductor global en App.jsx con el nombre limpio
+        setTrackActual({
+          title: trackLimpio, // Usamos el título limpio para que el reproductor abajo quede prolijo
+          artist: albumInfo.artist,
+          url: trackEncontrado.preview, // El MP3 de 30 segundos
+          cover: trackEncontrado.album?.cover_medium || portadaLastFm // Si falla Last.fm, usamos la de Deezer
+        });
+      } else {
+        alert(`No se encontró una vista previa de audio para "${trackLimpio}" en Deezer.`);
+      }
+    } catch (error) {
+      console.error("Error buscando en la API de Deezer:", error);
+      alert("Hubo un error al conectar con el servidor de audio.");
+    } finally {
+      setTrackCargando(null); 
+    }
+  };
 
   if (!albumInfo) return <div className="loading">Cargando...</div>;
 
   return (
     <div className="album-detail-container">
-      
-
       <header className="album-header">
         <img 
-          src={albumInfo.image[3]['#text'] || 'https://via.placeholder.com/300'} 
+          src={albumInfo.image?.[3]?.['#text'] || 'https://via.placeholder.com/300'} 
           alt={albumInfo.name} 
           className="detail-cover"
         />
@@ -42,7 +105,7 @@ function AlbumDetail() {
             {albumInfo.tags?.tag?.length > 0 && (
               <span className="genre-tag"> • {albumInfo.tags.tag[0].name}</span>
             )}
-            <span className="extra-info"> • {albumInfo.tracks?.track.length} canciones</span>
+            <span className="extra-info"> • {albumInfo.tracks?.track?.length || 0} canciones</span>
           </div>
         </div>
       </header>
@@ -52,28 +115,46 @@ function AlbumDetail() {
           <div className="tracklist-header">
             <span>#</span>
             <span>Título</span>
-            <span>
-              </span> {/* Espacio para el botón play */}
             <span className="text-right">Duración</span>
           </div>
           <hr />
           <div className="tracklist">
-            {albumInfo.tracks?.track.map((track, index) => (
-              <div key={index} className="track-row">
-               
-                <span className="track-number">{index + 1}</span>
-                
-                <span className="track-name">{track.name}</span>
-                
-                
-
-                <span className="track-duration">
-                  {Math.floor(track.duration / 60)}:{(track.duration % 60).toString().padStart(2, '0')}
+            {albumInfo.tracks?.track ? (
+              albumInfo.tracks.track.map((track, index) => (
+                <div key={index} className="track-row">
                   
-                </span>
-  
-              </div>
-            ))}
+                  {/* 1. COLUMNA NÚMERO Y PLAY UNIFICADOS */}
+                  <div className="track-number-wrapper">
+                    <span className="track-number">{index + 1}</span>
+                    <button 
+                      className="play-row-btn" 
+                      onClick={() => reproducirPista(track.name, index)}
+                      disabled={trackCargando === index}
+                    >
+                      {trackCargando === index ? (
+                        <span className="mini-spinner">...</span>
+                      ) : (
+                        <FaPlay />
+                      )}
+                    </button>
+                  </div>
+                  
+                  {/* 2. COLUMNA TÍTULO */}
+                  <span className="track-name">{track.name}</span>
+                  
+                  {/* 3. COLUMNA DURACIÓN */}
+                  <span className="track-duration">
+                    {track.duration 
+                      ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}`
+                      : "0:00"
+                    }
+                  </span>
+
+                </div>
+              ))
+            ) : (
+              <p className="no-tracks">No se encontraron canciones para este álbum.</p>
+            )}
           </div>
         </section>
 
@@ -84,7 +165,6 @@ function AlbumDetail() {
               <p className="wiki-text">
                 {albumInfo.wiki.summary.split('<a href')[0]}
               </p>
-              
             </div>
           ) : (
             <div className="wiki-card">
@@ -93,7 +173,6 @@ function AlbumDetail() {
           )}
         </aside>
       </div>
-
     </div>
   );
 }

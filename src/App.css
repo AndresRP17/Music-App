@@ -1,0 +1,71 @@
+/* --- REPRODUCTOR FIJO ABAJO --- */
+/* --- REPRODUCTOR FIJO ABAJO --- */
+.reproductor-fijo-abajo {
+    position: fixed;
+    bottom: 20px; /* Le di un aire abajo para que flote tipo isla, ya que tiene border-radius */
+    
+    /* EL TRUCO DE CENTRADO MÁGICO */
+    left: 60%;
+    transform: translateX(-50%);
+    
+    /* Hacemos que sea responsivo: un ancho máximo de 1000px, pero si la pantalla mide menos, usa el 90% */
+    width: 50%;
+    max-width: 1000px; 
+    
+    background-color: #1c1c1e;
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Cambié border-top por border completo para que cierre el diseño de isla */
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    z-index: 999;
+    border-radius: 20px;
+    justify-content: space-between; /* Volví a space-between para que la info vaya a la izquierda, el reproductor al medio y cerrar a la derecha */
+}
+
+.reproductor-info-tema {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-width: 250px;
+}
+
+.reproductor-portada {
+    width: 50px;
+    height: 50px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.reproductor-titulo {
+    margin: 0 0 4px 0;
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.reproductor-artista {
+    margin: 0;
+    color: #b3b3b3;
+    font-size: 0.8rem;
+}
+
+.reproductor-audio {
+    flex: 1;
+    max-width: 600px;
+    height: 50px;
+    
+}
+
+.reproductor-cerrar {
+    background: none;
+    border: none;
+    color: #b3b3b3;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 10px;
+}
+
+.reproductor-cerrar:hover {
+    color: #ff2d55;
+}
