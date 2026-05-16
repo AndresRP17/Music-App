@@ -50,34 +50,27 @@ const response = await fetch(
   const reproducirPista = async (trackName, index) => {
     setTrackCargando(index); 
     
-  try {
-    // 1. FILTRO DE CARACTERES: Limpiamos ideogramas chinos, japoneses y coreanos si existen
+try {
+    // 1. FILTRO DE CARACTERES ASIÁTICOS (mantenemos tu lindo filtro)
     const trackLimpio = trackName.replace(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f\u1100-\u11ff\u3130-\u318f\uac00-\ud7af]/g, "").trim();
 
-    // 2. Armamos la búsqueda: Artista + la canción ya limpia de caracteres raros
+    // 2. Armamos la consulta
     const query = `${albumInfo.artist} ${trackLimpio}`;
     
-    // 3. Le pegamos a Deezer pasando por el proxy AllOrigins (este no bloquea a Netlify para nada)
-    const urlDeezer = `https://api.deezer.com/search?q=${encodeURIComponent(query)}`;
-    const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(urlDeezer)}`);
-    const dataJson = await response.json();
-    
-    // IMPORTANTE: AllOrigins mete la respuesta original como un string dentro de ".contents", hay que parsearla
-    const data = JSON.parse(dataJson.contents);
+    // 3. 🚀 EL CAMBIO CLAVE: Le pegamos a nuestra propia ruta local de Netlify
+    const response = await fetch(`/deezer/search?q=${encodeURIComponent(query)}`);
+    const data = await response.json(); // Acá la data ya viene directa y limpia, sin `.contents`
 
     // 4. Si Deezer encontró la canción...
     if (data.data && data.data.length > 0) {
       const trackEncontrado = data.data[0]; 
-
-      // Conseguimos la portada de Last.fm de forma segura
       const portadaLastFm = albumInfo.image?.[2]?.['#text'] || 'https://via.placeholder.com/150';
 
-      // 5. Mandamos la data al reproductor global en App.jsx con el nombre limpio
       setTrackActual({
-        title: trackLimpio, // Usamos el título limpio para que el reproductor abajo quede prolijo
+        title: trackLimpio,
         artist: albumInfo.artist,
-        url: trackEncontrado.preview, // El MP3 de 30 segundos
-        cover: trackEncontrado.album?.cover_medium || portadaLastFm // Si falla Last.fm, usamos la de Deezer
+        url: trackEncontrado.preview, 
+        cover: trackEncontrado.album?.cover_medium || portadaLastFm 
       });
     } else {
       alert(`No se encontró una vista previa de audio para "${trackLimpio}" en Deezer.`);
@@ -88,7 +81,6 @@ const response = await fetch(
   } finally {
     setTrackCargando(null); 
   }
-  };
 
   if (!albumInfo) return <div className="loading">Cargando...</div>;
 
