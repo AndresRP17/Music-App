@@ -99,6 +99,7 @@
     z-index: 10;
     line-height: 0;
     padding-bottom: 6px; /* Ajuste óptico de la flecha */
+    padding-right: 3px;
 }
 
 .hero-arrow:hover {
@@ -110,7 +111,7 @@
 
 .arrow-left {
     position: absolute;
-    left: 20px;
+    left: -5px;
 }
 
 .arrow-right {
