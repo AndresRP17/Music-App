@@ -8,7 +8,8 @@ function AlbumDetail({ setTrackActual }) {
   const { albumName, artistName } = useParams();
   const [albumInfo, setAlbumInfo] = useState(null);
   const [trackCargando, setTrackCargando] = useState(null); 
-  const [guardandoTrack, setGuardandoTrack] = useState(null); // <-- NUEVO ESTADO
+  const [cancionesGuardadas, setCancionesGuardadas] = useState([]);
+  const [guardandoTrack, setGuardandoTrack] = useState(null);
 
   useEffect(() => {
     const fetchAlbumDetails = async () => {
@@ -123,6 +124,11 @@ function AlbumDetail({ setTrackActual }) {
     const resultado = await response.json();
 
     if (response.ok) {
+       setCancionesGuardadas(prev => [
+  ...prev,
+  `${albumInfo.artist}-${track.name}`
+]);
+
       alert(`¡"${track.name}" se guardó en tus favoritos de la base de datos!`);
     } else {
       alert(`Error del servidor: ${resultado.message || 'No se pudo guardar.'}`);
@@ -133,9 +139,43 @@ function AlbumDetail({ setTrackActual }) {
   } finally {
     setGuardandoTrack(null);
   }
+
+
+useEffect(() => {
+
+  const obtenerFavoritos = async () => {
+
+    try {
+
+      const response = await fetch('http://localhost:8086/favorites');
+      const data = await response.json();
+
+      const canciones = data.map(c =>
+        `${c.artist}-${c.title}`
+      );
+
+      setCancionesGuardadas(canciones);
+
+    } catch (error) {
+
+      console.error(error);
+
+    }
+
+  };
+
+  obtenerFavoritos();
+
+}, []);
+
+
+
+
+
+
+
+
 };
-
-
   return (
     <div className="album-detail-container">
       <header className="album-header">
@@ -200,11 +240,18 @@ function AlbumDetail({ setTrackActual }) {
                 <button 
                   className="add-playlist-btn"
                   onClick={() => agregarAFavoritos(track, index)}
-                  disabled={guardandoTrack === index}
+                  disabled={
+                    guardandoTrack === index || 
+                    cancionesGuardadas.includes(
+                  `${albumInfo.artist}-${track.name}`
+                  )
+                  }
                   title="Agregar a la playlist"
                 >
                   {guardandoTrack === index ? (
                     <span className="mini-spinner">...</span>
+                  ) : cancionesGuardadas.includes(index) ? (
+                    "✓"
                   ) : (
                     <FaPlus />
                   )}
@@ -235,6 +282,6 @@ function AlbumDetail({ setTrackActual }) {
       </div>
     </div>
   );
-} // <--- Cierre correcto de la función AlbumDetail
+} 
 
 export default AlbumDetail;

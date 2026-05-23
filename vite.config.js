@@ -12,11 +12,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/deezer/, ''),
       },
-      // NUEVO: El proxy para TU backend de PHP
-      '/favorites': {
-        target: 'http://localhost:8080',
+      // CONFIGURACIÓN CORREGIDA: Captura todo lo que vaya a tu backend
+      '/api': {
+        target: 'http://localhost:8086', // Asegúrate de usar el puerto real de tu backend (en tu error salía 8086)
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''), // Le quita el '/api' antes de mandarlo a PHP
+        rewrite: (path) => path.replace(/^\/api/, ''), // Quita el '/api' antes de enviarlo a PHP
       },
     },
   },

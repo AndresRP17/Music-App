@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import { FaPlay } from 'react-icons/fa';
-import { FaRegTrashAlt } from 'react-icons/fa';
+import { MdDelete } from "react-icons/md";
+
 import './Playlist.css';
 
 const Playlist = ({ setTrackActual }) => {
+  // Devolvemos los estados aquí adentro para que App.jsx quede limpio
   const [cancionesFavoritas, setCancionesFavoritas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [trackCargando, setTrackCargando] = useState(null); 
+  const [favoritosIds, setFavoritosIds] = useState([]);
 
+  // 1. FUNCIÓN PARA OBTENER LOS FAVORITOS
   const obtenerFavoritos = async () => {
     try {
       const response = await fetch('http://localhost:8086/favorites', {
@@ -28,10 +32,31 @@ const Playlist = ({ setTrackActual }) => {
     }
   };
 
+  // 2. EFECTO PARA TRAER LOS DATOS AL CARGAR EL COMPONENTE
   useEffect(() => {
     obtenerFavoritos();
   }, []);
 
+  // 3. FUNCIÓN PARA ELIMINAR CANCIÓN (Ubicada correctamente antes del return de carga)
+  const eliminarCancion = async (id) => {
+    try {
+      const response = await fetch(`/api/favorites/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        setCancionesFavoritas(prev =>
+          prev.filter(c => c.id !== id)
+        );
+      } else {
+        console.error("No se pudo eliminar");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  // 4. FUNCIÓN PARA REPRODUCIR PISTA EN DEEZER
   const reproducirPista = async (cancion, index) => {
     setTrackCargando(index); 
     try {
@@ -57,6 +82,7 @@ const Playlist = ({ setTrackActual }) => {
     }
   };
 
+  // VISTA DE CARGA (React Hooks listos arriba, ahora sí podemos hacer returns condicionales)
   if (cargando) {
     return (
       <div className="playlist-loading-view">
@@ -65,6 +91,7 @@ const Playlist = ({ setTrackActual }) => {
     );
   }
 
+  // RENDER PRINCIPAL DE LA PLAYLIST
   return (
     <div className="playlist-container">
       <header className="playlist-header">
@@ -72,7 +99,8 @@ const Playlist = ({ setTrackActual }) => {
         <p className="playlist-subtitle">Tu colección de música personalizada</p>
       </header>
 
-      {cancionesFavoritas.length === 0 ? (
+      {/* Protección con cortocircuito: si por alguna razón es undefined, usa un array vacío */}
+      {(cancionesFavoritas || []).length === 0 ? (
         <div className="playlist-no-songs">
           <h2>Aquí aparecerán tus canciones</h2>
           <p>No tienes favoritos agregados todavía. ¡Explora álbumes para sumar música!</p>
@@ -89,9 +117,8 @@ const Playlist = ({ setTrackActual }) => {
           <hr />
 
           <div className="tracklist">
-            {cancionesFavoritas.map((cancion, index) => {
-              // SEPARACIÓN INTELIGENTE: Si el título viene mezclado (Ej: "The Trooper - Piece of Mind")
-              // lo cortamos por el guion para mandar el álbum a su columna correspondiente.
+            {(cancionesFavoritas || []).map((cancion, index) => {
+              // SEPARACIÓN INTELIGENTE: Si el título viene mezclado por un guion
               let tituloLimpio = cancion.title;
               let albumDetectado = cancion.album || "—";
 
@@ -115,7 +142,7 @@ const Playlist = ({ setTrackActual }) => {
                       {trackCargando === index ? (
                         <span className="mini-spinner">...</span>
                       ) : (
-                        <FaPlay style={{ fontSize: '9px', marginLeft: '1px' }} />
+                        <FaPlay style={{ fontSize: '15px', marginLeft: '1px' }} />
                       )}
                     </button>
                   </div>
@@ -126,20 +153,28 @@ const Playlist = ({ setTrackActual }) => {
                     <span className="playlist-artist-name">{cancion.artist}</span>
                   </div>
 
-                  {/* 3. ÁLBUM (En columna propia) */}
+                  {/* 3. ÁLBUM */}
                   <span className="playlist-album-name">
                     {albumDetectado}
                   </span>
 
-             {/* 4. DURACIÓN */}
-<span className="playlist-track-duration">
-  {cancion.duration 
-    ? `${Math.floor(cancion.duration / 60)}:${(cancion.duration % 60).toString().padStart(2, '0')}`
-    : "0:00"
-  }
-</span>
+                  {/* 4. DURACIÓN */}
+                  <span className="playlist-track-duration">
+                    {cancion.duration 
+                      ? `${Math.floor(cancion.duration / 60)}:${(cancion.duration % 60).toString().padStart(2, '0')}`
+                      : "0:00"
+                    }
+                  </span>
 
-</div>
+                  {/* 5. BOTÓN ELIMINAR */}
+                  <button
+                    className="playlist-delete-btn"
+                    onClick={() => eliminarCancion(cancion.id)}
+                  >
+                    <MdDelete/>
+                  </button>
+
+                </div>
               );
             })}
           </div>

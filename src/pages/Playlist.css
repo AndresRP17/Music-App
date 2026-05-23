@@ -33,14 +33,14 @@
 /* Sección de la grilla */
 .playlist-tracklist-section {
     width: 100%;
-    max-width: 1300px;
+    max-width: 1100px;
     margin: 0 auto;
 }
 
 /* Distribución exacta Apple: N° fijo, Título amplio, Álbum balanceado, Duración fija */
 .playlist-tracklist-header, .playlist-track-row {
     display: grid;
-    grid-template-columns: 50px 2.5fr 1.5fr 100px; 
+    grid-template-columns: 40px 0.5fr 0.5fr 40px 60px; 
     padding: 14px 12px;
     align-items: center;
 }
@@ -94,9 +94,9 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(0.85); 
-    background: transparent;
+    background: white;
     border: none;
-    color: #e4d9db; 
+    color: #1e0409; 
     font-size: 11px;
     cursor: pointer;
     opacity: 0;
@@ -118,11 +118,13 @@
     transform: translate(-50%, -50%) scale(1);
     background: rgba(255, 255, 255, 0.1);
     border-radius: 50%;
-    padding: 9px;
 }
 
+
+
 .playlist-play-row-btn:active {
-    transform: translate(-50%, -50%) scale(0.9);
+    font-size: 1.9rem;
+    transform: translate(-50%, -50%) scale(1.9);
     background: rgba(255, 255, 255, 0.18);
 }
 
@@ -130,8 +132,6 @@
 .playlist-meta-container {
     display: flex;
     flex-direction: column;
-    gap: 3px;
-    padding-right: 20px;
 }
 
 .playlist-track-name {
@@ -155,7 +155,6 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-right: 20px;
 }
 
 /* --- COLUMNA 4: DURACIÓN --- */
@@ -169,7 +168,7 @@
 
 /* Spinner sutil de carga */
 .mini-spinner {
-    font-size: 10px;
+    font-size: 20px;
     color: #ff2d55; /* Toque rojo Apple */
     font-weight: bold;
 }
@@ -204,4 +203,48 @@
     color: #ff2d55;
     font-size: 1.4rem;
     background-color: #121212;
+}
+
+
+/* --- COLUMNA 5: BOTÓN ELIMINAR --- */
+.playlist-actions-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.playlist-delete-btn {
+    background: transparent;
+    border: none;
+    color: #8a8a8f; /* El gris de Apple que ya usas */
+    cursor: pointer;
+    font-size: 1.4rem;
+    padding: 6px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.12s ease;
+    height: 40px;
+    width: 50px;
+    
+    /* Efecto Apple: oculto por defecto, aparece en hover */
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Cuando pasas el mouse por la fila, el botón aparece */
+.playlist-track-row:hover .playlist-delete-btn {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Feedback visual al interactuar con el botón */
+.playlist-delete-btn:hover {
+    color: #ff453a; /* Rojo brillante del sistema de Apple (iOS Dark Mode) */
+    background: rgba(226, 189, 187, 0.1); /* Fondo rojo sutil */
+}
+
+.playlist-delete-btn:active {
+    transform: scale(0.52);
 }
