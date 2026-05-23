@@ -81,7 +81,7 @@ function AlbumDetail({ setTrackActual }) {
     } finally {
       setTrackCargando(null); 
     }
-  }; // <--- AQUÍ FALTABA ESTE CIERRE DE LA FUNCIÓN reproducirPista
+  }; 
 
   if (!albumInfo) return <div className="loading">Cargando...</div>;
 ///////////////////////////
@@ -93,25 +93,32 @@ function AlbumDetail({ setTrackActual }) {
  const agregarAFavoritos = async (track, index) => {
   setGuardandoTrack(index);
 
+
   try {
     // 1. Extraemos los strings de la API de Last.fm y armamos nuestro propio objeto limpio
     const cancionFavorita = {
-      usuario_id: 1, // Por ahora fijo, luego usarás el ID del usuario logueado
+      
       title: track.name,
       artist: albumInfo.artist,
       album: albumInfo.name,
       duration: track.duration ? parseInt(track.duration) : 0,
-      cover_url: albumInfo.image?.[2]?.['#text'] || 'https://via.placeholder.com/150'
+      genre: albumInfo.tags?.tag?.[0]?.name || "Unknown"
     };
 
     // 2. Se lo enviamos al backend por POST
-    const response = await fetch('http://localhost:8080/api/favoritos/agregar', { // Reemplaza por tu URL de backend
+    const response = await fetch('http://localhost:8086/favorites', { // Reemplaza por tu URL de backend
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(cancionFavorita) // Transformamos el objeto a texto para el viaje
     });
+
+    if (!response.ok) {
+  const textoError = await response.text();
+  console.error("El servidor respondió con error HTML:", textoError);
+  return;
+}
 
     const resultado = await response.json();
 
@@ -192,7 +199,7 @@ function AlbumDetail({ setTrackActual }) {
                     {/* 4. COLUMNA AGREGAR A PLAYLIST (NUEVO) */}
                 <button 
                   className="add-playlist-btn"
-                  onClick={() => agregarAPlaylist(track, index)}
+                  onClick={() => agregarAFavoritos(track, index)}
                   disabled={guardandoTrack === index}
                   title="Agregar a la playlist"
                 >
