@@ -1,0 +1,207 @@
+/* ==========================================================================
+   PLAYLIST VIEW - APPLE MUSIC LUXURY MINIMAL DESIGN
+   ========================================================================== */
+
+.playlist-container {
+    padding: 40px;
+    min-height: 100vh;
+    color: white;
+    width: 100%;
+    background: linear-gradient(to bottom, #1e1e1e 0%, #121212 100%);
+    box-sizing: border-box;
+}
+
+/* Encabezado limpio */
+.playlist-header {
+    margin-bottom: 40px;
+    padding-top: 20px;
+}
+
+.playlist-header h1 {
+    font-size: 2.8rem;
+    margin: 5px 0 8px 0;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+.playlist-subtitle {
+    color: #b3b3b3;
+    font-size: 1.05rem;
+    font-weight: 400;
+}
+
+/* Sección de la grilla */
+.playlist-tracklist-section {
+    width: 100%;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+/* Distribución exacta Apple: N° fijo, Título amplio, Álbum balanceado, Duración fija */
+.playlist-tracklist-header, .playlist-track-row {
+    display: grid;
+    grid-template-columns: 50px 2.5fr 1.5fr 100px; 
+    padding: 14px 12px;
+    align-items: center;
+}
+
+.playlist-tracklist-header {
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    letter-spacing: 1.2px;
+}
+
+.playlist-tracklist-section hr {
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 12px;
+    margin-top: 4px;
+}
+
+/* Filas ultra suaves al pasar el mouse */
+.playlist-track-row {
+    transition: background-color 0.15s ease;
+    border-radius: 6px;
+}
+
+.playlist-track-row:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+/* --- COLUMNA 1: CONTENEDOR N° Y PLAY COMBINADOS --- */
+.playlist-track-number-wrapper {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.playlist-track-number {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.95rem;
+    font-weight: 500;
+    opacity: 1;
+    transition: opacity 0.12s ease;
+}
+
+/* Botón circular translúcido de Apple Music */
+.playlist-play-row-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.85); 
+    background: transparent;
+    border: none;
+    color: #e4d9db; 
+    font-size: 11px;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none; 
+    transition: all 0.12s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Interacción del Hover del botón */
+.playlist-track-row:hover .playlist-track-number {
+    opacity: 0;
+}
+
+.playlist-track-row:hover .playlist-play-row-btn {
+    opacity: 1;
+    pointer-events: auto; 
+    transform: translate(-50%, -50%) scale(1);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    padding: 9px;
+}
+
+.playlist-play-row-btn:active {
+    transform: translate(-50%, -50%) scale(0.9);
+    background: rgba(255, 255, 255, 0.18);
+}
+
+/* --- COLUMNA 2: TÍTULO Y ARTISTA --- */
+.playlist-meta-container {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding-right: 20px;
+}
+
+.playlist-track-name {
+    font-weight: 500;
+    color: #ffffff;
+    font-size: 0.98rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.playlist-artist-name {
+    font-size: 0.86rem;
+    color: #8a8a8f; /* Gris característico de Apple */
+}
+
+/* --- COLUMNA 3: ÁLBUM --- */
+.playlist-album-name {
+    font-size: 0.92rem;
+    color: #8a8a8f;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 20px;
+}
+
+/* --- COLUMNA 4: DURACIÓN --- */
+.playlist-track-duration {
+    color: rgba(255, 255, 255, 0.4);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.92rem;
+    padding-right: 4px;
+}
+
+/* Spinner sutil de carga */
+.mini-spinner {
+    font-size: 10px;
+    color: #ff2d55; /* Toque rojo Apple */
+    font-weight: bold;
+}
+
+/* Estado sin datos */
+.playlist-no-songs {
+    background: rgba(255, 255, 255, 0.02);
+    padding: 50px 30px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    text-align: center;
+    max-width: 450px;
+    margin: 80px auto 0 auto;
+}
+
+.playlist-no-songs h2 {
+    color: #fff;
+    font-size: 1.35rem;
+    margin-bottom: 8px;
+}
+
+.playlist-no-songs p {
+    color: #8a8a8f;
+    font-size: 0.92rem;
+}
+
+.playlist-loading-view {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #ff2d55;
+    font-size: 1.4rem;
+    background-color: #121212;
+}

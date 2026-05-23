@@ -1,12 +1,12 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"; // 💡 Agregamos Navigate por comodidad
 import { useState } from "react";
 
 import './App.css'
 import LayoutCliente from "./componentes/ClienteLayout";
-import LayoutAdmin from "./componentes/AdminLayout"; // 🆕 Importamos el Layout de Admin
+import LayoutAdmin from "./componentes/AdminLayout"; 
 import Home from "./pages/Home";
 import Search from "./pages/Search";
-import Playlists from "./pages/Playlists";
+import Playlist from "./pages/Playlists"; // 👈 Asegúrate de que tu archivo Playlists.jsx tenga abajo "export default Playlist;"
 import AlbumDetail from "./pages/AlbumDetails";
 import Admin from "./pages/Admin";
 
@@ -21,12 +21,17 @@ function App() {
         <Route element={<LayoutCliente trackActual={trackActual} setTrackActual={setTrackActual} />}>
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<Search />} />
-          <Route path="/playlist" element={<Playlists />} />
+          
+          {/* Tu ruta original en plural */}
+          <Route path="/playlists" element={<Playlist setTrackActual={setTrackActual} />} />
+          
+          {/* 💡 COMODÍN: Si escribes /playlist en singular, te lleva automáticamente a /playlists sin romper la app */}
+          <Route path="/playlist" element={<Navigate to="/playlists" replace />} />
+          
           <Route path="/album/:albumName/:artistName" element={<AlbumDetail setTrackActual={setTrackActual} />} />
         </Route>
 
         {/* ================= ZONA ADMIN ================= */}
-        {/* 🆕 Ahora las rutas de admin también tienen su propio diseño estructural */}
         <Route element={<LayoutAdmin />}>
           <Route path="/admin" element={<Admin />} />
         </Route>
