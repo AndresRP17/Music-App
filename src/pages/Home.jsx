@@ -2,18 +2,17 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
-// 🚀 ACÁ MANEJÁS VOS LA HOME: Cambiá, sumá o sacá los discos que quieras por género
 const MIS_ÁLBUMES_ELEGIDOS = {
-  // 🔥 NUEVA LISTA PERSONALIZADA PARA EL TOP GLOBAL
   global: [
     { name: "Thriller", artist: "Michael Jackson" },
     { name: "Abbey Road", artist: "The Beatles" },
     { name: "The Dark Side of the Moon", artist: "Pink Floyd" },
     { name: "Seventh son of the seventh son", artist: "Iron Maiden" },
     { name: "Somewhere in Time", artist: "Iron Maiden" },
+    { name: "Peace sells... but whos buying?", artist: "Megadeth" },
     { name: "Master of Puppets", artist: "Metallica" },
     { name: "Discovery", artist: "Daft Punk" },
-    {name: "Debí tirar más fotos", artist:"Bad Bunny"},
+    {name: "Debí tirar más fotos", artist:"Bad Bunny"}
   ],
   rock: [
     { name: "Back in Black", artist: "AC/DC" },
@@ -38,7 +37,6 @@ const MIS_ÁLBUMES_ELEGIDOS = {
     { name: "Nightmare", artist: "Avenged Sevenfold" },
     { name: "Paranoid", artist: "Black Sabbath" },
     { name: "The Number of the Beast", artist: "Iron Maiden" },
-    { name: "Peace sells... but whos buying?", artist: "Megadeth" },
     { name: "Master of Puppets", artist: "Metallica" },
     { name: "Rust in Peace", artist: "Megadeth" },
     { name: "British Steel", artist: "Judas Priest" },
@@ -182,7 +180,6 @@ function Home() {
           return Promise.all(promesas);
         };
 
-        // 🚀 AHORA TAMBIÉN BUSCAMOS TU LISTA "GLOBAL" PERSONALIZADA
         const [globalData, rockData, metalData, rnbData, popData] = await Promise.all([
           obtenerInfoPersonalizada(MIS_ÁLBUMES_ELEGIDOS.global),
           obtenerInfoPersonalizada(MIS_ÁLBUMES_ELEGIDOS.rock),
@@ -191,7 +188,7 @@ function Home() {
           obtenerInfoPersonalizada(MIS_ÁLBUMES_ELEGIDOS.pop)
         ]);
 
-        setTopAlbums(globalData); // Guardamos tu lista en el mismo estado
+        setTopAlbums(globalData); 
         setRockAlbums(rockData);
         setMetalAlbums(metalData);
         setRnbAlbums(rnbData);
@@ -262,7 +259,6 @@ function Home() {
   return (
     <div className="home-container">
       
-      {/* SECCIÓN HERO DINÁMICA CON FLECHAS */}
       <section 
         className="hero-section" 
         onClick={() => navigate(albumHeroActual.link)}
@@ -284,7 +280,6 @@ function Home() {
         <button className="hero-arrow arrow-right" onClick={siguienteHero} style={{ zIndex: 10 }}>›</button>
       </section>
 
-      {/* 🛠️ ACÁ CAMBIAMOS EL TÍTULO VISUAL A "Top Global Seleccionado" u otro que te guste */}
       {renderSection("Top Global Seleccionado", topAlbums, topRef)}
       {renderSection("Rock Internacional", rockAlbums, rockRef)}
       {renderSection("Puro Metal", metalAlbums, metalRef)}
@@ -295,3 +290,4 @@ function Home() {
 }
 
 export default Home;
+

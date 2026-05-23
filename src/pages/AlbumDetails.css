@@ -349,3 +349,21 @@ body {
     font-size: 1.5rem;
     background-color: #121212;
 }
+
+.add-playlist-btn {
+  background: none;
+  border: none;
+  color: #fff; /* o el color de tu tema */
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 8px;
+}
+
+.add-playlist-btn:hover:not(:disabled) {
+  color: #1db954; /* Un verde estilo Spotify, por ejemplo */
+}
+
+.add-playlist-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

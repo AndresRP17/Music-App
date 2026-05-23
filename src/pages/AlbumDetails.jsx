@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { FaPlay } from 'react-icons/fa'; 
+import { FaPlay, FaPlus } from 'react-icons/fa'; 
 import './AlbumDetails.css';
+
 
 function AlbumDetail({ setTrackActual }) {
   const { albumName, artistName } = useParams();
   const [albumInfo, setAlbumInfo] = useState(null);
   const [trackCargando, setTrackCargando] = useState(null); 
+  const [guardandoTrack, setGuardandoTrack] = useState(null); // <-- NUEVO ESTADO
 
   useEffect(() => {
     const fetchAlbumDetails = async () => {
@@ -43,7 +45,7 @@ function AlbumDetail({ setTrackActual }) {
   }, [albumName, artistName]);
 
   // ==========================================
-  // ¡EL PUENTE CON DEEZER CORREGIDO CON PROXY Y FILTRO DE CARACTERES!
+  
   // ==========================================
   const reproducirPista = async (trackName, index) => {
     setTrackCargando(index); 
@@ -82,6 +84,50 @@ function AlbumDetail({ setTrackActual }) {
   }; // <--- AQUÍ FALTABA ESTE CIERRE DE LA FUNCIÓN reproducirPista
 
   if (!albumInfo) return <div className="loading">Cargando...</div>;
+///////////////////////////
+
+
+  // ==========================================
+  // LÓGICA PARA GUARDAR EN LA BASE DE DATOS
+  // ==========================================
+ const agregarAFavoritos = async (track, index) => {
+  setGuardandoTrack(index);
+
+  try {
+    // 1. Extraemos los strings de la API de Last.fm y armamos nuestro propio objeto limpio
+    const cancionFavorita = {
+      usuario_id: 1, // Por ahora fijo, luego usarás el ID del usuario logueado
+      title: track.name,
+      artist: albumInfo.artist,
+      album: albumInfo.name,
+      duration: track.duration ? parseInt(track.duration) : 0,
+      cover_url: albumInfo.image?.[2]?.['#text'] || 'https://via.placeholder.com/150'
+    };
+
+    // 2. Se lo enviamos al backend por POST
+    const response = await fetch('http://localhost:8080/api/favoritos/agregar', { // Reemplaza por tu URL de backend
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(cancionFavorita) // Transformamos el objeto a texto para el viaje
+    });
+
+    const resultado = await response.json();
+
+    if (response.ok) {
+      alert(`¡"${track.name}" se guardó en tus favoritos de la base de datos!`);
+    } else {
+      alert(`Error del servidor: ${resultado.message || 'No se pudo guardar.'}`);
+    }
+  } catch (error) {
+    console.error("Error al conectar con el backend:", error);
+    alert("Hubo un error de red al intentar guardar la canción.");
+  } finally {
+    setGuardandoTrack(null);
+  }
+};
+
 
   return (
     <div className="album-detail-container">
@@ -142,6 +188,20 @@ function AlbumDetail({ setTrackActual }) {
                       : "0:00"
                     }
                   </span>
+
+                    {/* 4. COLUMNA AGREGAR A PLAYLIST (NUEVO) */}
+                <button 
+                  className="add-playlist-btn"
+                  onClick={() => agregarAPlaylist(track, index)}
+                  disabled={guardandoTrack === index}
+                  title="Agregar a la playlist"
+                >
+                  {guardandoTrack === index ? (
+                    <span className="mini-spinner">...</span>
+                  ) : (
+                    <FaPlus />
+                  )}
+                </button>
 
                 </div>
               ))
