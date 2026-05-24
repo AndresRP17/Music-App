@@ -4,7 +4,7 @@ import { FaPlay, FaPlus } from 'react-icons/fa';
 import './AlbumDetails.css';
 
 
-function AlbumDetail({ setTrackActual }) {
+function AlbumDetails({ setTrackActual }) {
   const { albumName, artistName } = useParams();
   const [albumInfo, setAlbumInfo] = useState(null);
   const [trackCargando, setTrackCargando] = useState(null); 
@@ -14,17 +14,14 @@ function AlbumDetail({ setTrackActual }) {
   useEffect(() => {
     const fetchAlbumDetails = async () => {
       try {
-        // 1. Normalizamos el nombre: le sacamos los espacios y barras para comparar
         const nombreLimpio = artistName.toUpperCase().replace(/[\s/]/g, "");
         
         let artistaParaLastFm = artistName;
 
-        // 2. Si el usuario buscó "ACDC" o "AC/DC", forzamos el formato que Last.fm ama
         if (nombreLimpio === "ACDC") {
           artistaParaLastFm = "AC/DC"; 
         }
 
-        // 3. Hacemos el fetch con el nombre que Last.fm sí entiende
         const response = await fetch(
           `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=aa182e9e95ab101a5f7ae68eba441e09&artist=${encodeURIComponent(artistaParaLastFm)}&album=${encodeURIComponent(albumName)}&format=json&autocorrect=1`
         );      
@@ -45,24 +42,32 @@ function AlbumDetail({ setTrackActual }) {
     }
   }, [albumName, artistName]);
 
-  // ==========================================
-  
-  // ==========================================
+  // ✅ FIX #1: useEffect para cargar favoritos movido al nivel del componente
+  // (antes estaba atrapado DENTRO de agregarAFavoritos, por eso nunca se ejecutaba)
+  useEffect(() => {
+    const obtenerFavoritos = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/favorites`);
+        const data = await response.json();
+        const canciones = data.map(c => `${c.artist}-${c.title}`);
+        setCancionesGuardadas(canciones);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    obtenerFavoritos();
+  }, [albumInfo]);
+
   const reproducirPista = async (trackName, index) => {
     setTrackCargando(index); 
     
     try {
-      // 1. FILTRO DE CARACTERES ASIÁTICOS
       const trackLimpio = trackName.replace(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f\u1100-\u11ff\u3130-\u318f\uac00-\ud7af]/g, "").trim();
-
-      // 2. Armamos la consulta
       const query = `${albumInfo.artist} ${trackLimpio}`;
       
-      // 3. 🚀 EL CAMBIO CLAVE: Le pegamos a nuestra propia ruta local de Netlify
       const response = await fetch(`/deezer/search?q=${encodeURIComponent(query)}`);
       const data = await response.json(); 
 
-      // 4. Si Deezer encontró la canción...
       if (data.data && data.data.length > 0) {
         const trackEncontrado = data.data[0]; 
         const portadaLastFm = albumInfo.image?.[2]?.['#text'] || 'https://via.placeholder.com/150';
@@ -85,97 +90,54 @@ function AlbumDetail({ setTrackActual }) {
   }; 
 
   if (!albumInfo) return <div className="loading">Cargando...</div>;
-///////////////////////////
 
-
-  // ==========================================
-  // LÓGICA PARA GUARDAR EN LA BASE DE DATOS
-  // ==========================================
- const agregarAFavoritos = async (track, index) => {
-  setGuardandoTrack(index);
-
-
-  try {
-    // 1. Extraemos los strings de la API de Last.fm y armamos nuestro propio objeto limpio
-    const cancionFavorita = {
-      
-      title: track.name,
-      artist: albumInfo.artist,
-      album: albumInfo.name,
-      duration: track.duration ? parseInt(track.duration) : 0,
-      genre: albumInfo.tags?.tag?.[0]?.name || "Unknown"
-    };
-
-    // 2. Se lo enviamos al backend por POST
-    const response = await fetch('http://localhost:8086/favorites', { // Reemplaza por tu URL de backend
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(cancionFavorita) // Transformamos el objeto a texto para el viaje
-    });
-
-    if (!response.ok) {
-  const textoError = await response.text();
-  console.error("El servidor respondió con error HTML:", textoError);
-  return;
-}
-
-    const resultado = await response.json();
-
-    if (response.ok) {
-       setCancionesGuardadas(prev => [
-  ...prev,
-  `${albumInfo.artist}-${track.name}`
-]);
-
-      alert(`¡"${track.name}" se guardó en tus favoritos de la base de datos!`);
-    } else {
-      alert(`Error del servidor: ${resultado.message || 'No se pudo guardar.'}`);
-    }
-  } catch (error) {
-    console.error("Error al conectar con el backend:", error);
-    alert("Hubo un error de red al intentar guardar la canción.");
-  } finally {
-    setGuardandoTrack(null);
-  }
-
-
-useEffect(() => {
-
-  const obtenerFavoritos = async () => {
+  // ✅ FIX #1 (continuación) + FIX #2: lógica de response.ok simplificada y sin duplicado
+  // ✅ FIX #4: URL del backend usando variable de entorno en lugar de localhost hardcodeado
+  const agregarAFavoritos = async (track, index) => {
+    setGuardandoTrack(index);
 
     try {
+      const cancionFavorita = {
+        title: track.name,
+        artist: albumInfo.artist,
+        album: albumInfo.name,
+        duration: track.duration ? parseInt(track.duration) : 0,
+        genre: albumInfo.tags?.tag?.[0]?.name || "Unknown"
+      };
 
-      const response = await fetch('http://localhost:8086/favorites');
-      const data = await response.json();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/favorites`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(cancionFavorita)
+      });
 
-      const canciones = data.map(c =>
-        `${c.artist}-${c.title}`
-      );
+      // ✅ FIX #2: un solo chequeo de response.ok, sin duplicar ni tener código muerto
+      if (!response.ok) {
+        const textoError = await response.text();
+        console.error("El servidor respondió con error:", textoError);
+        alert("Error al guardar la canción.");
+        return;
+      }
 
-      setCancionesGuardadas(canciones);
+      await response.json();
+
+      setCancionesGuardadas(prev => [
+        ...prev,
+        `${albumInfo.artist}-${track.name}`
+      ]);
+
+      alert(`¡"${track.name}" se guardó en tus favoritos!`);
 
     } catch (error) {
-
-      console.error(error);
-
+      console.error("Error al conectar con el backend:", error);
+      alert("Hubo un error de red al intentar guardar la canción.");
+    } finally {
+      setGuardandoTrack(null);
     }
-
   };
 
-  obtenerFavoritos();
-
-}, []);
-
-
-
-
-
-
-
-
-};
   return (
     <div className="album-detail-container">
       <header className="album-header">
@@ -209,7 +171,6 @@ useEffect(() => {
               albumInfo.tracks.track.map((track, index) => (
                 <div key={index} className="track-row">
                   
-                  {/* 1. COLUMNA NÚMERO Y PLAY UNIFICADOS */}
                   <div className="track-number-wrapper">
                     <span className="track-number">{index + 1}</span>
                     <button 
@@ -225,10 +186,8 @@ useEffect(() => {
                     </button>
                   </div>
                   
-                  {/* 2. COLUMNA TÍTULO */}
                   <span className="track-name">{track.name}</span>
                   
-                  {/* 3. COLUMNA DURACIÓN */}
                   <span className="track-duration">
                     {track.duration 
                       ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}`
@@ -236,26 +195,25 @@ useEffect(() => {
                     }
                   </span>
 
-                    {/* 4. COLUMNA AGREGAR A PLAYLIST (NUEVO) */}
-                <button 
-                  className="add-playlist-btn"
-                  onClick={() => agregarAFavoritos(track, index)}
-                  disabled={
-                    guardandoTrack === index || 
-                    cancionesGuardadas.includes(
-                  `${albumInfo.artist}-${track.name}`
-                  )
-                  }
-                  title="Agregar a la playlist"
-                >
-                  {guardandoTrack === index ? (
-                    <span className="mini-spinner">...</span>
-                  ) : cancionesGuardadas.includes(index) ? (
-                    "✓"
-                  ) : (
-                    <FaPlus />
-                  )}
-                </button>
+                  <button 
+                    className="add-playlist-btn"
+                    onClick={() => agregarAFavoritos(track, index)}
+                    disabled={
+                      guardandoTrack === index || 
+                      cancionesGuardadas.includes(`${albumInfo.artist}-${track.name}`)
+                    }
+                    title="Agregar a la playlist"
+                  >
+                    {guardandoTrack === index ? (
+                      <span className="mini-spinner">...</span>
+                    ) : cancionesGuardadas.includes(`${albumInfo.artist}-${track.name}`) ? (
+                      // ✅ FIX #3: antes comparaba includes(index) con un número,
+                      // ahora usa el mismo string "artista-canción" que se guarda en el array
+                      "✓"
+                    ) : (
+                      <FaPlus />
+                    )}
+                  </button>
 
                 </div>
               ))
@@ -284,4 +242,4 @@ useEffect(() => {
   );
 } 
 
-export default AlbumDetail;
+export default AlbumDetails;
