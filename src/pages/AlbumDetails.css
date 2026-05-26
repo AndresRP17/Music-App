@@ -133,6 +133,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    
 }
 
 /* El número visible por defecto */
@@ -141,7 +142,6 @@ body {
     font-size: 0.9rem;
     opacity: 1;
     transition: opacity 0.15s ease;
-    margin: 0
 }
 
 /* El botón circular de Play (arranca invisible y en el centro exacto) */
@@ -357,6 +357,7 @@ body {
   cursor: pointer;
   transition: color 0.2s;
   padding: 8px;
+  margin-left: 30px;
 }
 
 .add-playlist-btn:hover:not(:disabled) {

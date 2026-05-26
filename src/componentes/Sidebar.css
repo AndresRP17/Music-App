@@ -15,7 +15,6 @@ body {
 .container {
     display: flex;
     min-height: 100vh;
-    
 }
 
 /* --- SIDEBAR IZQUIERDO (FIJO) --- */
@@ -38,8 +37,10 @@ body {
 }
 
 .logo {
-    margin-top: 40px;
-    width: 100px;
+    margin-top: 25px; /* Lo bajamos un toque de 40px para darle aire al título */
+    width: 120px;
+    height: 200px; /* Le aseguramos el alto para que mantenga forma */
+    object-fit: cover; /* Evita que Yuuta se estire raro */
     background: rgba(255, 255, 255, 0.05);
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
     border-radius: 10px;
@@ -74,8 +75,6 @@ body {
     cursor: pointer;
 }
 
-
-
 /* --- CONTENIDO PRINCIPAL --- */
 .content {
     flex: 1; /* Ocupa el resto del espacio */
@@ -91,7 +90,7 @@ body {
 }
 
 .copy {
-    margin-top: auto; /* Empuja el copyright al fondo del sidebar */
+    margin-top: 30px; /* Empuja el copyright al fondo del sidebar */
     font-size: 12px;
     color: gray;
     padding-bottom: 20px;
@@ -150,7 +149,6 @@ audio {
     to { transform: translate(-50%, 0); opacity: 1; }
 }
 
-
 /* El estilo base de tus botones de menú */
 .menu-btn {
     padding: 12px 20px;
@@ -167,12 +165,6 @@ audio {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* ==========================================
-   ¡ESTA ES LA MAGIA! 
-   El estilo que se va a quedar fijo cuando estés en Home 
-   ========================================== */
-
-
 /* Limpieza de links en el sidebar */
 .sidebar a {
     text-decoration: none;
@@ -180,3 +172,55 @@ audio {
     width: 100%;
 }
 
+/* ==========================================================================
+   🎯 FIX QUIRÚRGICO PARA EL TITULO H2 (Agregado para alinear Music App)
+   ========================================================================== */
+.sidebar h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-top: 15px;
+    width: 100%;
+    text-align: center;
+    
+    /* Obliga al texto y al ícono de la nota a quedarse pegados en el mismo renglón */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; 
+}
+
+/* Controla el tamaño de los íconos de react-icons dentro de la lista */
+.sidebar li svg {
+    font-size: 20px;
+    flex-shrink: 0; /* Evita que se deformen los iconos */
+}
+
+
+/* --- BOTÓN DE CERRAR SESIÓN --- */
+.logout-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid #2c2c2e; /* Borde oscuro fino estilo Apple */
+    color: #ff453a; /* Rojo alerta pero elegante */
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px; /* Lo despega de la lista de arriba */
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background-color: rgba(255, 69, 58, 0.1); /* Fondo rojizo sutil al pasar el mouse */
+    border-color: #ff453a;
+    transform: translateY(-1px);
+}
+
+.logout-btn:active {
+    transform: translateY(1px);
+}

@@ -6,17 +6,17 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      // El proxy que ya tenías para Deezer
+      // Tu proxy original para las canciones de Deezer
       '/deezer': {
         target: 'https://api.deezer.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/deezer/, ''),
       },
-      // CONFIGURACIÓN CORREGIDA: Captura todo lo que vaya a tu backend
+      // El proxy para tu backend de CodeIgniter 4
       '/api': {
-        target: 'http://localhost:8086', // Asegúrate de usar el puerto real de tu backend (en tu error salía 8086)
+        target: 'http://localhost:8086', // 👈 Cambiado a 8080 para que coincida con tus errores de hoy
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''), // Quita el '/api' antes de enviarlo a PHP
+        rewrite: (path) => path.replace(/^\/api/, ''), 
       },
     },
   },

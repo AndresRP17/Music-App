@@ -29,7 +29,9 @@
     transition: all 0.3s ease; /* Hace que el destello del focus sea suave */
 }
 
-
+h1{
+    font-size: 25px;
+}
 
 /* Contenedor principal de los resultados */
 .album-grid {

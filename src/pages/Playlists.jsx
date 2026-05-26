@@ -14,9 +14,13 @@ const Playlist = ({ setTrackActual }) => {
   // 1. FUNCIÓN PARA OBTENER LOS FAVORITOS
   const obtenerFavoritos = async () => {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:8086/favorites', {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+           'Content-Type': 'application/json', 
+          'Authorization': `Bearer ${token}`
+          }
       });
 
       if (response.ok) {

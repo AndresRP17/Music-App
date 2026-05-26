@@ -42,8 +42,7 @@ function AlbumDetails({ setTrackActual }) {
     }
   }, [albumName, artistName]);
 
-  // ✅ FIX #1: useEffect para cargar favoritos movido al nivel del componente
-  // (antes estaba atrapado DENTRO de agregarAFavoritos, por eso nunca se ejecutaba)
+
   useEffect(() => {
     const obtenerFavoritos = async () => {
       try {
@@ -91,8 +90,6 @@ function AlbumDetails({ setTrackActual }) {
 
   if (!albumInfo) return <div className="loading">Cargando...</div>;
 
-  // ✅ FIX #1 (continuación) + FIX #2: lógica de response.ok simplificada y sin duplicado
-  // ✅ FIX #4: URL del backend usando variable de entorno en lugar de localhost hardcodeado
   const agregarAFavoritos = async (track, index) => {
     setGuardandoTrack(index);
 
@@ -105,15 +102,19 @@ function AlbumDetails({ setTrackActual }) {
         genre: albumInfo.tags?.tag?.[0]?.name || "Unknown"
       };
 
+      // 🚀 1. Capturamos el token que guardaste al iniciar sesión
+      const token = localStorage.getItem('token'); 
+
       const response = await fetch(`${import.meta.env.VITE_API_URL}/favorites`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          // 🚀 2. Le pegamos el token en la cabecera Authorization
+          'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify(cancionFavorita)
       });
 
-      // ✅ FIX #2: un solo chequeo de response.ok, sin duplicar ni tener código muerto
       if (!response.ok) {
         const textoError = await response.text();
         console.error("El servidor respondió con error:", textoError);
@@ -207,8 +208,7 @@ function AlbumDetails({ setTrackActual }) {
                     {guardandoTrack === index ? (
                       <span className="mini-spinner">...</span>
                     ) : cancionesGuardadas.includes(`${albumInfo.artist}-${track.name}`) ? (
-                      // ✅ FIX #3: antes comparaba includes(index) con un número,
-                      // ahora usa el mismo string "artista-canción" que se guarda en el array
+                      
                       "✓"
                     ) : (
                       <FaPlus />
