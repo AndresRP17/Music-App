@@ -1,7 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState } from "react";
-
-import './App.css';
 import LayoutCliente from "./componentes/ClienteLayout";
 import LayoutAdmin from "./componentes/AdminLayout"; 
 import Home from "./pages/Home";
@@ -11,16 +9,22 @@ import AlbumDetail from "./pages/AlbumDetails";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login"; 
 import Register from "./pages/Register";
+import ListaUsuarios from "./componentes/ListaUsuarios";
+import DetalleUsuario from "./componentes/DetalleUsuario";
+import './App.css';
 
 function App() {
   const [trackActual, setTrackActual] = useState(null);
 
   // 🔐 Estado inicial: revisamos si el usuario ya tiene sesión activa en este navegador
   const [token, setToken] = useState(localStorage.getItem('token'));
+const [role, setRole] = useState(localStorage.getItem('role'));
 
   // 🚪 Función para cerrar sesión (la puedes pasar a los layouts si quieres un botón de Logout)
   const cerrarSesion = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    setRole(null);
     setToken(null);
   };
 
@@ -39,12 +43,10 @@ function App() {
     );
   }
 
-  // 🎉 SI HAY TOKEN: Se desbloquea toda tu app original de música
   return (
     <BrowserRouter>
       <Routes>
         
-        {/* Si el usuario ya está logueado e intenta ir a /login, lo rebotamos al Home */}
         <Route path="/login" element={<Navigate to="/" replace />} />
         
         {/* ================= ZONA CLIENTE ================= */}
@@ -56,14 +58,19 @@ function App() {
           <Route path="/album/:albumName/:artistName" element={<AlbumDetail setTrackActual={setTrackActual} />} />
         </Route>
 
-        {/* ================= ZONA ADMIN ================= */}
-        <Route element={<LayoutAdmin cerrarSesion={cerrarSesion} />}>
+      {/* ================= ZONA ADMIN ================= */}
+        <Route element={
+          role === 'admin'
+            ? <LayoutAdmin cerrarSesion={cerrarSesion} />
+            : <Navigate to="/" replace />
+        }>
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/usuarios" element={<ListaUsuarios />} />
+          <Route path="/admin/usuarios/:id" element={<DetalleUsuario />} />
         </Route>
 
         {/* COMODÍN GENERAL: Si escribe cualquier ruta rota estando logueado, va al Home */}
         <Route path="*" element={<Navigate to="/" replace />} />
-
       </Routes>
     </BrowserRouter>
   );

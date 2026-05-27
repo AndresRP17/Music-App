@@ -18,8 +18,6 @@ function Admin() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResult, setSearchResult] = useState(null);
   const [loadingSearch, setLoadingSearch] = useState(false);
-
-  // ── NUEVO: estados para estadísticas del usuario ──
   const [userStats, setUserStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(true);
 
@@ -43,45 +41,70 @@ function Admin() {
       });
   }, []);
 
-  // ── NUEVO EFFECT: Trae favoritos del usuario y calcula estadísticas ──
+  // EFFECT 2: Estadísticas globales — todos los usuarios + sus favoritos
   useEffect(() => {
     setLoadingStats(true);
-    fetch("http://localhost:8086/favorites")
-      .then((res) => res.json())
-      .then((data) => {
-        // Contamos artistas
-        const artistCount = {};
-        const albumCount = {};
-        const genreCount = {};
+    const token = localStorage.getItem('token');
+    const headers = { Authorization: `Bearer ${token}` };
 
-        data.forEach((c) => {
+    // Paso 1: traer todos los usuarios
+    fetch(`${import.meta.env.VITE_API_URL}/music_users`, { headers })
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(usuarios => {
+        if (!Array.isArray(usuarios) || usuarios.length === 0) {
+          setUserStats(null);
+          setLoadingStats(false);
+          return;
+        }
+
+        // Paso 2: traer favoritos de cada usuario en paralelo
+        const fetches = usuarios.map(u =>
+          fetch(`${import.meta.env.VITE_API_URL}/favorites?id_user=${u.id}`, { headers })
+            .then(res => res.ok ? res.json() : [])
+            .then(favs => Array.isArray(favs) ? favs : [])
+            .catch(() => [])
+        );
+
+        return Promise.all(fetches);
+      })
+      .then(todasLasCanciones => {
+        if (!todasLasCanciones) return;
+
+        // Paso 3: aplanar todo en un solo array
+        const todas = todasLasCanciones.flat();
+
+        const artistCount = {};
+        const albumCount  = {};
+        const genreCount  = {};
+
+        todas.forEach(c => {
           if (c.artist) artistCount[c.artist] = (artistCount[c.artist] || 0) + 1;
           if (c.album)  albumCount[c.album]   = (albumCount[c.album]   || 0) + 1;
-          if (c.genre && c.genre !== "Unknown")
+          if (c.genre && c.genre !== 'Unknown')
             genreCount[c.genre] = (genreCount[c.genre] || 0) + 1;
         });
 
-        // Ordenamos de mayor a menor y tomamos el top
         const sortTop = (obj, n = 5) =>
-          Object.entries(obj)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, n);
+          Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, n);
 
         setUserStats({
-          total: data.length,
+          total:      todas.length,
           topArtists: sortTop(artistCount, 5),
-          topAlbums:  sortTop(albumCount, 5),
-          topGenres:  sortTop(genreCount, 5),
+          topAlbums:  sortTop(albumCount,  5),
+          topGenres:  sortTop(genreCount,  5),
         });
         setLoadingStats(false);
       })
-      .catch((err) => {
-        console.error("Error trayendo favoritos:", err);
+      .catch(err => {
+        console.error('Error trayendo estadísticas globales:', err);
         setLoadingStats(false);
       });
   }, []);
 
-  // Gráfico de dona (géneros globales)
+  // Gráfico de dona (géneros globales de Deezer)
   const chartLabels = genres.map((g) => g.name);
   const baseValues = [35, 25, 18, 12, 10, 8, 5];
   const chartValues = baseValues.slice(0, genres.length);
@@ -114,7 +137,7 @@ function Admin() {
     cutout: "70%",
   };
 
-  // ── Gráfico de barras: artistas más guardados ──
+  // Gráfico de barras: artistas más guardados globalmente
   const barData = userStats ? {
     labels: userStats.topArtists.map(([name]) => name),
     datasets: [{
@@ -180,11 +203,10 @@ function Admin() {
             <p className="stat-number">100% Online</p>
           </div>
         </div>
-        {/* ── NUEVA TARJETA: total de favoritos ── */}
         <div className="stat-card">
           <span className="stat-icon">❤️</span>
           <div>
-            <h3>Canciones Guardadas</h3>
+            <h3>Total Canciones Guardadas</h3>
             <p className="stat-number">{loadingStats ? "..." : `${userStats?.total ?? 0} canciones`}</p>
           </div>
         </div>
@@ -205,12 +227,11 @@ function Admin() {
           )}
         </section>
 
-        {/* ── NUEVO: Gráfico de barras artistas ── */}
         <section className="graph-section" style={{ margin: 0, display: "flex", flexDirection: "column", minHeight: "450px" }}>
-          <h2>🎤 Tus Artistas Más Guardados</h2>
-          <p className="graph-subtitle">Basado en tu playlist personal</p>
+          <h2>🎤 Artistas Más Guardados</h2>
+          <p className="graph-subtitle">Top global de todos los usuarios</p>
           {loadingStats ? (
-            <div className="loader" style={{ margin: "auto" }}>Analizando tus gustos...</div>
+            <div className="loader" style={{ margin: "auto" }}>Analizando la plataforma...</div>
           ) : barData ? (
             <div style={{ flex: 1, position: "relative", marginTop: "20px" }}>
               <Bar data={barData} options={barOptions} />
@@ -222,14 +243,13 @@ function Admin() {
 
       </div>
 
-      {/* ── NUEVA FILA 2: Rankings de álbumes y géneros del usuario ── */}
+      {/* FILA 2: Rankings de álbumes y géneros globales */}
       {!loadingStats && userStats && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "30px", marginTop: "30px" }}>
 
-          {/* Ranking álbumes */}
           <section className="graph-section" style={{ margin: 0 }}>
             <h2>💿 Álbumes Más Guardados</h2>
-            <p className="graph-subtitle">Los álbumes de los que más canciones tenés</p>
+            <p className="graph-subtitle">Top global de todos los usuarios</p>
             <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", gap: "12px" }}>
               {userStats.topAlbums.length === 0 && <p style={{ color: "#aaa" }}>Sin datos.</p>}
               {userStats.topAlbums.map(([album, count], i) => {
@@ -258,13 +278,12 @@ function Admin() {
             </div>
           </section>
 
-          {/* Ranking géneros del usuario */}
           <section className="graph-section" style={{ margin: 0 }}>
-            <h2>🎸 Tus Géneros Favoritos</h2>
-            <p className="graph-subtitle">Géneros detectados en tu playlist</p>
+            <h2>🎸 Géneros Más Populares</h2>
+            <p className="graph-subtitle">Top global de todos los usuarios</p>
             <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", gap: "14px" }}>
               {userStats.topGenres.length === 0 && (
-                <p style={{ color: "#aaa" }}>Sin géneros detectados. Asegurate de que tus canciones tengan género asignado.</p>
+                <p style={{ color: "#aaa" }}>Sin géneros detectados.</p>
               )}
               {userStats.topGenres.map(([genre, count], i) => {
                 const colors = ["#1db954","#d6e109","#e70404","#be1588","#0e7187"];
@@ -300,7 +319,7 @@ function Admin() {
         </div>
       )}
 
-      {/* FILA 3: Inspector de artistas (sin cambios) */}
+      {/* FILA 3: Inspector de artistas */}
       <div style={{ marginTop: "30px" }}>
         <section className="graph-section" style={{ margin: 0, display: "flex", flexDirection: "column" }}>
           <h2>🔍 Inspector de Datos</h2>

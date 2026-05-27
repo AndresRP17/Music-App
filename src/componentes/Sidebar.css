@@ -181,7 +181,8 @@ audio {
     margin-top: 15px;
     width: 100%;
     text-align: center;
-    
+      color: #ff2d55; /* El rojo que venimos usando */
+
     /* Obliga al texto y al ícono de la nota a quedarse pegados en el mismo renglón */
     display: flex;
     align-items: center;

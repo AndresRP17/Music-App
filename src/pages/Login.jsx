@@ -26,11 +26,16 @@ export default function Login({ setToken }) {
         email: email,
         password: password,
       });
+      console.log(response.data); // ← acá, dentro del try
+
 
       const tokenRecibido = response.data.token;
+      const rolRecibido = response.data.role;
 
       if (tokenRecibido) {
         localStorage.setItem("token", tokenRecibido);
+        localStorage.setItem('role', rolRecibido); // ← agregás esto
+
         setToken(tokenRecibido);
       } else {
         setError("El backend no devolvió un token válido.");

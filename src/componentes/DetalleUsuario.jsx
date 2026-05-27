@@ -1,0 +1,223 @@
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
+
+Chart.register(ArcElement, Tooltip, Legend);
+
+const GENRE_COLORS = ['#378ADD', '#1D9E75', '#7F77DD', '#BA7517', '#D85A30'];
+const MEDAL = ['1°', '2°', '3°', '4°', '5°'];
+
+function calcStats(canciones) {
+  const artistCount = {};
+  const genreCount = {};
+
+  canciones.forEach(c => {
+    if (c.artist) artistCount[c.artist] = (artistCount[c.artist] || 0) + 1;
+    if (c.genre && c.genre !== 'Unknown')
+      genreCount[c.genre] = (genreCount[c.genre] || 0) + 1;
+  });
+
+  const sortTop = (obj, n = 5) =>
+    Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, n);
+
+  return {
+    topArtists: sortTop(artistCount, 5),
+    topGenres:  sortTop(genreCount, 5),
+  };
+}
+
+function getInitials(email) {
+  const name = (email ?? '??').split('@')[0];
+  return name.slice(0, 2).toUpperCase();
+}
+
+function DetalleUsuario() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const chartRef = useRef(null);
+  const chartInstance = useRef(null);
+
+  useEffect(() => {
+  Promise.all([
+    fetch(`${import.meta.env.VITE_API_URL}/music_users/${id}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+    }).then(res => res.json()),
+
+    fetch(`${import.meta.env.VITE_API_URL}/favorites?id_user=${id}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+    }).then(res => res.json()),
+  ])
+    .then(([usuario, canciones]) => {
+      setStats({
+        email: usuario.email,
+        canciones: Array.isArray(canciones) ? canciones : [],
+      });
+    })
+    .catch(err => console.error(err))
+    .finally(() => setLoading(false));
+}, [id]);
+
+  useEffect(() => {
+    if (!stats?.canciones || !chartRef.current) return;
+
+    const { topGenres } = calcStats(stats.canciones);
+    if (topGenres.length === 0) return;
+
+    if (chartInstance.current) chartInstance.current.destroy();
+
+    chartInstance.current = new Chart(chartRef.current, {
+      type: 'doughnut',
+      data: {
+        labels: topGenres.map(([g]) => g),
+        datasets: [{
+          data: topGenres.map(([, c]) => c),
+          backgroundColor: GENRE_COLORS.slice(0, topGenres.length),
+          borderWidth: 0,
+          hoverOffset: 6,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '65%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#181818',
+            titleColor: '#fff',
+            bodyColor: '#aaa',
+            callbacks: {
+              label: ctx => ` ${ctx.label}: ${ctx.raw} canción${ctx.raw !== 1 ? 'es' : ''}`,
+            },
+          },
+        },
+      },
+    });
+
+    return () => chartInstance.current?.destroy();
+  }, [stats]);
+
+  if (loading) return <p style={{ color: '#888', padding: '24px' }}>Cargando datos del usuario...</p>;
+  if (!stats)  return <p style={{ color: '#f55', padding: '24px' }}>No se pudo cargar la información.</p>;
+
+  const { topArtists, topGenres } = calcStats(stats.canciones || []);
+  const total = stats.canciones?.length ?? 0;
+
+  return (
+    <div style={{ padding: '24px', color: 'white' }}>
+
+      <button
+        onClick={() => navigate('/admin/usuarios')}
+        style={{ background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '14px', marginBottom: '20px', padding: 0 }}
+      >
+        ← Volver a usuarios
+      </button>
+
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '28px' }}>
+        <div style={{
+          width: '52px', height: '52px', borderRadius: '50%',
+          background: '#B5D4F4', color: '#0C447C',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontWeight: '500', fontSize: '18px',
+        }}>
+          {getInitials(stats.email)}
+        </div>
+        <div>
+          <h1 style={{ fontSize: '20px', fontWeight: '500', marginBottom: '2px' }}>
+            {stats.email ?? 'Usuario'}
+          </h1>
+          <p style={{ color: '#888', fontSize: '13px' }}>{total} canciones guardadas</p>
+        </div>
+      </div>
+
+      {/* Grid artistas + géneros */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+
+        <div style={{ background: '#1a1a1a', border: '0.5px solid #2a2a2a', borderRadius: '12px', padding: '20px' }}>
+          <h2 style={{ fontSize: '13px', fontWeight: '500', color: '#888', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            Top artistas
+          </h2>
+          {topArtists.length === 0 ? (
+            <p style={{ color: '#555', fontSize: '13px' }}>Sin datos.</p>
+          ) : (
+            topArtists.map(([artist, count], i) => (
+              <div key={artist} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 0', borderBottom: i < topArtists.length - 1 ? '0.5px solid #2a2a2a' : 'none' }}>
+                <span style={{ fontSize: '11px', color: '#555', width: '18px' }}>{MEDAL[i]}</span>
+                <span style={{ flex: 1, fontSize: '14px' }}>{artist}</span>
+                <span style={{ fontSize: '12px', color: '#888', background: '#222', padding: '2px 10px', borderRadius: '99px' }}>
+                  {count}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div style={{ background: '#1a1a1a', border: '0.5px solid #2a2a2a', borderRadius: '12px', padding: '20px' }}>
+          <h2 style={{ fontSize: '13px', fontWeight: '500', color: '#888', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            Géneros favoritos
+          </h2>
+          {topGenres.length === 0 ? (
+            <p style={{ color: '#555', fontSize: '13px' }}>Sin géneros detectados.</p>
+          ) : (
+            <>
+              <div style={{ position: 'relative', height: '180px', marginBottom: '12px' }}>
+                <canvas ref={chartRef} />
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                {topGenres.map(([genre, count], i) => (
+                  <span key={genre} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#aaa' }}>
+                    <span style={{ width: '8px', height: '8px', borderRadius: '2px', background: GENRE_COLORS[i], display: 'inline-block' }} />
+                    {genre} {Math.round((count / total) * 100)}%
+                  </span>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Tabla canciones */}
+      <div style={{ background: '#1a1a1a', border: '0.5px solid #2a2a2a', borderRadius: '12px', padding: '20px', marginTop: '20px' }}>
+        <h2 style={{ fontSize: '13px', fontWeight: '500', color: '#888', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          Canciones guardadas
+        </h2>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+          <thead>
+            <tr style={{ color: '#555', borderBottom: '0.5px solid #2a2a2a' }}>
+              <th style={{ padding: '8px 0', textAlign: 'left', fontWeight: '500' }}>Título</th>
+              <th style={{ padding: '8px 0', textAlign: 'left', fontWeight: '500' }}>Artista</th>
+              <th style={{ padding: '8px 0', textAlign: 'left', fontWeight: '500' }}>Álbum</th>
+              <th style={{ padding: '8px 0', textAlign: 'left', fontWeight: '500' }}>Género</th>
+              <th style={{ padding: '8px 0', textAlign: 'right', fontWeight: '500' }}>Duración</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stats.canciones?.length > 0 ? (
+              stats.canciones.map(c => (
+                <tr key={c.id} style={{ borderBottom: '0.5px solid #1f1f1f' }}>
+                  <td style={{ padding: '10px 0', color: '#eee' }}>{c.title}</td>
+                  <td style={{ padding: '10px 0', color: '#aaa' }}>{c.artist}</td>
+                  <td style={{ padding: '10px 0', color: '#aaa' }}>{c.album}</td>
+                  <td style={{ padding: '10px 0', color: '#aaa' }}>{c.genre}</td>
+                  <td style={{ padding: '10px 0', color: '#666', textAlign: 'right' }}>{c.duration}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" style={{ padding: '20px 0', textAlign: 'center', color: '#555' }}>
+                  Este usuario no guardó ninguna canción todavía.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  );
+}
+
+export default DetalleUsuario;

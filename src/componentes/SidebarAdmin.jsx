@@ -11,6 +11,10 @@ function SidebarAdmin() {
         </li>
         <li style={{ margin: "20px 0" }}>
         </li>
+        
+<li style={{ margin: "20px 0" }}>
+  <Link to="/admin/usuarios" style={{ color: "white", textDecoration: "none", fontWeight: "bold" }}>👤 Gestión de Usuarios</Link>
+</li>
         <li style={{ margin: "40px 0 0 0" }}>
           <Link to="/" style={{ color: "#aaa", textDecoration: "none", fontSize: "14px" }}>← Salir al Cliente</Link>
         </li>

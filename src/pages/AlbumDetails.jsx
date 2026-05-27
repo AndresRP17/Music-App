@@ -44,18 +44,27 @@ function AlbumDetails({ setTrackActual }) {
 
 
   useEffect(() => {
-    const obtenerFavoritos = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/favorites`);
-        const data = await response.json();
-        const canciones = data.map(c => `${c.artist}-${c.title}`);
-        setCancionesGuardadas(canciones);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    obtenerFavoritos();
-  }, [albumInfo]);
+  const obtenerFavoritos = async () => {
+    try {
+      const token = localStorage.getItem('token'); // 👈 agregás el token
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/favorites`, {
+        headers: {
+          'Authorization': `Bearer ${token}` // 👈 lo mandás en el header
+        }
+      });
+
+      if (!response.ok) return; // 👈 si falla, no intentes hacer .map()
+
+      const data = await response.json();
+      const canciones = data.map(c => `${c.artist}-${c.title}`);
+      setCancionesGuardadas(canciones);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  obtenerFavoritos();
+}, []);
 
   const reproducirPista = async (trackName, index) => {
     setTrackCargando(index); 
@@ -109,7 +118,6 @@ function AlbumDetails({ setTrackActual }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // 🚀 2. Le pegamos el token en la cabecera Authorization
           'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify(cancionFavorita)

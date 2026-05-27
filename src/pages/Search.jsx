@@ -92,7 +92,7 @@ function Search() {
     <div className="content">
       <main className="main-header">
         <div className="maina">
-          <h1>Bienvenido, Andrés. ¿Qué vas a escuchar hoy?</h1>
+          <h1>Bienvenida/o. ¿Qué vas a escuchar hoy?</h1>
         </div>
       </main>
 
