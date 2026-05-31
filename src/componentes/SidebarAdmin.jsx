@@ -1,4 +1,3 @@
-// src/componentes/SidebarAdmin.jsx
 import { Link } from "react-router-dom";
 
 function SidebarAdmin() {

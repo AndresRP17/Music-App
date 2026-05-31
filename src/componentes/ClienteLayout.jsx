@@ -2,11 +2,11 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 
-// 🚀 PASO 1: Agregamos 'cerrarSesion' a las llaves para recibirlo desde App.jsx
+//  1: Agregamos 'cerrarSesion' a las llaves para recibirlo desde App.jsx
 function LayoutCliente({ trackActual, setTrackActual, cerrarSesion }) {
   return (
     <div className="container">
-      {/* 🚀 PASO 2: Se lo pasamos al Sidebar como prop */}
+      {/*  2: Se lo pasamos al Sidebar como prop */}
       <Sidebar cerrarSesion={cerrarSesion} />
 
       {/* Aquí React va a renderizar Home, Search, Playlists o AlbumDetail */}

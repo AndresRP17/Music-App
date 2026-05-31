@@ -7,6 +7,7 @@ const MIS_ÁLBUMES_ELEGIDOS = {
     { name: "Thriller", artist: "Michael Jackson" },
     { name: "Abbey Road", artist: "The Beatles" },
     { name: "The Dark Side of the Moon", artist: "Pink Floyd" },
+    { name: "Wish You Were Here", artist: "Pink Floyd" },
     { name: "Seventh son of a seventh son", artist: "Iron Maiden" },
     { name: "Somewhere in Time", artist: "Iron Maiden" },
     { name: "Peace sells... but whos buying?", artist: "Megadeth" },

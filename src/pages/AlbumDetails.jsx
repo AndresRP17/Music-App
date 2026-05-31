@@ -46,15 +46,15 @@ function AlbumDetails({ setTrackActual }) {
   useEffect(() => {
   const obtenerFavoritos = async () => {
     try {
-      const token = localStorage.getItem('token'); // 👈 agregás el token
+      const token = localStorage.getItem('token'); // agregás el token
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/favorites`, {
         headers: {
-          'Authorization': `Bearer ${token}` // 👈 lo mandás en el header
+          'Authorization': `Bearer ${token}` // lo mandás en el header
         }
       });
 
-      if (!response.ok) return; // 👈 si falla, no intentes hacer .map()
+      if (!response.ok) return; //  si falla, no intentes hacer .map()
 
       const data = await response.json();
       const canciones = data.map(c => `${c.artist}-${c.title}`);
@@ -86,6 +86,7 @@ function AlbumDetails({ setTrackActual }) {
           url: trackEncontrado.preview, 
           cover: trackEncontrado.album?.cover_medium || portadaLastFm 
         });
+        console.log(data);
       } else {
         alert(`No se encontró una vista previa de audio para "${trackLimpio}" en Deezer.`);
       }
@@ -111,7 +112,7 @@ function AlbumDetails({ setTrackActual }) {
         genre: albumInfo.tags?.tag?.[0]?.name || "Unknown"
       };
 
-      // 🚀 1. Capturamos el token que guardaste al iniciar sesión
+      // 1. Capturamos el token que guardas al iniciar sesión
       const token = localStorage.getItem('token'); 
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/favorites`, {

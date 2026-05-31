@@ -92,7 +92,7 @@ export default function Register() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Ingrese una clave"
                 required
                 disabled={cargando || exito}
               />

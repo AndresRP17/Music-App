@@ -26,15 +26,18 @@ export default function Login({ setToken }) {
         email: email,
         password: password,
       });
-      console.log(response.data); // ← acá, dentro del try
+      console.log(response.data);
 
 
       const tokenRecibido = response.data.token;
       const rolRecibido = response.data.role;
+      const idRecibido = response.data.id;
 
       if (tokenRecibido) {
         localStorage.setItem("token", tokenRecibido);
-        localStorage.setItem('role', rolRecibido); // ← agregás esto
+        localStorage.setItem('role', rolRecibido); 
+            localStorage.setItem("id", idRecibido); // ← y esto
+// ← agregás esto
 
         setToken(tokenRecibido);
       } else {
