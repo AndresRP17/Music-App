@@ -29,6 +29,21 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.4s ease;
 }
 
+
+@media (max-width: 768px) {
+  .hero-content h1 {
+    font-size: 1rem;       /* Un tamaño king size pero que entra perfecto en un celular */
+    line-height: 1.2;      /* Le da un sutil espacio entre renglones por si el título es largo */
+    text-align: center;
+    justify-content: left;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;           /* Máximo 2 renglones, después corta */
+    -webkit-box-orient: vertical;  
+    overflow: hidden;                /* Esconde lo que sobra */
+    text-overflow: ellipsis;/* En mobile, los heros suelen quedar mucho mejor centrados */
+  }
+}
+
 .hero-section:hover {
     transform: scale(1.005);
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);

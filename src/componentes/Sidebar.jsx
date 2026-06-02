@@ -1,12 +1,20 @@
 import "./Sidebar.css"
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { FaHome, FaSearch } from "react-icons/fa";
-import { IoIosHeartHalf, IoIosMusicalNotes, IoMdHelp } from "react-icons/io";
+import { IoIosHeartHalf, IoIosMusicalNotes } from "react-icons/io";
 import { GrConfigure } from "react-icons/gr";
-import { FiLogOut } from "react-icons/fi"; 
+import { FiLogOut } from "react-icons/fi";
+
+const navItems = [
+  { to: "/",              icon: <FaHome />,         label: "Inicio" },
+  { to: "/search",        icon: <FaSearch />,       label: "Buscar" },
+  { to: "/playlists",     icon: <IoIosHeartHalf />, label: "Favoritos" },
+  { to: "/configuracion", icon: <GrConfigure />,    label: "Configuración" },
+];
 
 function Sidebar({ cerrarSesion }) {
+  const location = useLocation();
 
   const [logoSrc, setLogoSrc] = useState(() => {
     const logo = localStorage.getItem("logo");
@@ -18,38 +26,42 @@ function Sidebar({ cerrarSesion }) {
       const logo = localStorage.getItem("logo");
       setLogoSrc(logo ? `http://localhost:8086/${logo}` : "/yuuta.jpg");
     };
-
     window.addEventListener("logoActualizado", handleLogoActualizado);
     return () => window.removeEventListener("logoActualizado", handleLogoActualizado);
   }, []);
 
+  const isActive = (path) => {
+    if (path === "/") return location.pathname === "/";
+    return location.pathname.startsWith(path);
+  };
+
   return (
     <aside className="sidebar">
-      <h2> Music App<IoIosMusicalNotes /></h2>
+      <h2><IoIosMusicalNotes /> Music App</h2>
       <img src={logoSrc} alt="logo" className="logo" />
+
       <ul>
-        <Link style={{ textDecoration: 'none' }} to="/">
-          <li><FaHome /> Inicio</li>
-        </Link>
-        <Link style={{ textDecoration: 'none' }} to="/search">
-          <li><FaSearch /> Buscar</li>
-        </Link>
-        <Link style={{ textDecoration: 'none' }} to="/playlists">
-          <li><IoIosHeartHalf /> Favoritos</li>
-        </Link>
-        <Link style={{ textDecoration: 'none' }} to="/configuracion">
-          <li><GrConfigure /> Configuracion</li>
-        </Link>
-        <Link style={{ textDecoration: 'none' }} to="">
-          <li><IoMdHelp /> Ayuda</li>
-        </Link>
+        {navItems.map(({ to, icon, label }) => (
+          <Link key={to} to={to} style={{ textDecoration: "none" }}>
+            <li className={isActive(to) ? "active" : ""}>
+              {icon}
+              <span>{label}</span>
+            </li>
+          </Link>
+        ))}
+
+        {/* Cerrar sesión como último ítem del nav */}
+        <li className="nav-logout" onClick={cerrarSesion}>
+          <FiLogOut />
+          <span>Salir</span>
+        </li>
       </ul>
-      <button className="logout-btn" onClick={cerrarSesion}>
-        <FiLogOut /> Cerrar Sesión
-      </button>
-      <p className="copy"> © 2026 By Andres Fernandez</p>
+
+     
+
+      <p className="copy">© 2026 By Andres Fernandez</p>
     </aside>
-  )
+  );
 }
 
 export default Sidebar;

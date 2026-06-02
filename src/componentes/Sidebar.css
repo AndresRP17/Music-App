@@ -1,4 +1,24 @@
-/* --- RESET GENERAL --- */
+/* ============================================================
+   MUSIC APP — RESPONSIVE (Desktop original + Mobile Spotify)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+
+/* --- VARIABLES --- */
+:root {
+    --sp-green:         #1DB954;
+    --sp-red:           #ff2d55;
+    --sp-bg-card:       #282828;
+    --sp-bg-hover:      #3e3e3e;
+    --sp-muted:         #b3b3b3;
+    --sp-nav-height:    60px;
+    --sp-player-height: 64px;
+    --sp-radius:        8px;
+}
+
+/* ============================================================
+   RESET GENERAL
+   ============================================================ */
 * {
     margin: 0;
     padding: 0;
@@ -12,35 +32,38 @@ body {
     overflow-x: hidden;
 }
 
+/* ============================================================
+   LAYOUT DESKTOP (original intacto)
+   ============================================================ */
 .container {
     display: flex;
     min-height: 100vh;
 }
 
-/* --- SIDEBAR IZQUIERDO (FIJO) --- */
+/* --- SIDEBAR DESKTOP --- */
 .sidebar {
     width: 250px;
-    height: calc(100vh - 20px); /* Altura total menos los márgenes */
+    height: calc(100vh - 20px);
     background: black;
     margin: 10px;
     padding: 20px;
     border-radius: 20px;
     border: 3px solid #323030;
-    
+
     display: flex;
     flex-direction: column;
     align-items: center;
-    
-    /* ESTO HACE QUE EL SIDEBAR SE QUEDE QUIETO */
+
     position: sticky;
     top: 10px;
+    overflow: visible !important; /* ¡ESTA ES LA CLAVE! */
 }
 
 .logo {
-    margin-top: 25px; /* Lo bajamos un toque de 40px para darle aire al título */
+    margin-top: 25px;
     width: 120px;
-    height: 200px; /* Le aseguramos el alto para que mantenga forma */
-    object-fit: cover; /* Evita que Yuuta se estire raro */
+    height: 200px;
+    object-fit: cover;
     background: rgba(255, 255, 255, 0.05);
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
     border-radius: 10px;
@@ -75,9 +98,82 @@ body {
     cursor: pointer;
 }
 
+.sidebar h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-top: 15px;
+    width: 100%;
+    text-align: center;
+    color: #ff2d55;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.sidebar li svg {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.sidebar a {
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
+}
+
+.menu-btn {
+    padding: 12px 20px;
+    color: #b3b3b3;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.menu-btn:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.copy {
+    margin-top: 30px;
+    font-size: 12px;
+    color: gray;
+    padding-bottom: 20px;
+}
+
+.logout-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid #2c2c2e;
+    color: #ff453a;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background-color: rgba(255, 69, 58, 0.1);
+    border-color: #ff453a;
+    transform: translateY(-1px);
+}
+
+.logout-btn:active {
+    transform: translateY(1px);
+}
+
 /* --- CONTENIDO PRINCIPAL --- */
 .content {
-    flex: 1; /* Ocupa el resto del espacio */
+    flex: 1;
     padding: 20px;
     color: white;
 }
@@ -89,14 +185,7 @@ body {
     margin-bottom: 20px;
 }
 
-.copy {
-    margin-top: 30px; /* Empuja el copyright al fondo del sidebar */
-    font-size: 12px;
-    color: gray;
-    padding-bottom: 20px;
-}
-
-/* --- REPRODUCTOR DE AUDIO (ESTILO ITUNES) --- */
+/* --- REPRODUCTOR DE AUDIO DESKTOP --- */
 .audio-player-container {
     position: fixed;
     bottom: 30px;
@@ -106,10 +195,10 @@ body {
     background: rgba(30, 30, 30, 0.95);
     backdrop-filter: blur(10px);
     padding: 15px 25px;
-    border-radius: 100px; /* Estilo píldora */
+    border-radius: 100px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.6);
     z-index: 2000;
-    border: 1px solid rgba(255, 45, 85, 0.5); /* Borde sutil del color acento */
+    border: 1px solid rgba(255, 45, 85, 0.5);
     animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -141,87 +230,343 @@ body {
 audio {
     width: 100%;
     height: 30px;
-    filter: invert(100%) hue-rotate(180deg) brightness(1.5); /* Adapta el control nativo al modo oscuro */
+    filter: invert(100%) hue-rotate(180deg) brightness(1.5);
 }
 
+/* ============================================================
+   TARJETAS Y COMPONENTES (globales)
+   ============================================================ */
+.card-horizontal {
+    background: var(--sp-bg-card);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    height: 56px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.card-horizontal:hover { background: var(--sp-bg-hover); }
+
+.card-horizontal-thumb {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.card-horizontal-label {
+    font-size: 13px;
+    font-weight: 700;
+    padding: 0 12px;
+    line-height: 1.2;
+}
+
+.card-vertical { flex-shrink: 0; width: 140px; cursor: pointer; }
+.card-vertical-cover {
+    width: 140px; height: 140px;
+    border-radius: var(--sp-radius);
+    object-fit: cover; display: block;
+    background: var(--sp-bg-card);
+    margin-bottom: 8px;
+}
+.card-vertical-title {
+    font-size: 13px; font-weight: 700;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.card-vertical-sub {
+    font-size: 12px; color: var(--sp-muted);
+    margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.album-row {
+    display: flex; gap: 14px;
+    overflow-x: auto; padding-bottom: 4px;
+    scrollbar-width: none; -ms-overflow-style: none;
+}
+.album-row::-webkit-scrollbar { display: none; }
+
+.section-title {
+    font-size: 18px; font-weight: 700;
+    letter-spacing: -0.3px; margin: 24px 0 12px;
+}
+
+.chip-row {
+    display: flex; gap: 8px;
+    overflow-x: auto; scrollbar-width: none; margin-bottom: 16px;
+}
+.chip-row::-webkit-scrollbar { display: none; }
+
+.chip {
+    flex-shrink: 0; background: var(--sp-bg-card);
+    color: white; font-size: 13px; font-weight: 500;
+    padding: 7px 16px; border-radius: 20px;
+    cursor: pointer; transition: background 0.2s; border: none;
+}
+.chip:hover  { background: var(--sp-bg-hover); }
+.chip.active { background: var(--sp-green); color: #000; font-weight: 700; }
+
+.quick-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-bottom: 24px;
+}
+
+/* Ítem de logout dentro del nav */
+.nav-logout {
+    color: #ff453a !important;
+    cursor: pointer;
+}
+.nav-logout svg { color: #ff453a !important; }
+.nav-logout:hover { background-color: rgba(255, 69, 58, 0.1) !important; }
+
+/* Span del label dentro del li (para que el texto herede bien) */
+.sidebar li span {
+    font-size: inherit;
+    color: inherit;
+}
+
+/* ============================================================
+   ANIMACIONES
+   ============================================================ */
 @keyframes slideUp {
     from { transform: translate(-50%, 150%); opacity: 0; }
-    to { transform: translate(-50%, 0); opacity: 1; }
+    to   { transform: translate(-50%, 0);    opacity: 1; }
 }
 
-/* El estilo base de tus botones de menú */
-.menu-btn {
-    padding: 12px 20px;
-    color: #b3b3b3; /* Gris apagado cuando no está activo */
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
+/* ============================================================
+   MOBILE ONLY — no toca nada del desktop
+   ============================================================ */
+@media (max-width: 768px) {
 
-/* El estado cuando pasás el mouse por encima */
-.menu-btn:hover {
-    color: white;
-    background-color: rgba(255, 255, 255, 0.05);
-}
+    body {
+        padding-bottom: calc(var(--sp-nav-height) + var(--sp-player-height) + 16px);
+    }
 
-/* Limpieza de links en el sidebar */
-.sidebar a {
-    text-decoration: none;
-    color: inherit;
-    width: 100%;
-}
+    .container {
+        flex-direction: column;
+        padding-bottom: 0;
+    }
 
-/* ==========================================================================
-   🎯 FIX QUIRÚRGICO PARA EL TITULO H2 (Agregado para alinear Music App)
-   ========================================================================== */
-.sidebar h2 {
-    font-size: 1.6rem;
-    font-weight: 700;
-    margin-top: 15px;
-    width: 100%;
-    text-align: center;
-      color: #ff2d55; /* El rojo que venimos usando */
+    /* --- SIDEBAR → BOTTOM NAV --- */
+    .sidebar {
+        /* Resetea todo el desktop */
+        width: 100%;
+        height: var(--sp-nav-height);
+        margin: 0;
+        padding: 0 8px;
+        border-radius: 0;
+        border: none;
+        border-top: 0.5px solid #222;
 
-    /* Obliga al texto y al ícono de la nota a quedarse pegados en el mismo renglón */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px; 
-}
+        /* Bottom nav fija */
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 9999;
+        background-color: #090909;
 
-/* Controla el tamaño de los íconos de react-icons dentro de la lista */
-.sidebar li svg {
-    font-size: 20px;
-    flex-shrink: 0; /* Evita que se deformen los iconos */
-}
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-around;
 
+        /* Anula el sticky del desktop */
+        top: unset;
+    }
 
-/* --- BOTÓN DE CERRAR SESIÓN --- */
-.logout-btn {
-    width: 100%;
-    background: transparent;
-    border: 1px solid #2c2c2e; /* Borde oscuro fino estilo Apple */
-    color: #ff453a; /* Rojo alerta pero elegante */
-    padding: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    border-radius: 10px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 20px; /* Lo despega de la lista de arriba */
-    transition: all 0.3s ease;
-}
+    /* Ocultar cosas que no van en mobile */
+    .sidebar h2,
+    .copy,
+    .logout-btn {
+        display: none;
+    }
 
-.logout-btn:hover {
-    background-color: rgba(255, 69, 58, 0.1); /* Fondo rojizo sutil al pasar el mouse */
-    border-color: #ff453a;
-    transform: translateY(-1px);
-}
+    /* Logo pequeño y redondo en la nav */
+    .logo {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-top: 0;
+        box-shadow: none;
+        flex-shrink: 0;
+    }
 
-.logout-btn:active {
-    transform: translateY(1px);
-}
+    /* Lista horizontal */
+    .sidebar ul {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        width: 100%;
+    }
+
+    /* Quitamos el color por defecto de las etiquetas de enlace */
+    .sidebar a {
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+    }
+
+    /* Ítem base: ícono + label apilados (Apagados por defecto) */
+    .sidebar li {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        padding: 6px 12px;
+        margin: 0;
+        border-radius: 0;
+        font-size: 10px;
+        font-weight: 500;
+        color: var(--sp-muted) !important; /* Gris de Spotify por defecto */
+        transform: none;
+    }
+
+    /* Forzamos a los íconos SVG internos a heredar el gris por defecto */
+    .sidebar li svg {
+        font-size: 22px;
+        color: var(--sp-muted) !important;
+        transition: color 0.2s ease;
+    }
+
+    .sidebar li:hover {
+        background-color: transparent;
+        transform: none;
+    }
+
+    /* ============================================================
+       ¡EL SPRINT FINAL DE APPLE MUSIC!
+       Como vos le ponés la clase "active" directamente al <li>, 
+       cuando se cumpla, pintamos el texto Y el ícono de rojo.
+       ============================================================ */
+    .sidebar li.active {
+        color: var(--sp-red) !important; /* El texto se vuelve rojo */
+        font-weight: 700;
+        background-color: rgb(65, 5, 5);
+        border-radius: 50%;
+    }
+
+    .sidebar li.active svg {
+        color: var(--sp-red) !important; /* El ícono se vuelve rojo */
+        background: transparent;
+    }
+
+    /* Estilos para el botón de Salir en mobile si querés que mantenga el gris */
+    .sidebar li.nav-logout {
+        color: var(--sp-muted) !important;
+    }
+    .sidebar li.nav-logout svg {
+        color: var(--sp-muted) !important;
+    }
+
+    .menu-btn {
+        padding: 0;
+        font-size: 10px;
+        font-weight: 500;
+        background: none;
+        border: none;
+        color: inherit;
+    }
+
+   /* --- MINI PLAYER MOBILE --- */
+    /* --- MINI PLAYER MOBILE (VERSIÓN DEFINITIVA) --- */
+    .audio-player-container {
+        /* Forzamos el display y la visibilidad por encima de todo */
+        display: flex !important; 
+        visibility: visible !important;
+        opacity: 1 !important;
+        
+        /* Posicionamiento fijo absoluto en la pantalla */
+        position: fixed !important;
+        bottom: 75px !important; /* Forzado a mano arriba de los 60px de la barra */
+        left: 15px !important;
+        right: 15px !important;
+        width: calc(100% - 30px) !important;
+        height: 55px !important; /* Alto fijo para que no colapse a 0px */
+        
+        /* Alineación de los elementos internos */
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        
+        /* Estética (Fondo sólido e iluminación) */
+        background-color: #1c1c1e !important; 
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 12px !important;
+        padding: 0 16px !important;
+        box-sizing: border-box !important;
+        
+        /* El z-index más alto posible para que flote sobre todo */
+        z-index: 99999 !important; 
+    }
+
+    /* Aseguramos que la info adentro no se achique a cero */
+    .audio-info {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        justify-content: center !important;
+        flex: 1 !important;
+        max-width: 75% !important;
+        height: 100% !important;
+    }
+
+    .audio-info p {
+        font-size: 0.85rem !important;
+        color: #ffffff !important;
+        margin: 0 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        width: 100% !important;
+    }
+
+    /* Ocultamos SOLO el reproductor nativo gris de HTML5 */
+    .audio-player-container audio {
+        display: none !important;
+    }
+
+    /* Botón cerrar visible */
+    .close-player {
+        display: flex !important;
+        align-items: center !important;
+        background: none !important;
+        border: none !important;
+        color: #ff2d55 !important; /* Color llamativo para ver dónde se para */
+        font-size: 22px !important;
+        cursor: pointer !important;
+        padding-left: 10px !important;
+    }
+
+    /* Barra de progreso inferior */
+    .player-progress {
+        position: absolute !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        height: 3px !important;
+        background: #ff2d55 !important;
+        border-radius: 0 0 12px 12px !important;
+    }
+
+    /* Barra de progreso roja milimétrica abajo del todo */
+    .player-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        background: var(--sp-red);
+        border-radius: 0 0 12px 12px;
+        transition: width 0.5s linear;
+    }
+
+    @keyframes slideUpMobile {
+        from { transform: translateY(100%); opacity: 0; }
+        to   { transform: translateY(0);    opacity: 1; }
+    }
+
+} /* fin @media mobile */

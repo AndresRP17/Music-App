@@ -1,3 +1,13 @@
+/* ============================================================
+   ESTILOS GENERALES Y DESKTOP
+   ============================================================ */
+
+h1 {
+    font-size: 25px;
+    color: white;
+}
+
+/* --- BARRA DE BÚSQUEDA --- */
 .search-input {
     width: 100%;
     max-width: 400px;
@@ -8,78 +18,99 @@
     background: rgba(255,255,255,0.05);
     color: white;
     outline: none;
+    transition: all 0.3s ease; /* Focus suave */
 }
 
-/* EL EFECTO FOCUS PARA TU BARRA DE BÚSQUEDA */
 .search-input:focus {
-    /* 1. Cambiamos el fondo a un blanco un toque más opaco para que se note activo */
     background: rgba(255, 255, 255, 0.1);
-    
-    /* 2. El borde se ilumina pasando de opaco a blanco pleno (o el color que te guste) */
     border-color: rgba(255, 255, 255, 0.6);
-    
-    /* 3. Una sombra muy sutil alrededor que acompaña la estética translúcida */
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
 }
 
-/* DETALLE EXTRA: Para que el cambio de color no sea brusco, 
-   agregale esta línea adentro de tu clase `.search-input` original */
-.search-input {
-    /* ... todo lo que ya tenías ... */
-    transition: all 0.3s ease; /* Hace que el destello del focus sea suave */
+/* --- FILTROS DE BÚSQUEDA --- */
+.filter-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+    padding: 0 10px;
+    font-size: 0.9rem;
 }
 
-h1{
-    font-size: 25px;
+.sort-select {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 8px 12px;
+    border-radius: 8px;
+    outline: none;
+    cursor: pointer;
+    font-family: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 20px;
+    padding-right: 30px;
+    transition: all 0.3s ease;
 }
 
-/* Contenedor principal de los resultados */
-.album-grid {
+.sort-select:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.sort-select option {
+    background-color: #1a1a1a; 
+    color: white;
+    padding: 10px;
+}
+
+/* --- GRILLAS DE ÁLBUMES (Resultados y Historial) --- */
+.album-grid, .albums-grid {
     display: grid;
-    /* Esto hace la magia de ponerlos uno al lado del otro y bajar */
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 20px; /* Espacio entre cards */
-    padding: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 25px;
+    padding: 20px 0;
 }
 
-/* Diseño de la Card individual */
+/* --- LA CARD INDIVIDUAL --- */
 .album-card {
-    background: rgba(255, 255, 255, 0.05); /* Fondo sutil como tu sidebar */
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     padding: 15px;
     text-align: center;
     transition: transform 0.3s ease, background 0.3s ease;
-    height: 100%; /* Para que todas midan lo mismo */
+    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    cursor: pointer;
 }
 
-/* Efecto al pasar el mouse (hover) */
 .album-card:hover {
-    transform: translateY(-5px); /* Se eleva un poquito */
+    transform: translateY(-5px);
     background: rgba(255, 255, 255, 0.1);
     border-color: rgba(255, 255, 255, 0.3);
 }
 
-/* Estilo de la imagen del álbum */
 .album-card img {
     width: 100%;
-    aspect-ratio: 1 / 1; /* Hace que la imagen sea siempre un cuadrado perfecto */
+    aspect-ratio: 1 / 1;
     object-fit: cover;
     border-radius: 8px;
     margin-bottom: 12px;
 }
 
-/* Textos dentro de la card */
 .album-card h3 {
     font-size: 1rem;
     margin: 5px 0;
     color: #fff;
-    /* Evita que nombres muy largos rompan la card */
     display: -webkit-box;
     -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; /* Asegura un tope de renglones */
     overflow: hidden;
 }
 
@@ -93,94 +124,76 @@ h1{
     color: inherit;
 }
 
-
-
-
-
-.filter-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 20px 0;
-    padding: 0 10px;
-    color: #0f0d0d;
-    font-size: 0.9rem;
-}
-
-
-/* El contenedor del select */
-.sort-select {
-    background-color: rgba(255, 255, 255, 0.05); /* Fondo oscuro sutil */
-    color: #ffffff; /* Texto blanco */
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 8px 12px;
-    border-radius: 8px;
-    outline: none;
-    cursor: pointer;
-    font-family: inherit;
-    appearance: none; /* Quita la flecha por defecto en algunos navegadores */
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e"); /* Flecha blanca custom */
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    background-size: 20px;
-    padding-right: 30px;
-}
-
-/* El truco para las opciones (la lista que se despliega) */
-.sort-select option {
-    background-color: #1a1a1a; 
-    color: white;
-    padding: 10px;
-}
-
-/* Efecto hover para que se note que es clickeable */
-.sort-select:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.4);
-}
-
-
+/* --- SECCIÓN HISTORIAL --- */
 .historial-section {
-  margin-top: 40px;
-  animation: fadeIn 0.5s ease-in;
+    margin-top: 40px;
+    animation: fadeIn 0.5s ease-in;
 }
 
 .historial-section h2 {
-  font-size: 1.8rem;
-  margin-bottom: 25px;
-  color: #ff2d55; /* El rojo que venimos usando */
-}
-
-.albums-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 25px;
-}
-
-.album-card {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 15px;
-  border-radius: 15px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 1px solid transparent;
-}
-
-.album-card:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-5px);
-}
-
-.album-card img {
-  width: 100%;
-  aspect-ratio: 1/1;
-  border-radius: 10px;
-  object-fit: cover;
-  margin-bottom: 12px;
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    color: #ff2d55;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+
+/* ============================================================
+   SIEMPRE ABAJO DE TODO: MOBILE ONLY (max-width: 768px)
+   ============================================================ */
+@media (max-width: 768px) {
+
+    /* Ajustamos la barra de filtros para que no aplaste el select */
+    .filter-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 0;
+    }
+
+    .sort-select {
+        width: 100%; /* El buscador y el filtro ocupan todo el ancho */
+    }
+
+    .search-input {
+        max-width: 100%;
+    }
+
+    /* Transformamos las dos grillas en carruseles deslizantes */
+    .album-grid, .albums-grid {
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        gap: 14px;
+        padding: 10px 5px;
+        scrollbar-width: none; /* Esconde barra en Firefox */
+    }
+
+    .album-grid::-webkit-scrollbar, 
+    .albums-grid::-webkit-scrollbar {
+        display: none; /* Esconde barra en Chrome/Safari */
+    }
+
+    /* Forzamos a las tarjetas a mantener el tamaño en el carrusel */
+    .album-card {
+        flex: 0 0 150px; 
+        width: 150px;
+        padding: 10px;
+    }
+
+    /* Desactivamos el salto del hover que molesta en pantallas táctiles */
+    .album-card:hover {
+        transform: none;
+    }
+
+    .historial-section h2 {
+        font-size: 1.4rem; /* Un toque más chico el título en el cel */
+        margin-bottom: 15px;
+    }
 }
