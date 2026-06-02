@@ -13,6 +13,29 @@ export default function Login({ setToken }) {
     e.preventDefault();
     setError("");
 
+    // 1. 🚀 BYPASS REVOLUCIONARIO PARA NETLIFY (Modo Demo)
+    // Si la web está corriendo en Netlify, no intentamos conectar al backend local
+    if (window.location.hostname.includes("netlify")) {
+      setCargando(true);
+      
+      // Simulamos una pequeña demora de 1 segundo para que se vea el "Validando..." y quede más real
+      setTimeout(() => {
+        const tokenFalso = "token-demo-netlify-2026";
+        
+        // Guardamos las credenciales ficticias para que tu App y Sidebar no pinchen
+        localStorage.setItem("token", tokenFalso);
+        localStorage.setItem("role", "admin"); 
+        localStorage.setItem("id", "999");
+        localStorage.setItem("logo", "yuuta.jpg"); // Para evitar llamadas rotas a localhost en el logo
+
+        setToken(tokenFalso); // Esto le avisa a tu App.jsx que ya estás adentro
+        setCargando(false);
+      }, 1000);
+      
+      return; // Frenamos acá para que no salte al bloque try-catch real
+    }
+
+    // 2. CÓDIGO REAL PARA TU COMPU (Localhost)
     if (password.length < 4) {
       setError("La contraseña debe tener al menos 4 caracteres, che.");
       return;
@@ -21,13 +44,11 @@ export default function Login({ setToken }) {
     setCargando(true);
 
     try {
-      // 🚀 Corregido para usar tu Proxy /api y evitar problemas de puertos
       const response = await axios.post("/api/music_users/login", {
         email: email,
         password: password,
       });
       console.log(response.data);
-
 
       const tokenRecibido = response.data.token;
       const rolRecibido = response.data.role;
@@ -36,8 +57,7 @@ export default function Login({ setToken }) {
       if (tokenRecibido) {
         localStorage.setItem("token", tokenRecibido);
         localStorage.setItem('role', rolRecibido); 
-            localStorage.setItem("id", idRecibido); // ← y esto
-// ← agregás esto
+        localStorage.setItem("id", idRecibido);
 
         setToken(tokenRecibido);
       } else {
