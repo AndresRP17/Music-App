@@ -1,3 +1,4 @@
+// src/components/Sidebar.jsx
 import "./Sidebar.css"
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -16,15 +17,22 @@ const navItems = [
 function Sidebar({ cerrarSesion }) {
   const location = useLocation();
 
-  const [logoSrc, setLogoSrc] = useState(() => {
+  // 🛠️ Función auxiliar para definir el origen del logo según el entorno
+  const obtenerRutaLogo = () => {
+    // Si estamos en Netlify, forzamos la imagen local de fallback para la demo
+    if (window.location.hostname.includes("netlify")) {
+      return "/yuuta.jpg";
+    }
+    // Si estamos en localhost, sigue el flujo real con tu backend
     const logo = localStorage.getItem("logo");
     return logo ? `http://localhost:8086/${logo}` : "/yuuta.jpg";
-  });
+  };
+
+  const [logoSrc, setLogoSrc] = useState(() => obtenerRutaLogo());
 
   useEffect(() => {
     const handleLogoActualizado = () => {
-      const logo = localStorage.getItem("logo");
-      setLogoSrc(logo ? `http://localhost:8086/${logo}` : "/yuuta.jpg");
+      setLogoSrc(obtenerRutaLogo());
     };
     window.addEventListener("logoActualizado", handleLogoActualizado);
     return () => window.removeEventListener("logoActualizado", handleLogoActualizado);
@@ -56,8 +64,6 @@ function Sidebar({ cerrarSesion }) {
           <span>Salir</span>
         </li>
       </ul>
-
-     
 
       <p className="copy">© 2026 By Andres Fernandez</p>
     </aside>
