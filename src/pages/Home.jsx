@@ -260,12 +260,12 @@ function Home() {
   return (
     <div className="home-container">
       
-      <section 
+<section 
         className="hero-section" 
         onClick={() => navigate(albumHeroActual.link)}
         style={{ 
           cursor: 'pointer',
-          backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.85) 30%, rgba(0, 0, 0, 0.2) 80%), url(${albumHeroActual.bg})`,
+          backgroundImage: `url(${albumHeroActual.bg})`, // 👈 Corregido el template string
           position: 'relative'
         }}
       >
