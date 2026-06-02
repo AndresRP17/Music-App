@@ -526,21 +526,18 @@ audio {
         width: 100% !important;
     }
 
-    /* Ocultamos SOLO el reproductor nativo gris de HTML5 */
-    .audio-player-container audio {
-        display: none !important;
-    }
 
     /* Botón cerrar visible */
     .close-player {
         display: flex !important;
+        position: relative;
+        left: 0;
         align-items: center !important;
         background: none !important;
         border: none !important;
         color: #ff2d55 !important; /* Color llamativo para ver dónde se para */
         font-size: 22px !important;
         cursor: pointer !important;
-        padding-left: 10px !important;
     }
 
     /* Barra de progreso inferior */
