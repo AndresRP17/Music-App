@@ -170,10 +170,14 @@ const Playlist = ({ setTrackActual }) => {
                     }
                   </span>
 
-                  {/* 5. BOTÓN ELIMINAR */}
+                 {/* 5. BOTÓN ELIMINAR */}
                   <button
                     className="playlist-delete-btn"
-                    onClick={() => eliminarCancion(cancion.id)}
+                    onClick={() => {
+                      if (window.confirm("¿Estás seguro de que querés eliminar esta canción?")) {
+                        eliminarCancion(cancion.id);
+                      }
+                    }}
                   >
                     <MdDelete/>
                   </button>
