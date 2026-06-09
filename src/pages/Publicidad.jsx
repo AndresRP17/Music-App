@@ -30,11 +30,11 @@ function Publicidad({ onCerrar }) {
         color: 'white'
       }}>
         <img
-          src="/publi.jpg"
+          src="/images.jpg"
           alt="Publicidad"
           style={{
             width: '100%',
-            height: 'clamp(180px, 40vw, 280px)', /* ← se adapta al tamaño de pantalla */
+            height: 'clamp(180px, 50vw, 400px)', /* ← se adapta al tamaño de pantalla */
             objectFit: 'cover',
             display: 'block'
           }}
