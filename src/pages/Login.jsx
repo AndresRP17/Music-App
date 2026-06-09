@@ -1,5 +1,5 @@
 // src/pages/Login.jsx
-/*import { useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import "./Login.css"; // 
 
@@ -72,11 +72,11 @@ export default function Login({ setToken }) {
     } finally {
       setCargando(false);
     }
-  };*/
+  };
 
 
 // src/pages/Login.jsx
-import { useState } from "react";
+/*import { useState } from "react";
 import axios from "axios";
 import "./Login.css"; // 
 
@@ -94,7 +94,6 @@ export default function Login({ setToken }) {
  setError("La contraseña debe tener al menos 4 caracteres, che.");
  return;
  }
-
  setCargando(true);
 
  try {
@@ -129,7 +128,7 @@ export default function Login({ setToken }) {
  } finally {
  setCargando(false);
  }
- };
+ };*/
 
  return (
  <div className="login-split-container">
@@ -176,8 +175,6 @@ export default function Login({ setToken }) {
    disabled={cargando}
   />
  </div>
-
- 
 
   <button type="submit" disabled={cargando} className="login-submit-btn">
  {cargando ? "Validando..." : "Iniciar Sesión"}

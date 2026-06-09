@@ -330,3 +330,82 @@
         transform: translateY(0); 
     }
 }
+
+
+/* --- ESTILOS DE PUBLICIDAD --- */
+.ad-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.85); /* Fondo oscuro transparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Clave para tapar todo el contenido */
+}
+
+.ad-modal {
+  background: #181818;
+  border: 2px solid #ff4757;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  color: white;
+  box-shadow: 0px 10px 30px rgba(0,0,0,0.5);
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+}
+
+
+.ad-badge {
+  background: #ff4757;
+  color: white;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: bold;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.ad-modal h3 {
+  margin: 15px 0;
+  font-size: 20px;
+}
+
+.ad-modal-content {
+  padding: 20px 30px 30px 30px;
+}
+
+.ad-image {
+  width: 100%;
+  max-height: 280px;
+  height: 250px;        /* ← este es el cambio clave */
+  object-fit: cover;
+display: block;
+  background: #282828;
+}
+
+.ad-footer-text {
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: 20px;
+}
+
+.btn-close-ad {
+  background: #2f3542;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.btn-close-ad:hover {
+  background: #ff4757;
+}

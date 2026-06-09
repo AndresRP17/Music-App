@@ -17,16 +17,12 @@ const navItems = [
 function Sidebar({ cerrarSesion }) {
   const location = useLocation();
 
-  // 🛠️ Función auxiliar para definir el origen del logo según el entorno
-  const obtenerRutaLogo = () => {
-    // Si estamos en Netlify, forzamos la imagen local de fallback para la demo
-    if (window.location.hostname.includes("netlify")) {
-      return "/yuuta.jpg";
-    }
-    // Si estamos en localhost, sigue el flujo real con tu backend
-    const logo = localStorage.getItem("logo");
-    return logo ? `http://localhost:8086/${logo}` : "/yuuta.jpg";
-  };
+ const obtenerRutaLogo = () => {
+  if (window.location.hostname.includes("netlify")) return "/yuuta.jpg";
+  const userId = localStorage.getItem("id");
+  const logo = localStorage.getItem(`logo_${userId}`);
+  return logo && logo !== '' ? `http://localhost:8086/${logo}` : "/yuuta.jpg";
+};
 
   const [logoSrc, setLogoSrc] = useState(() => obtenerRutaLogo());
 
@@ -45,7 +41,7 @@ function Sidebar({ cerrarSesion }) {
 
   return (
     <aside className="sidebar">
-      <h2><IoIosMusicalNotes /> Music App</h2>
+      <h2>Music App<IoIosMusicalNotes /> </h2>
       <img src={logoSrc} alt="logo" className="logo" />
 
       <ul>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Publicidad from '../pages/Publicidad';
 import './Home.css';
 
 const MIS_ÁLBUMES_ELEGIDOS = {
@@ -13,7 +14,7 @@ const MIS_ÁLBUMES_ELEGIDOS = {
     { name: "Peace sells... but whos buying?", artist: "Megadeth" },
     { name: "Master of Puppets", artist: "Metallica" },
     { name: "Discovery", artist: "Daft Punk" },
-    {name: "Debí tirar más fotos", artist:"Bad Bunny"}
+    { name: "Debí tirar más fotos", artist: "Bad Bunny" }
   ],
   rock: [
     { name: "Back in Black", artist: "AC/DC" },
@@ -84,13 +85,16 @@ const MIS_ÁLBUMES_ELEGIDOS = {
 
 function Home() {
   const [topAlbums, setTopAlbums] = useState([]);
-  const [rockAlbums, setRockAlbums] = useState([]); 
+  const [rockAlbums, setRockAlbums] = useState([]);
   const [metalAlbums, setMetalAlbums] = useState([]);
   const [rnbAlbums, setRnbAlbums] = useState([]);
   const [popAlbums, setPopAlbums] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [heroIndex, setHeroIndex] = useState(0);
+  const [mostrarPublicidad, setMostrarPublicidad] = useState(false);
+  const [albumPendiente, setAlbumPendiente] = useState(null);
 
+  const navigate = useNavigate();
   const topRef = useRef(null);
   const rockRef = useRef(null);
   const metalRef = useRef(null);
@@ -98,9 +102,6 @@ function Home() {
   const popRef = useRef(null);
 
   const API_KEY = 'aa182e9e95ab101a5f7ae68eba441e09';
-
-  // --- Estado y Datos para el Carrusel del Hero ---
-  const [heroIndex, setHeroIndex] = useState(0);
 
   const heroAlbums = [
     {
@@ -117,7 +118,7 @@ function Home() {
       badge: "CLÁSICO IMPERDIBLE",
       description: "Woe to you, oh Earth and Sea... Un pilar fundamental del heavy metal.",
       link: "/album/The%20Number%20of%20the%20Beast/Iron%20Maiden",
-      bg: "https://akamai.sscdn.co/uploadfile/letras/albuns/2/3/7/d/201381753731047.jpg" 
+      bg: "https://akamai.sscdn.co/uploadfile/letras/albuns/2/3/7/d/201381753731047.jpg"
     },
     {
       title: "Starboy",
@@ -138,22 +139,20 @@ function Home() {
   ];
 
   const siguienteHero = (e) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
     setHeroIndex((prev) => (prev + 1) % heroAlbums.length);
   };
 
   const anteriorHero = (e) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
     setHeroIndex((prev) => (prev - 1 + heroAlbums.length) % heroAlbums.length);
   };
 
   const albumHeroActual = heroAlbums[heroIndex];
-  // --------------------------------------------------------
 
   useEffect(() => {
     const fetchHomeData = async () => {
       try {
-        // Función interna para traer la info e imágenes exactas de TUS listas elegidas
         const obtenerInfoPersonalizada = async (listaDiscos) => {
           const promesas = listaDiscos.map(async (disco) => {
             try {
@@ -161,10 +160,7 @@ function Home() {
                 `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=${API_KEY}&artist=${encodeURIComponent(disco.artist)}&album=${encodeURIComponent(disco.name)}&format=json`
               );
               const data = await res.json();
-              
               if (data.album) return data.album;
-
-              // Backup por si la API no encuentra el match exacto
               return {
                 name: disco.name,
                 artist: disco.artist,
@@ -189,12 +185,11 @@ function Home() {
           obtenerInfoPersonalizada(MIS_ÁLBUMES_ELEGIDOS.pop)
         ]);
 
-        setTopAlbums(globalData); 
+        setTopAlbums(globalData);
         setRockAlbums(rockData);
         setMetalAlbums(metalData);
         setRnbAlbums(rnbData);
         setPopAlbums(popData);
-
         setLoading(false);
       } catch (error) {
         console.error("Error cargando el inicio:", error);
@@ -207,22 +202,39 @@ function Home() {
 
   const scroll = (ref, direction) => {
     if (ref.current) {
-      const scrollAmount = 600;
-      ref.current.scrollLeft += direction === 'left' ? -scrollAmount : scrollAmount;
+      ref.current.scrollLeft += direction === 'left' ? -600 : 600;
     }
   };
 
   const manejarClickAlbum = (album) => {
     const nombreArtista = typeof album.artist === 'object' ? album.artist.name : album.artist;
+
     const historialActual = JSON.parse(localStorage.getItem('historialBusqueda')) || [];
-    
     const nuevoHistorial = [
       { name: album.name, artist: nombreArtista, image: album.image },
       ...historialActual.filter(item => item.name !== album.name)
     ].slice(0, 5);
-    
     localStorage.setItem('historialBusqueda', JSON.stringify(nuevoHistorial));
-    navigate(`/album/${encodeURIComponent(album.name)}/${encodeURIComponent(nombreArtista)}`);
+
+    const clicksActuales = parseInt(localStorage.getItem('contadorPublicidad')) || 0;
+    const proximosClicks = clicksActuales + 1;
+
+    if (proximosClicks >= 3) {
+      localStorage.setItem('contadorPublicidad', '0');
+      setAlbumPendiente({ name: album.name, artist: nombreArtista });
+      setMostrarPublicidad(true);
+    } else {
+      localStorage.setItem('contadorPublicidad', proximosClicks.toString());
+      navigate(`/album/${encodeURIComponent(album.name)}/${encodeURIComponent(nombreArtista)}`);
+    }
+  };
+
+  const cerrarPublicidadYContinuar = () => {
+    setMostrarPublicidad(false);
+    if (albumPendiente) {
+      navigate(`/album/${encodeURIComponent(albumPendiente.name)}/${encodeURIComponent(albumPendiente.artist)}`);
+      setAlbumPendiente(null);
+    }
   };
 
   const renderSection = (titulo, albums, referencia) => (
@@ -238,9 +250,9 @@ function Home() {
         {albums && albums.length > 0 ? (
           albums.map((album, index) => (
             <div key={`${titulo}-${index}`} className="home-card" onClick={() => manejarClickAlbum(album)}>
-              <img 
-                src={album.image[3]['#text'] || 'https://via.placeholder.com/300'} 
-                alt={album.name} 
+              <img
+                src={album.image[3]['#text'] || 'https://via.placeholder.com/300'}
+                alt={album.name}
               />
               <div className="home-card-info">
                 <h3>{album.name}</h3>
@@ -257,27 +269,31 @@ function Home() {
 
   if (loading) return <div className="loading">Preparando tu música...</div>;
 
+  // ← EL RETURN EMPIEZA ACÁ, ADENTRO VA TODO
   return (
     <div className="home-container">
-      
-<section 
-        className="hero-section" 
+
+      {/* MODAL DE PUBLICIDAD */}
+      {mostrarPublicidad && (
+  <Publicidad onCerrar={cerrarPublicidadYContinuar} />
+)}
+
+      <section
+        className="hero-section"
         onClick={() => navigate(albumHeroActual.link)}
-        style={{ 
+        style={{
           cursor: 'pointer',
-          backgroundImage: `url(${albumHeroActual.bg})`, // 👈 Corregido el template string
+          backgroundImage: `url(${albumHeroActual.bg})`,
           position: 'relative'
         }}
       >
         <button className="hero-arrow arrow-left" onClick={anteriorHero} style={{ zIndex: 10 }}>‹</button>
-
         <div className="hero-content" style={{ zIndex: 5 }}>
           <span className="badge">{albumHeroActual.badge}</span>
           <h1>{albumHeroActual.title}</h1>
           <p>{albumHeroActual.description}</p>
           <button className="btn-hero">Escuchar ahora</button>
         </div>
-
         <button className="hero-arrow arrow-right" onClick={siguienteHero} style={{ zIndex: 10 }}>›</button>
       </section>
 
@@ -291,4 +307,3 @@ function Home() {
 }
 
 export default Home;
-
