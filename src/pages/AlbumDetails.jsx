@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { FaPlay, FaPlus } from 'react-icons/fa'; 
+import { FaPlay, FaPlus, FaLock, FaCheck } from 'react-icons/fa'; 
 import './AlbumDetails.css';
 import Publicidad from '../pages/Publicidad';
 
@@ -11,6 +11,8 @@ function AlbumDetails({ setTrackActual }) {
   const [cancionesGuardadas, setCancionesGuardadas] = useState([]);
   const [guardandoTrack, setGuardandoTrack] = useState(null);
   const [mostrarPublicidad, setMostrarPublicidad] = useState(false);
+
+  const esPremium = localStorage.getItem("esPremium") === "true";
 
   useEffect(() => {
     const fetchAlbumDetails = async () => {
@@ -61,7 +63,6 @@ function AlbumDetails({ setTrackActual }) {
   const reproducirPista = async (trackName, index) => {
     setTrackCargando(index);
 
-    const esPremium = localStorage.getItem("esPremium") === "true";
     if (!esPremium) {
       const clicks = parseInt(localStorage.getItem('contadorPublicidad')) || 0;
       const siguiente = clicks + 1;
@@ -102,6 +103,12 @@ function AlbumDetails({ setTrackActual }) {
   };
 
   const agregarAFavoritos = async (track, index) => {
+    // 🔒 Solo usuarios Premium pueden guardar canciones
+    if (!esPremium) {
+      alert("🔒 Necesitás ser usuario Premium para agregar canciones a tu playlist.");
+      return;
+    }
+
     setGuardandoTrack(index);
     try {
       const cancionFavorita = {
@@ -177,48 +184,58 @@ function AlbumDetails({ setTrackActual }) {
           <hr />
           <div className="tracklist">
             {albumInfo.tracks?.track ? (
-              albumInfo.tracks.track.map((track, index) => (
-                <div key={index} className="track-row">
-                  <div className="track-number-wrapper">
-                    <span className="track-number">{index + 1}</span>
+              albumInfo.tracks.track.map((track, index) => {
+                const yaGuardada = cancionesGuardadas.includes(`${albumInfo.artist}-${track.name}`);
+                const cargando = guardandoTrack === index;
+
+                return (
+                  <div key={index} className="track-row">
+                    <div className="track-number-wrapper">
+                      <span className="track-number">{index + 1}</span>
+                      <button 
+                        className="play-row-btn" 
+                        onClick={() => reproducirPista(track.name, index)}
+                        disabled={trackCargando === index}
+                      >
+                        {trackCargando === index ? (
+                          <span className="mini-spinner">...</span>
+                        ) : (
+                          <FaPlay />
+                        )}
+                      </button>
+                    </div>
+                    <span className="track-name">{track.name}</span>
+                    <span className="track-duration">
+                      {track.duration 
+                        ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}`
+                        : "0:00"
+                      }
+                    </span>
                     <button 
-                      className="play-row-btn" 
-                      onClick={() => reproducirPista(track.name, index)}
-                      disabled={trackCargando === index}
+                      className={`add-playlist-btn ${!esPremium ? 'add-playlist-btn--locked' : ''}`}
+                      onClick={() => agregarAFavoritos(track, index)}
+                      disabled={cargando || yaGuardada}
+                      title={
+                        !esPremium
+                          ? "Función exclusiva Premium"
+                          : yaGuardada
+                          ? "Ya está en tu playlist"
+                          : "Agregar a la playlist"
+                      }
                     >
-                      {trackCargando === index ? (
+                      {cargando ? (
                         <span className="mini-spinner">...</span>
+                      ) : yaGuardada ? (
+                        <FaCheck />
+                      ) : !esPremium ? (
+                        <FaLock />
                       ) : (
-                        <FaPlay />
+                        <FaPlus />
                       )}
                     </button>
                   </div>
-                  <span className="track-name">{track.name}</span>
-                  <span className="track-duration">
-                    {track.duration 
-                      ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}`
-                      : "0:00"
-                    }
-                  </span>
-                  <button 
-                    className="add-playlist-btn"
-                    onClick={() => agregarAFavoritos(track, index)}
-                    disabled={
-                      guardandoTrack === index || 
-                      cancionesGuardadas.includes(`${albumInfo.artist}-${track.name}`)
-                    }
-                    title="Agregar a la playlist"
-                  >
-                    {guardandoTrack === index ? (
-                      <span className="mini-spinner">...</span>
-                    ) : cancionesGuardadas.includes(`${albumInfo.artist}-${track.name}`) ? (
-                      "✓"
-                    ) : (
-                      <FaPlus />
-                    )}
-                  </button>
-                </div>
-              ))
+                );
+              })
             ) : (
               <p className="no-tracks">No se encontraron canciones para este álbum.</p>
             )}
