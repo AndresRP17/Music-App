@@ -4,6 +4,8 @@ import { FaPlay, FaPlus, FaLock, FaCheck } from 'react-icons/fa';
 import './AlbumDetails.css';
 import Publicidad from '../pages/Publicidad';
 
+const esProd = window.location.hostname.includes("netlify");
+
 function AlbumDetails({ setTrackActual }) {
   const { albumName, artistName } = useParams();
   const [albumInfo, setAlbumInfo] = useState(null);
@@ -42,12 +44,18 @@ function AlbumDetails({ setTrackActual }) {
 
   useEffect(() => {
     const obtenerFavoritos = async () => {
+      // En Netlify: leer del localStorage
+      if (esProd) {
+        const guardadas = JSON.parse(localStorage.getItem("favoritos") || "[]");
+        const claves = guardadas.map(c => `${c.artist}-${c.title}`);
+        setCancionesGuardadas(claves);
+        return;
+      }
+      // Local: leer del backend
       try {
         const token = localStorage.getItem('token');
         const response = await fetch(`${import.meta.env.VITE_API_URL}/favorites`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+          headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) return;
         const data = await response.json();
@@ -103,13 +111,32 @@ function AlbumDetails({ setTrackActual }) {
   };
 
   const agregarAFavoritos = async (track, index) => {
-    // 🔒 Solo usuarios Premium pueden guardar canciones
     if (!esPremium) {
       alert("🔒 Necesitás ser usuario Premium para agregar canciones a tu playlist.");
       return;
     }
 
     setGuardandoTrack(index);
+
+    // En Netlify: guardar en localStorage
+    if (esProd) {
+      const guardadas = JSON.parse(localStorage.getItem("favoritos") || "[]");
+      const nueva = {
+        id: Date.now(),
+        title: track.name,
+        artist: albumInfo.artist,
+        album: albumInfo.name,
+        duration: track.duration ? parseInt(track.duration) : 0,
+        genre: albumInfo.tags?.tag?.[0]?.name || "Unknown"
+      };
+      localStorage.setItem("favoritos", JSON.stringify([...guardadas, nueva]));
+      setCancionesGuardadas(prev => [...prev, `${albumInfo.artist}-${track.name}`]);
+      alert(`¡"${track.name}" se guardó en tus favoritos!`);
+      setGuardandoTrack(null);
+      return;
+    }
+
+    // Local: guardar en el backend
     try {
       const cancionFavorita = {
         title: track.name,
@@ -134,10 +161,7 @@ function AlbumDetails({ setTrackActual }) {
         return;
       }
       await response.json();
-      setCancionesGuardadas(prev => [
-        ...prev,
-        `${albumInfo.artist}-${track.name}`
-      ]);
+      setCancionesGuardadas(prev => [...prev, `${albumInfo.artist}-${track.name}`]);
       alert(`¡"${track.name}" se guardó en tus favoritos!`);
     } catch (error) {
       console.error("Error al conectar con el backend:", error);

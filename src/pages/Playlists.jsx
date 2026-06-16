@@ -4,17 +4,27 @@ import { MdDelete } from "react-icons/md";
 import './Playlist.css';
 import Publicidad from '../pages/Publicidad';
 
+const esProd = window.location.hostname.includes("netlify");
+
 const Playlist = ({ setTrackActual }) => {
   const [cancionesFavoritas, setCancionesFavoritas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [trackCargando, setTrackCargando] = useState(null); 
   const [mostrarPublicidad, setMostrarPublicidad] = useState(false);
-  const [busqueda, setBusqueda] = useState(''); // 👈 nuevo estado
+  const [busqueda, setBusqueda] = useState('');
 
   const obtenerFavoritos = async () => {
+    // En Netlify: leer del localStorage
+    if (esProd) {
+      const guardadas = JSON.parse(localStorage.getItem("favoritos") || "[]");
+      setCancionesFavoritas(guardadas);
+      setCargando(false);
+      return;
+    }
+    // Local: leer del backend
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8086/favorites', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/favorites`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json', 
@@ -38,7 +48,6 @@ const Playlist = ({ setTrackActual }) => {
     obtenerFavoritos();
   }, []);
 
-  // 👇 Filtramos por título o artista según lo que escriba el usuario
   const cancionesFiltradas = (cancionesFavoritas || []).filter(cancion => {
     const query = busqueda.toLowerCase();
     return (
@@ -49,9 +58,20 @@ const Playlist = ({ setTrackActual }) => {
   });
 
   const eliminarCancion = async (id) => {
+    // En Netlify: eliminar del localStorage
+    if (esProd) {
+      const guardadas = JSON.parse(localStorage.getItem("favoritos") || "[]");
+      const nuevas = guardadas.filter(c => c.id !== id);
+      localStorage.setItem("favoritos", JSON.stringify(nuevas));
+      setCancionesFavoritas(nuevas);
+      return;
+    }
+    // Local: eliminar del backend
     try {
-      const response = await fetch(`/api/favorites/${id}`, {
-        method: 'DELETE'
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/favorites/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
         setCancionesFavoritas(prev => prev.filter(c => c.id !== id));
@@ -122,7 +142,6 @@ const Playlist = ({ setTrackActual }) => {
         <p className="playlist-subtitle">Tu colección de música personalizada</p>
       </header>
 
-      {/* 👇 Buscador — solo aparece si hay canciones */}
       {cancionesFavoritas.length > 0 && (
         <div className="playlist-search-wrapper">
           <FaSearch className="playlist-search-icon" />
@@ -142,7 +161,6 @@ const Playlist = ({ setTrackActual }) => {
           <p>No tienes favoritos agregados todavía. ¡Explora álbumes para sumar música!</p>
         </div>
       ) : cancionesFiltradas.length === 0 ? (
-        // 👇 Mensaje cuando no hay resultados de búsqueda
         <div className="playlist-no-songs">
           <h2>Sin resultados</h2>
           <p>No se encontraron canciones que coincidan con "<strong>{busqueda}</strong>"</p>
