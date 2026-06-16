@@ -351,9 +351,9 @@ audio {
     /* --- SIDEBAR → BOTTOM NAV --- */
     .sidebar {
         /* Resetea todo el desktop */
-        width: 90%;
+        width: 95%;
         height: var(--sp-nav-height);
-        margin-left: 20px;
+        margin-left: 10px;
         
         border-radius: 40px ;
         border: none;
