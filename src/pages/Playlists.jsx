@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FaPlay } from 'react-icons/fa';
+import { FaPlay, FaSearch } from 'react-icons/fa';
 import { MdDelete } from "react-icons/md";
 import './Playlist.css';
 import Publicidad from '../pages/Publicidad';
@@ -9,6 +9,7 @@ const Playlist = ({ setTrackActual }) => {
   const [cargando, setCargando] = useState(true);
   const [trackCargando, setTrackCargando] = useState(null); 
   const [mostrarPublicidad, setMostrarPublicidad] = useState(false);
+  const [busqueda, setBusqueda] = useState(''); // 👈 nuevo estado
 
   const obtenerFavoritos = async () => {
     try {
@@ -36,6 +37,16 @@ const Playlist = ({ setTrackActual }) => {
   useEffect(() => {
     obtenerFavoritos();
   }, []);
+
+  // 👇 Filtramos por título o artista según lo que escriba el usuario
+  const cancionesFiltradas = (cancionesFavoritas || []).filter(cancion => {
+    const query = busqueda.toLowerCase();
+    return (
+      cancion.title?.toLowerCase().includes(query) ||
+      cancion.artist?.toLowerCase().includes(query) ||
+      cancion.album?.toLowerCase().includes(query)
+    );
+  });
 
   const eliminarCancion = async (id) => {
     try {
@@ -111,10 +122,30 @@ const Playlist = ({ setTrackActual }) => {
         <p className="playlist-subtitle">Tu colección de música personalizada</p>
       </header>
 
-      {(cancionesFavoritas || []).length === 0 ? (
+      {/* 👇 Buscador — solo aparece si hay canciones */}
+      {cancionesFavoritas.length > 0 && (
+        <div className="playlist-search-wrapper">
+          <FaSearch className="playlist-search-icon" />
+          <input
+            type="text"
+            className="playlist-search-input"
+            placeholder="Buscar por título, artista o álbum..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+          />
+        </div>
+      )}
+
+      {cancionesFavoritas.length === 0 ? (
         <div className="playlist-no-songs">
           <h2>Aquí aparecerán tus canciones</h2>
           <p>No tienes favoritos agregados todavía. ¡Explora álbumes para sumar música!</p>
+        </div>
+      ) : cancionesFiltradas.length === 0 ? (
+        // 👇 Mensaje cuando no hay resultados de búsqueda
+        <div className="playlist-no-songs">
+          <h2>Sin resultados</h2>
+          <p>No se encontraron canciones que coincidan con "<strong>{busqueda}</strong>"</p>
         </div>
       ) : (
         <div className="playlist-tracklist-section">
@@ -126,7 +157,7 @@ const Playlist = ({ setTrackActual }) => {
           </div>
           <hr />
           <div className="tracklist">
-            {(cancionesFavoritas || []).map((cancion, index) => {
+            {cancionesFiltradas.map((cancion, index) => {
               let tituloLimpio = cancion.title;
               let albumDetectado = cancion.album || "—";
               if (cancion.title && cancion.title.includes('-')) {

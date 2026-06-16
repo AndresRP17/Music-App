@@ -290,4 +290,45 @@
     .playlist-track-number {
         opacity: 0;
     }
+
+
+    .playlist-search-wrapper {
+        padding: 8px 12px;
+        margin-bottom: 16px;
+    }
+
+    .playlist-search-input {
+        font-size: 16px; /* evita el zoom automático en iOS al hacer foco */
+    }
+}
+
+
+
+.playlist-search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 20px;
+}
+
+.playlist-search-icon {
+  color: #aaa;
+  font-size: 14px;
+}
+
+.playlist-search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  font-size: 14px;
+  width: 100%;
+}
+
+.playlist-search-input::placeholder {
+  color: #666;
 }

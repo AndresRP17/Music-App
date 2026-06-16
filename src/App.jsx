@@ -23,8 +23,7 @@ const [role, setRole] = useState(localStorage.getItem('role'));
 
   // Función para cerrar sesión (la puedes pasar a los layouts si quieres un botón de Logout)
   const cerrarSesion = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
+    localStorage.clear();
     setRole(null);
     setToken(null);
   };
