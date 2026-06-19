@@ -12,6 +12,7 @@ import Register from "./pages/Register";
 import ListaUsuarios from "./componentes/ListaUsuarios";
 import DetalleUsuario from "./componentes/DetalleUsuario";
 import Configuracion from './pages/Configuration';
+import MiMusica from "./pages/MiMusica";
 import './App.css';
 
 function App() {
@@ -53,8 +54,8 @@ const [role, setRole] = useState(localStorage.getItem('role'));
         <Route element={<LayoutCliente trackActual={trackActual} setTrackActual={setTrackActual} cerrarSesion={cerrarSesion} />}>
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<Search />} />
-          <Route path="/playlists" element={<Playlist setTrackActual={setTrackActual} />} />
-          <Route path="/playlist" element={<Navigate to="/playlists" replace />} />
+          <Route path="/mi-musica" element={<MiMusica setTrackActual={setTrackActual} />} />
+          <Route path="/playlists" element={<Navigate to="/mi-musica" replace />} />
           <Route path="/configuracion" element={<Configuracion />} />
           <Route path="/album/:albumName/:artistName" element={<AlbumDetail setTrackActual={setTrackActual} />} />
         </Route>

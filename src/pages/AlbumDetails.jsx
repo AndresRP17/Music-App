@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { FaPlay, FaPlus, FaLock, FaCheck } from 'react-icons/fa'; 
 import './AlbumDetails.css';
 import Publicidad from '../pages/Publicidad';
+import ModalPlaylist from '../pages/ModalPlaylist';
 
 const esProd = window.location.hostname.includes("netlify");
 
@@ -13,6 +14,8 @@ function AlbumDetails({ setTrackActual }) {
   const [cancionesGuardadas, setCancionesGuardadas] = useState([]);
   const [guardandoTrack, setGuardandoTrack] = useState(null);
   const [mostrarPublicidad, setMostrarPublicidad] = useState(false);
+  const [modalPlaylist, setModalPlaylist] = useState(false);
+const [cancionSeleccionada, setCancionSeleccionada] = useState(null);
 
   const esPremium = localStorage.getItem("esPremium") === "true";
 
@@ -235,28 +238,42 @@ function AlbumDetails({ setTrackActual }) {
                         : "0:00"
                       }
                     </span>
-                    <button 
-                      className={`add-playlist-btn ${!esPremium ? 'add-playlist-btn--locked' : ''}`}
-                      onClick={() => agregarAFavoritos(track, index)}
-                      disabled={cargando || yaGuardada}
-                      title={
-                        !esPremium
-                          ? "Función exclusiva Premium"
-                          : yaGuardada
-                          ? "Ya está en tu playlist"
-                          : "Agregar a la playlist"
-                      }
-                    >
-                      {cargando ? (
-                        <span className="mini-spinner">...</span>
-                      ) : yaGuardada ? (
-                        <FaCheck />
-                      ) : !esPremium ? (
-                        <FaLock />
-                      ) : (
-                        <FaPlus />
-                      )}
-                    </button>
+                   <button 
+  className={`add-playlist-btn ${!esPremium ? 'add-playlist-btn--locked' : ''}`}
+  onClick={() => {
+    if (!esPremium) {
+      alert("🔒 Necesitás ser usuario Premium para agregar canciones.");
+      return;
+    }
+    setCancionSeleccionada({
+      title: track.name,
+      artist: albumInfo.artist,
+      album: albumInfo.name,
+      duration: track.duration ? parseInt(track.duration) : 0,
+      genre: albumInfo.tags?.tag?.[0]?.name || ''
+    });
+    setModalPlaylist(true);
+  }}
+  disabled={cargando}
+  title={!esPremium ? "Función exclusiva Premium" : "Agregar a playlist"}
+>
+  {cargando ? (
+    <span className="mini-spinner">...</span>
+  ) : !esPremium ? (
+    <FaLock />
+  ) : (
+    <FaPlus />
+  )}
+</button>
+{modalPlaylist && cancionSeleccionada && (
+  <ModalPlaylist
+    cancion={cancionSeleccionada}
+    onCerrar={() => {
+      setModalPlaylist(false);
+      setCancionSeleccionada(null);
+    }}
+  />
+)}
                   </div>
                 );
               })

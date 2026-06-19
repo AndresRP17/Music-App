@@ -3,14 +3,14 @@ import "./Sidebar.css"
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FaHome, FaSearch } from "react-icons/fa";
-import { IoIosHeartHalf, IoIosMusicalNotes } from "react-icons/io";
+import { IoIosHeartHalf, IoIosMusicalNotes, IoIosList } from "react-icons/io";
 import { GrConfigure } from "react-icons/gr";
 import { FiLogOut } from "react-icons/fi";
 
 const navItems = [
   { to: "/",              icon: <FaHome />,         label: "Inicio" },
   { to: "/search",        icon: <FaSearch />,       label: "Buscar" },
-  { to: "/playlists",     icon: <IoIosHeartHalf />, label: "Favoritos" },
+  { to: "/mi-musica",     icon: <IoIosList />,      label: "Mi Música" },
   { to: "/configuracion", icon: <GrConfigure />,    label: "Configuración" },
 ];
 

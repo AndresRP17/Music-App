@@ -1,0 +1,26 @@
+.mi-musica-tabs {
+  display: flex;
+  gap: 12px;
+  padding: 24px 24px 0 24px;
+}
+
+.mi-musica-tab {
+  background: transparent;
+  border: none;
+  color: #aaa;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.mi-musica-tab:hover {
+  color: #fff;
+}
+
+.mi-musica-tab.active {
+  color: #fff;
+  border-bottom: 2px solid #1db954;
+}
