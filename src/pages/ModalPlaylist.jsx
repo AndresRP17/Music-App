@@ -3,6 +3,8 @@ import { FaPlus } from 'react-icons/fa';
 import { IoIosClose } from 'react-icons/io';
 import { FiMusic } from 'react-icons/fi';
 
+const esProd = window.location.hostname.includes("netlify");
+
 const ModalPlaylist = ({ cancion, onCerrar }) => {
   const [playlists, setPlaylists] = useState([]);
   const [busqueda, setBusqueda] = useState('');
@@ -11,11 +13,18 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
   const [nombreNueva, setNombreNueva] = useState('');
 
   const token = localStorage.getItem('token');
+  const userId = localStorage.getItem('id');
 
   useEffect(() => {
     const obtenerPlaylists = async () => {
+      if (esProd) {
+        const guardadas = JSON.parse(localStorage.getItem('playlists') || '[]');
+        setPlaylists(guardadas);
+        setCargando(false);
+        return;
+      }
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/playlists`, {
+        const response = await fetch('/api/playlists', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (response.ok) {
@@ -32,12 +41,28 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
   }, []);
 
   const playlistsFiltradas = playlists.filter(p =>
-    p.nombre.toLowerCase().includes(busqueda.toLowerCase())
+    p.name.toLowerCase().includes(busqueda.toLowerCase())
   );
 
   const agregarAPlaylist = async (playlist) => {
+    if (esProd) {
+      const songs = JSON.parse(localStorage.getItem(`playlist_songs_${playlist.id}`) || '[]');
+      const nueva = {
+        id: Date.now(),
+        id_playlist: playlist.id,
+        title: cancion.title || cancion.name,
+        artist: cancion.artist,
+        album: cancion.album || '',
+        duration: cancion.duration || 0,
+        genre: cancion.genre || ''
+      };
+      localStorage.setItem(`playlist_songs_${playlist.id}`, JSON.stringify([...songs, nueva]));
+      alert(`"${nueva.title}" agregada a "${playlist.name}"`);
+      onCerrar();
+      return;
+    }
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/playlist_songs`, {
+      const response = await fetch('/api/playlist_songs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -53,7 +78,7 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
         })
       });
       if (response.ok) {
-        alert(`"${cancion.title || cancion.name}" agregada a "${playlist.nombre}"`);
+        alert(`"${cancion.title || cancion.name}" agregada a "${playlist.name}"`);
         onCerrar();
       } else {
         alert('Error al agregar la canción');
@@ -65,58 +90,84 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
 
   const crearYAgregar = async () => {
     if (!nombreNueva.trim()) return;
+
+    if (esProd) {
+      const playlists = JSON.parse(localStorage.getItem('playlists') || '[]');
+      const nueva = { id: Date.now(), name: nombreNueva };
+      localStorage.setItem('playlists', JSON.stringify([...playlists, nueva]));
+      await agregarAPlaylist(nueva);
+      return;
+    }
+
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/playlists`, {
+      const response = await fetch('/api/playlists', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ nombre: nombreNueva })
+        body: JSON.stringify({
+          id_user: userId,
+          name: nombreNueva
+        })
       });
       if (response.ok) {
         const nueva = await response.json();
-        await agregarAPlaylist({ id: nueva.id, nombre: nombreNueva });
+        await agregarAPlaylist({ id: nueva.id, name: nombreNueva });
       }
     } catch (error) {
       console.error('Error:', error);
     }
   };
 
-
   const agregarAFavoritos = async () => {
-  try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/favorites`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({
+    if (esProd) {
+      const favoritos = JSON.parse(localStorage.getItem('favoritos') || '[]');
+      const nuevo = {
+        id: Date.now(),
         title: cancion.title || cancion.name,
         artist: cancion.artist,
         album: cancion.album || '',
         duration: cancion.duration || 0,
         genre: cancion.genre || ''
-      })
-    });
-    if (response.ok) {
-      alert(`"${cancion.title || cancion.name}" agregada a Favoritos`);
+      };
+      localStorage.setItem('favoritos', JSON.stringify([...favoritos, nuevo]));
+      alert(`"${nuevo.title}" agregada a Favoritos`);
       onCerrar();
-    } else {
-      alert('Error al agregar a favoritos');
+      return;
     }
-  } catch (error) {
-    console.error('Error:', error);
-  }
-};
+    try {
+      const response = await fetch('/api/favorites', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title: cancion.title || cancion.name,
+          artist: cancion.artist,
+          album: cancion.album || '',
+          duration: cancion.duration || 0,
+          genre: cancion.genre || ''
+        })
+      });
+      if (response.ok) {
+        alert(`"${cancion.title || cancion.name}" agregada a Favoritos`);
+        onCerrar();
+      } else {
+        alert('Error al agregar a favoritos');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
 
   return (
-    <div 
+    <div
       style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
       onClick={onCerrar}
     >
-      <div 
+      <div
         style={{ background: 'var(--color-background-primary, #1a1a1a)', borderRadius: '12px', width: '320px', overflow: 'hidden', border: '0.5px solid #333' }}
         onClick={e => e.stopPropagation()}
       >
@@ -128,18 +179,18 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
           </button>
         </div>
 
-        {/* Opción favoritos */}
-<div
-  onClick={() => agregarAFavoritos()}
-  style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 16px', cursor: 'pointer', borderBottom: '0.5px solid #333' }}
-  onMouseEnter={e => e.currentTarget.style.background = '#2a2a2a'}
-  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
->
-  <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#2a2a2a', border: '0.5px solid #444', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-    <span style={{ color: '#e25555', fontSize: '16px' }}>♥</span>
-  </div>
-  <div style={{ fontSize: '14px', color: '#fff' }}>Agregar a Favoritos</div>
-</div>
+        {/* Favoritos */}
+        <div
+          onClick={agregarAFavoritos}
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 16px', cursor: 'pointer', borderBottom: '0.5px solid #333' }}
+          onMouseEnter={e => e.currentTarget.style.background = '#2a2a2a'}
+          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+        >
+          <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#2a2a2a', border: '0.5px solid #444', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <span style={{ color: '#e25555', fontSize: '16px' }}>♥</span>
+          </div>
+          <div style={{ fontSize: '14px', color: '#fff' }}>Agregar a Favoritos</div>
+        </div>
 
         {/* Buscador */}
         <div style={{ padding: '10px 16px', borderBottom: '0.5px solid #333' }}>
@@ -170,9 +221,7 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
                 <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#2a2a2a', border: '0.5px solid #444', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <FiMusic style={{ color: '#aaa', fontSize: '16px' }} />
                 </div>
-                <div>
-                  <div style={{ fontSize: '14px', color: '#fff' }}>{playlist.nombre}</div>
-                </div>
+                <div style={{ fontSize: '14px', color: '#fff' }}>{playlist.name}</div>
               </div>
             ))
           )}

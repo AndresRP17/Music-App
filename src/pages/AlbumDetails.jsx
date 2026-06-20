@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { FaPlay, FaPlus, FaLock, FaCheck } from 'react-icons/fa'; 
-import './AlbumDetails.css';
 import Publicidad from '../pages/Publicidad';
 import ModalPlaylist from '../pages/ModalPlaylist';
+import './AlbumDetails.css';
 
 const esProd = window.location.hostname.includes("netlify");
 

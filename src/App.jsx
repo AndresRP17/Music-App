@@ -4,7 +4,7 @@ import LayoutCliente from "./componentes/ClienteLayout";
 import LayoutAdmin from "./componentes/AdminLayout"; 
 import Home from "./pages/Home";
 import Search from "./pages/Search";
-import Playlist from "./pages/Playlists"; 
+import Favorites from "./pages/Favorites"; 
 import AlbumDetail from "./pages/AlbumDetails";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login"; 
@@ -13,6 +13,7 @@ import ListaUsuarios from "./componentes/ListaUsuarios";
 import DetalleUsuario from "./componentes/DetalleUsuario";
 import Configuracion from './pages/Configuration';
 import MiMusica from "./pages/MiMusica";
+import PlaylistDetalle from "./pages/PlaylistDetalle"; // 👈 agregado
 import './App.css';
 
 function App() {
@@ -55,7 +56,8 @@ const [role, setRole] = useState(localStorage.getItem('role'));
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<Search />} />
           <Route path="/mi-musica" element={<MiMusica setTrackActual={setTrackActual} />} />
-          <Route path="/playlists" element={<Navigate to="/mi-musica" replace />} />
+          <Route path="/Favorites" element={<Navigate to="/mi-musica" replace />} />
+          <Route path="/playlist/:id" element={<PlaylistDetalle setTrackActual={setTrackActual} />} /> {/* 👈 agregado */}
           <Route path="/configuracion" element={<Configuracion />} />
           <Route path="/album/:albumName/:artistName" element={<AlbumDetail setTrackActual={setTrackActual} />} />
         </Route>

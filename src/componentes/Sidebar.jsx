@@ -10,7 +10,7 @@ import { FiLogOut } from "react-icons/fi";
 const navItems = [
   { to: "/",              icon: <FaHome />,         label: "Inicio" },
   { to: "/search",        icon: <FaSearch />,       label: "Buscar" },
-  { to: "/mi-musica",     icon: <IoIosList />,      label: "Mi Música" },
+  { to: "/mi-musica",     icon: <IoIosMusicalNotes />,      label: "Música" },
   { to: "/configuracion", icon: <GrConfigure />,    label: "Configuración" },
 ];
 
@@ -34,10 +34,11 @@ function Sidebar({ cerrarSesion }) {
     return () => window.removeEventListener("logoActualizado", handleLogoActualizado);
   }, []);
 
-  const isActive = (path) => {
+ const isActive = (path) => {
     if (path === "/") return location.pathname === "/";
+    if (path === "/mi-musica") return location.pathname.startsWith("/mi-musica") || location.pathname.startsWith("/playlist");
     return location.pathname.startsWith(path);
-  };
+};
 
   return (
     <aside className="sidebar">

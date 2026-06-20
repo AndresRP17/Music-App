@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { FaPlay, FaSearch } from 'react-icons/fa';
 import { MdDelete } from "react-icons/md";
-import './Playlist.css';
-import Publicidad from '../pages/Publicidad';
+import Publicidad from './Publicidad';
+import './Favorites.css';
 
 const esProd = window.location.hostname.includes("netlify");
 
-const Playlist = ({ setTrackActual }) => {
+const Favorites = ({ setTrackActual }) => {
   const [cancionesFavoritas, setCancionesFavoritas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [trackCargando, setTrackCargando] = useState(null); 
@@ -172,6 +172,7 @@ const Playlist = ({ setTrackActual }) => {
             <span>TÍTULO</span>
             <span>ÁLBUM</span>
             <span style={{ textAlign: 'right', paddingRight: '4px' }}>DURACIÓN</span>
+            <span></span> 
           </div>
           <hr />
           <div className="tracklist">
@@ -230,4 +231,4 @@ const Playlist = ({ setTrackActual }) => {
   );
 };
 
-export default Playlist;
+export default Favorites;

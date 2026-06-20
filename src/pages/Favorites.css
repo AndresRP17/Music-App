@@ -31,13 +31,13 @@
 
 .playlist-tracklist-section {
     width: 100%;
-    max-width: 1100px;
+    max-width: 100%;
     margin: 0 auto;
 }
 
 .playlist-tracklist-header, .playlist-track-row {
     display: grid;
-    grid-template-columns: 40px 0.5fr 0.5fr 40px 60px;
+    grid-template-columns: 240px 2fr 1.5fr 180px 160px; /* 👈 ajustado */
     padding: 14px 12px;
     align-items: center;
 }

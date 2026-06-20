@@ -343,6 +343,21 @@ audio {
         padding-bottom: calc(var(--sp-nav-height) + var(--sp-player-height) + 16px);
     }
 
+    .sidebar h2,
+.logout-btn,
+.copy {
+    display: none !important;
+}
+
+.logo {
+    display: none !important;
+}
+    /* Contenido principal en mobile */
+.content {
+    padding: 16px;
+    padding-bottom: calc(var(--sp-nav-height) + var(--sp-player-height) + 24px);
+}
+
     .container {
         flex-direction: column;
         padding-bottom: 0;
@@ -579,4 +594,4 @@ audio {
 
 
 
-} /* fin @media mobile */
+} 

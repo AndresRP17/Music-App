@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Playlist from './Playlists';        // tus favoritos actuales
+import Favorites from './Favorites';        // tus favoritos actuales
 import MisPlaylists from './MisPlaylists'; // nuevo componente (lo creamos después)
 import './MiMusica.css';
 
@@ -25,7 +25,7 @@ const MiMusica = ({ setTrackActual }) => {
 
       <div className="mi-musica-contenido">
         {pestanaActiva === 'favoritos' 
-          ? <Playlist setTrackActual={setTrackActual} />
+          ? <Favorites setTrackActual={setTrackActual} />
           : <MisPlaylists setTrackActual={setTrackActual} />
         }
       </div>
