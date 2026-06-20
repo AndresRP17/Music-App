@@ -92,6 +92,7 @@ body {
 /* --- LISTA DE CANCIONES --- */
 .tracklist-section {
     width: 100%;
+    
 }
 
 .tracklist-header, .track-row {
@@ -100,6 +101,7 @@ body {
     grid-template-columns: 50px 1fr 50px 100px; 
     padding: 12px 10px;
     align-items: center;
+    border-bottom: 1px solid gray;
 }
 
 .tracklist-header {
@@ -110,6 +112,8 @@ body {
     letter-spacing: 1px;
 }
 
+
+
 .tracklist-section hr {
     border: 0;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -118,7 +122,7 @@ body {
 
 .track-row {
     transition: background 0.2s ease;
-    border-radius: 8px;
+    border-bottom: 1px solid gray;
 }
 
 .track-row:hover {

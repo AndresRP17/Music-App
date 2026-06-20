@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { FaPlay, FaPlus, FaLock, FaCheck } from 'react-icons/fa'; 
 import Publicidad from '../pages/Publicidad';
 import ModalPlaylist from '../pages/ModalPlaylist';
@@ -16,6 +16,7 @@ function AlbumDetails({ setTrackActual }) {
   const [mostrarPublicidad, setMostrarPublicidad] = useState(false);
   const [modalPlaylist, setModalPlaylist] = useState(false);
 const [cancionSeleccionada, setCancionSeleccionada] = useState(null);
+const navigate = useNavigate()
 
   const esPremium = localStorage.getItem("esPremium") === "true";
 
@@ -57,7 +58,7 @@ const [cancionSeleccionada, setCancionSeleccionada] = useState(null);
       // Local: leer del backend
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/favorites`, {
+        const response = await fetch(`/api/favorites`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) return;
@@ -193,7 +194,15 @@ const [cancionSeleccionada, setCancionSeleccionada] = useState(null);
           <p className="type">Álbum</p>
           <h1>{albumInfo.name}</h1>
           <div className="album-metadata">
-            <span className="artist-name-main">{albumInfo.artist}</span>
+          <span
+                className="artist-name-main"
+                onClick={() => navigate(`/artist/${encodeURIComponent(albumInfo.artist)}`)}
+                style={{ cursor: 'pointer' }}
+                onMouseEnter={e => e.target.style.textDecoration = 'underline'}
+                onMouseLeave={e => e.target.style.textDecoration = 'none'}
+              >
+                {albumInfo.artist}
+      </span>
             {albumInfo.tags?.tag?.length > 0 && (
               <span className="genre-tag"> • {albumInfo.tags.tag[0].name}</span>
             )}

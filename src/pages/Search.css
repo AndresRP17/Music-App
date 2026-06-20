@@ -1,46 +1,127 @@
-/* ============================================================
-   ESTILOS GENERALES Y DESKTOP
-   ============================================================ */
-
 h1 {
     font-size: 25px;
     color: white;
 }
 
-/* --- BARRA DE BÚSQUEDA --- */
+/* --- BUSCADOR --- */
+.search-input-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 560px;
+    margin-top: 12px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa;
+    font-size: 16px;
+    pointer-events: none;
+}
+
 .search-input {
     width: 100%;
-    max-width: 400px;
-    padding: 15px;
-    margin-top: 10px;
-    border-radius: 20px;
+    padding: 16px 48px;
+    border-radius: 30px;
     border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.05);
+    background: rgba(255,255,255,0.07);
     color: white;
     outline: none;
-    transition: all 0.3s ease; /* Focus suave */
+    font-size: 15px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
 }
 
 .search-input:focus {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.6);
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.5);
+    box-shadow: 0 0 20px rgba(255,255,255,0.08);
 }
 
-/* --- FILTROS DE BÚSQUEDA --- */
+.search-input::placeholder { color: #666; }
+
+.search-clear-btn {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    border-radius: 50%;
+    transition: color 0.2s;
+}
+
+.search-clear-btn:hover { color: #fff; }
+
+/* --- TABS --- */
+.search-tabs {
+    display: flex;
+    gap: 8px;
+    margin: 24px 0 16px;
+    flex-wrap: wrap;
+}
+
+.search-tab {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #aaa;
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.search-tab:hover {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+}
+
+.search-tab.active {
+    background: #fff;
+    color: #000;
+    border-color: #fff;
+}
+
+.tab-count {
+    background: rgba(238, 219, 219, 0.2);
+    padding: 1px 7px;
+    border-radius: 10px;
+    font-size: 11px;
+}
+
+.search-tab.active .tab-count { 
+    background: rgba(0, 0, 0, 0.15);
+     color: rgb(3, 3, 3); }
+
+/* --- FILTROS --- */
 .filter-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 20px 0;
-    padding: 0 10px;
+    margin: 8px 0 16px;
+    padding: 0 4px;
     font-size: 0.9rem;
+    color: #aaa;
 }
 
 .sort-select {
-    background-color: rgba(255, 255, 255, 0.05);
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-color: rgba(255,255,255,0.05);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.2);
     padding: 8px 12px;
     border-radius: 8px;
     outline: none;
@@ -53,101 +134,197 @@ h1 {
     background-position: right 10px center;
     background-size: 20px;
     padding-right: 30px;
-    transition: all 0.3s ease;
+    transition: all 0.2s;
 }
 
-.sort-select:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.4);
-}
+.sort-select:hover { background-color: rgba(255,255,255,0.1); }
+.sort-select option { background-color: #1a1a1a; color: white; }
 
-.sort-select option {
-    background-color: #1a1a1a; 
-    color: white;
-    padding: 10px;
-}
-
-/* --- GRILLAS DE ÁLBUMES (Resultados y Historial) --- */
-.album-grid, .albums-grid {
+/* --- GRILLA ÁLBUMES --- */
+.album-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 25px;
-    padding: 20px 0;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+    padding: 8px 0 20px;
 }
 
-/* --- LA CARD INDIVIDUAL --- */
 .album-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
     border-radius: 12px;
-    padding: 15px;
+    padding: 14px;
     text-align: center;
-    transition: transform 0.3s ease, background 0.3s ease;
-    height: 100%;
+    transition: transform 0.2s ease, background 0.2s ease;
+    cursor: pointer;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    cursor: pointer;
 }
 
 .album-card:hover {
-    transform: translateY(-5px);
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-4px);
+    background: rgba(255,255,255,0.09);
+    border-color: rgba(255,255,255,0.2);
 }
 
 .album-card img {
     width: 100%;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 1;
     object-fit: cover;
     border-radius: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .album-card h3 {
-    font-size: 1rem;
-    margin: 5px 0;
+    font-size: 0.9rem;
+    margin: 4px 0;
     color: #fff;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2; /* Asegura un tope de renglones */
+    -webkit-line-clamp: 2;
     overflow: hidden;
 }
 
 .album-card p {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     color: #b3b3b3;
+    margin: 2px 0 0;
+    transition: color 0.2s;
 }
 
-.album-link {
-    text-decoration: none;
-    color: inherit;
+/* --- GRILLA ARTISTAS --- */
+.artistas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 20px;
+    padding: 8px 0 20px;
 }
 
-/* --- SECCIÓN HISTORIAL --- */
+.artista-card {
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.artista-card:hover { transform: translateY(-4px); }
+
+.artista-card img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 10px;
+    background: #282828;
+}
+
+.artista-card h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.artista-card p {
+    font-size: 12px;
+    color: #aaa;
+    margin: 0;
+}
+
+/* --- SKELETON --- */
+.skeleton-card {
+    border-radius: 12px;
+    padding: 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+.skeleton-img {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    margin-bottom: 10px;
+}
+
+.skeleton-line {
+    height: 12px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    margin-bottom: 8px;
+}
+
+.skeleton-line.short { width: 60%; }
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* --- HISTORIAL --- */
 .historial-section {
-    margin-top: 40px;
-    animation: fadeIn 0.5s ease-in;
+    margin-top: 32px;
+    animation: fadeIn 0.4s ease;
 }
 
-.historial-section h2 {
-    font-size: 1.8rem;
-    margin-bottom: 25px;
+.historial-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.historial-header h2 {
+    font-size: 1.4rem;
     color: #ff2d55;
+    margin: 0;
+}
+
+.limpiar-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #aaa;
+    padding: 7px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+.limpiar-btn:hover {
+    color: #fff;
+    border-color: rgba(255,255,255,0.4);
+}
+
+.no-history {
+    text-align: center;
+    margin-top: 80px;
+    color: #aaa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.no-history h2 {
+    color: #fff;
+    margin-bottom: 8px;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-
-/* ============================================================
-   SIEMPRE ABAJO DE TODO: MOBILE ONLY (max-width: 768px)
-   ============================================================ */
+/* --- MOBILE --- */
 @media (max-width: 768px) {
-
-    /* Ajustamos la barra de filtros para que no aplaste el select */
     .filter-bar {
         flex-direction: column;
         align-items: flex-start;
@@ -155,45 +332,45 @@ h1 {
         padding: 0;
     }
 
-    .sort-select {
-        width: 100%; /* El buscador y el filtro ocupan todo el ancho */
-    }
+    .sort-select { width: 100%; }
+    .search-input { max-width: 100%; font-size: 16px; }
 
-    .search-input {
-        max-width: 100%;
-    }
-
-    /* Transformamos las dos grillas en carruseles deslizantes */
-    .album-grid, .albums-grid {
+    .album-grid {
         display: flex;
-        flex-direction: row;
         overflow-x: auto;
-        scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch;
-        gap: 14px;
-        padding: 10px 5px;
-        scrollbar-width: none; /* Esconde barra en Firefox */
+        gap: 12px;
+        padding: 10px 4px;
+        scrollbar-width: none;
     }
 
-    .album-grid::-webkit-scrollbar, 
-    .albums-grid::-webkit-scrollbar {
-        display: none; /* Esconde barra en Chrome/Safari */
-    }
+    .album-grid::-webkit-scrollbar { display: none; }
 
-    /* Forzamos a las tarjetas a mantener el tamaño en el carrusel */
     .album-card {
-        flex: 0 0 150px; 
-        width: 150px;
+        flex: 0 0 140px;
+        width: 140px;
         padding: 10px;
     }
 
-    /* Desactivamos el salto del hover que molesta en pantallas táctiles */
-    .album-card:hover {
-        transform: none;
+    .album-card:hover { transform: none; }
+
+    .artistas-grid {
+        display: flex;
+        overflow-x: auto;
+        gap: 12px;
+        padding: 10px 4px;
+        scrollbar-width: none;
     }
 
-    .historial-section h2 {
-        font-size: 1.4rem; /* Un toque más chico el título en el cel */
-        margin-bottom: 15px;
+    .artistas-grid::-webkit-scrollbar { display: none; }
+
+    .artista-card {
+        flex: 0 0 120px;
+        width: 120px;
     }
+
+    .artista-card:hover { transform: none; }
+
+    .search-tabs { gap: 6px; }
+    .search-tab { padding: 6px 14px; font-size: 12px; }
+    .historial-header h2 { font-size: 1.2rem; }
 }
