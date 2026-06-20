@@ -336,19 +336,18 @@ h1 {
     .search-input { max-width: 100%; font-size: 16px; }
 
     .album-grid {
-        display: flex;
-        overflow-x: auto;
-        gap: 12px;
-        padding: 10px 4px;
-        scrollbar-width: none;
+       display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    overflow-x: unset;
+    gap: 12px;
+    padding: 10px 4px
     }
 
     .album-grid::-webkit-scrollbar { display: none; }
 
     .album-card {
-        flex: 0 0 140px;
-        width: 140px;
-        padding: 10px;
+        flex: unset;
+    width: 100%;
     }
 
     .album-card:hover { transform: none; }
