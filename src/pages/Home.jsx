@@ -269,11 +269,10 @@ function Home() {
 
   if (loading) return <div className="loading">Preparando tu música...</div>;
 
-  // ← EL RETURN EMPIEZA ACÁ, ADENTRO VA TODO
   return (
     <div className="home-container">
 
-      {/* MODAL DE PUBLICIDAD */}
+   
       {mostrarPublicidad && (
   <Publicidad onCerrar={cerrarPublicidadYContinuar} />
 )}

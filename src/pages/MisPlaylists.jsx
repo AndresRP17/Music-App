@@ -166,8 +166,6 @@ const MisPlaylists = () => {
                 >
                   <span className="playlist-track-name">{playlist.name}</span>
                 </div>
-                <span></span>
-                <span></span>
                 <button className="playlist-delete-btn" onClick={() => eliminarPlaylist(playlist.id)}>
                   <MdDelete />
                 </button>

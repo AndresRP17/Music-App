@@ -308,6 +308,7 @@ body {
         grid-template-columns: 1fr;
     }
 
+   
     .album-sidebar {
         order: 2;
     }
@@ -322,7 +323,7 @@ body {
 
     .album-header {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
         gap: 20px;
     }
 

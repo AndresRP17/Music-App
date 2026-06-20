@@ -1,6 +1,6 @@
 .configuracion {
   padding: 2rem;
-  color: white;
+  color: rgb(48, 12, 12);
 }
 
 .logo-section {
@@ -16,11 +16,11 @@
   height: 120px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #1db954;
+  border: 3px solid #babaa8;
 }
 
 .upload-label {
-  background: #1db954;
+  background: #0a7287;
   color: white;
   padding: 0.5rem 1.2rem;
   border-radius: 20px;

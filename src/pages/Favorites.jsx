@@ -138,8 +138,8 @@ const Favorites = ({ setTrackActual }) => {
       )}
 
       <header className="playlist-header">
-        <h1>Tu Playlist</h1>
-        <p className="playlist-subtitle">Tu colección de música personalizada</p>
+        <h1>Tus Favoritos</h1>
+        <p className="playlist-subtitle">Tu colección de música favorita</p>
       </header>
 
       {cancionesFavoritas.length > 0 && (

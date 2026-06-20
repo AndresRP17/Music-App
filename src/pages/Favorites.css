@@ -37,9 +37,13 @@
 
 .playlist-tracklist-header, .playlist-track-row {
     display: grid;
-    grid-template-columns: 240px 2fr 1.5fr 180px 160px; /* 👈 ajustado */
+    grid-template-columns: 140px 2fr 1.5fr 180px 160px; /* 👈 ajustado */
     padding: 14px 12px;
     align-items: center;
+}
+
+.tracklist{
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .playlist-tracklist-header {
@@ -53,13 +57,16 @@
 .playlist-tracklist-section hr {
     border: 0;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     margin-bottom: 12px;
     margin-top: 4px;
 }
 
 .playlist-track-row {
+    margin-top: 10px;
     transition: background-color 0.15s ease;
     border-radius: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .playlist-track-row:hover {
@@ -207,6 +214,7 @@
     cursor: pointer;
     font-size: 1.4rem;
     padding: 6px;
+    margin-left: 100px;
     border-radius: 4px;
     display: flex;
     align-items: center;
@@ -220,6 +228,7 @@
 
 .playlist-track-row:hover .playlist-delete-btn {
     opacity: 1;
+    background: rgba(226, 189, 187, 0.1);
     pointer-events: auto;
 }
 
@@ -276,6 +285,7 @@
         height: 36px;
         font-size: 1.1rem;
         color: #ff453a;
+        margin-left: -10px;
     }
 
     /* El botón play también siempre visible */
