@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Publicidad from '../pages/Publicidad';
+import { usePublicidad } from '../hooks/usePublicidad';
 import './Home.css';
 
 const MIS_ÁLBUMES_ELEGIDOS = {
@@ -91,8 +92,8 @@ function Home() {
   const [popAlbums, setPopAlbums] = useState([]);
   const [loading, setLoading] = useState(true);
   const [heroIndex, setHeroIndex] = useState(0);
-  const [mostrarPublicidad, setMostrarPublicidad] = useState(false);
-  const [albumPendiente, setAlbumPendiente] = useState(null);
+
+  const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad();
 
   const navigate = useNavigate();
   const topRef = useRef(null);
@@ -216,25 +217,9 @@ function Home() {
     ].slice(0, 5);
     localStorage.setItem('historialBusqueda', JSON.stringify(nuevoHistorial));
 
-    const clicksActuales = parseInt(localStorage.getItem('contadorPublicidad')) || 0;
-    const proximosClicks = clicksActuales + 1;
-
-    if (proximosClicks >= 3) {
-      localStorage.setItem('contadorPublicidad', '0');
-      setAlbumPendiente({ name: album.name, artist: nombreArtista });
-      setMostrarPublicidad(true);
-    } else {
-      localStorage.setItem('contadorPublicidad', proximosClicks.toString());
+    conPublicidad(() => {
       navigate(`/album/${encodeURIComponent(album.name)}/${encodeURIComponent(nombreArtista)}`);
-    }
-  };
-
-  const cerrarPublicidadYContinuar = () => {
-    setMostrarPublicidad(false);
-    if (albumPendiente) {
-      navigate(`/album/${encodeURIComponent(albumPendiente.name)}/${encodeURIComponent(albumPendiente.artist)}`);
-      setAlbumPendiente(null);
-    }
+    });
   };
 
   const renderSection = (titulo, albums, referencia) => (
@@ -272,10 +257,9 @@ function Home() {
   return (
     <div className="home-container">
 
-   
       {mostrarPublicidad && (
-  <Publicidad onCerrar={cerrarPublicidadYContinuar} />
-)}
+        <Publicidad onCerrar={cerrarYContinuar} />
+      )}
 
       <section
         className="hero-section"

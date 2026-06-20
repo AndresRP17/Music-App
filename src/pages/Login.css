@@ -11,12 +11,10 @@
 /* --- LADO IZQUIERDO: IMAGEN --- */
 .login-image-side {
     flex: 1;
-    /* Meté acá una foto de un vinilo, estudio, o recital que te cope */
     background: url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1000') center/cover no-repeat;
     position: relative;
 }
 
-/* Degradado oscuro sobre la imagen para que no encandile */
 .login-image-overlay {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -37,7 +35,7 @@
 .login-image-overlay p {
     color: #b3b3b3;
     font-size: 1.1rem;
-    max-w: 400px;
+    max-width: 400px; /* Fix: era max-w */
 }
 
 /* --- LADO DERECHO: FORMULARIO --- */
@@ -71,7 +69,7 @@
     font-size: 0.95rem;
 }
 
-/* Alerta de Error tipo Apple */
+/* Alerta de Error */
 .login-error-alert {
     background: rgba(255, 69, 58, 0.1);
     border: 1px solid rgba(255, 69, 58, 0.25);
@@ -106,21 +104,26 @@
     background-color: #1a1a1a;
     border: 1px solid #2c2c2e;
     border-radius: 8px;
-    padding: 14px;
-    font-size: 0.95rem;
+    padding: 0 14px;
+    height: 50px;
+    font-size: 1rem; /* Fix: evita zoom en iOS */
+    color: #fff; /* Fix: texto visible */
     outline: none;
     transition: all 0.2s ease;
 }
 
-/* Foco elegante con el rojo acento */
+.login-input-group input::placeholder {
+    color: #555;
+}
+
 .login-input-group input:focus {
     border-color: #ff2d55;
     background-color: #222;
 }
 
-/* Botón de envío Premium */
+/* Botón principal */
 .login-submit-btn {
-    background-color: #ff2d55; /* El toque rojo Apple Music */
+    background-color: #ff2d55;
     color: white;
     border: none;
     border-radius: 8px;
@@ -149,7 +152,56 @@
 
 /* --- RESPONSIVE --- */
 @media (max-width: 850px) {
+
+    /* Layout vertical: hero arriba, form abajo */
+    .login-split-container {
+        flex-direction: column;
+    }
+
+    /* La imagen pasa a ser un header compacto */
     .login-image-side {
-        display: none; /* En celulares esconde la foto y deja solo el form */
+        flex: none;
+        height: 200px;
+    }
+
+    .login-image-overlay {
+        padding: 24px;
+        justify-content: flex-end;
+    }
+
+    .login-image-overlay h2 {
+        font-size: 1.6rem;
+        letter-spacing: -0.5px;
+    }
+
+    .login-image-overlay p {
+        font-size: 0.85rem;
+    }
+
+    /* Formulario */
+    .login-form-side {
+        padding: 28px 20px;
+        align-items: flex-start;
+    }
+
+    .login-header {
+        margin-bottom: 24px;
+    }
+
+    .login-header h2 {
+        font-size: 1.7rem;
+    }
+
+    /* Inputs grandes para touch */
+    .login-input-group input {
+        height: 52px;
+        font-size: 16px; /* Fix iOS: 16px exacto evita el zoom automático */
+    }
+
+    /* Botón más alto para el dedo */
+    .login-submit-btn {
+        padding: 16px;
+        font-size: 1rem;
+        margin-top: 6px;
     }
 }

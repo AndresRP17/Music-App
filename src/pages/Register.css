@@ -1,0 +1,32 @@
+/* src/pages/Register.css */
+/* Importa todo el estilo base del Login */
+@import "./Login.css";
+
+/* Imagen diferente al login: auriculares en estudio */
+.register-image-side {
+    background-image: url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1000') !important;
+    background-position: center/cover !important;
+}
+
+/* Mensaje de éxito en tema oscuro */
+.register-success-alert {
+    background: rgba(30, 215, 96, 0.1);
+    border: 1px solid rgba(30, 215, 96, 0.25);
+    color: #1ed760;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+/* Link consistente con el color del tema */
+.register-link {
+    color: #ff2d55;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.register-link:hover {
+    text-decoration: underline;
+}

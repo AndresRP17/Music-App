@@ -13,7 +13,7 @@ import ListaUsuarios from "./componentes/ListaUsuarios";
 import DetalleUsuario from "./componentes/DetalleUsuario";
 import Configuracion from './pages/Configuration';
 import MiMusica from "./pages/MiMusica";
-import PlaylistDetalle from "./pages/PlaylistDetalle"; // 👈 agregado
+import PlaylistDetalle from "./pages/PlaylistDetalle"; 
 import ArtistDetail from "./pages/ArtistDetail";
 import './App.css';
 

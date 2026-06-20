@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { FaSearch, FaTimes, FaPlay, FaPlus } from 'react-icons/fa';
 import { MdHistory, MdDeleteSweep } from 'react-icons/md';
 import ModalPlaylist from './ModalPlaylist';
+import Publicidad from '../pages/Publicidad';
+import { usePublicidad } from '../hooks/usePublicidad';
 import './Search.css';
 
 function Search({ setTrackActual }) {
@@ -17,6 +19,7 @@ function Search({ setTrackActual }) {
   const [modalPlaylist, setModalPlaylist] = useState(false);
   const [cancionSeleccionada, setCancionSeleccionada] = useState(null);
   const navigate = useNavigate();
+  const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad(setTrackActual);
 
   const API_KEY = 'aa182e9e95ab101a5f7ae68eba441e09';
 
@@ -34,7 +37,10 @@ function Search({ setTrackActual }) {
       ...historialActual.filter(item => item.name !== album.name)
     ].slice(0, 5);
     localStorage.setItem('historialBusqueda', JSON.stringify(nuevoHistorial));
-    navigate(`/album/${encodeURIComponent(album.name)}/${encodeURIComponent(nombreArtista)}`);
+
+    conPublicidad(() => {
+      navigate(`/album/${encodeURIComponent(album.name)}/${encodeURIComponent(nombreArtista)}`);
+    });
   };
 
   const limpiarHistorial = () => {
@@ -47,7 +53,6 @@ function Search({ setTrackActual }) {
       if (busqueda.trim().length > 2) {
         setCargando(true);
         try {
-          // Álbumes desde Last.fm
           const resAlbumes = await fetch(
             `https://ws.audioscrobbler.com/2.0/?method=album.search&album=${encodeURIComponent(busqueda)}&api_key=${API_KEY}&format=json&limit=50`
           );
@@ -69,14 +74,12 @@ function Search({ setTrackActual }) {
             setAlbumes(resultados.slice(0, 20));
           }
 
-          // Artistas desde Deezer (con fotos)
           const resArtistas = await fetch(`/deezer/search/artist?q=${encodeURIComponent(busqueda)}`);
           const dataArtistas = await resArtistas.json();
           if (dataArtistas.data) {
             setArtistas(dataArtistas.data.slice(0, 12));
           }
 
-          // Canciones desde Deezer
           const resCanciones = await fetch(`/deezer/search?q=${encodeURIComponent(busqueda)}`);
           const dataCanciones = await resCanciones.json();
           if (dataCanciones.data) {
@@ -271,12 +274,12 @@ function Search({ setTrackActual }) {
                         {Math.floor(cancion.duration / 60)}:{(cancion.duration % 60).toString().padStart(2, '0')}
                       </span>
                       <button
-                        onClick={() => setTrackActual({
+                        onClick={() => conPublicidad(() => setTrackActual({
                           title: cancion.title,
                           artist: cancion.artist.name,
                           url: cancion.preview,
                           cover: cancion.album?.cover_medium || 'https://via.placeholder.com/150'
-                        })}
+                        }))}
                         style={{ background: '#1db954', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', flexShrink: 0 }}
                       >
                         <FaPlay style={{ fontSize: '11px', marginLeft: '1px' }} />
@@ -311,6 +314,11 @@ function Search({ setTrackActual }) {
           cancion={cancionSeleccionada}
           onCerrar={() => { setModalPlaylist(false); setCancionSeleccionada(null); }}
         />
+      )}
+
+      {/* Publicidad */}
+      {mostrarPublicidad && (
+        <Publicidad onCerrar={cerrarYContinuar} />
       )}
     </div>
   );

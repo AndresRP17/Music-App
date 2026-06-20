@@ -42,7 +42,7 @@ function Sidebar({ cerrarSesion }) {
 
   return (
     <aside className="sidebar">
-      <h2>Music App<IoIosMusicalNotes /> </h2>
+      <h2>MusicApp<IoIosMusicalNotes /> </h2>
       <img src={logoSrc} alt="logo" className="logo" />
 
       <ul>

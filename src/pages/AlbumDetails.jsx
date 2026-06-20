@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FaPlay, FaPlus, FaLock, FaCheck } from 'react-icons/fa'; 
+import { FaPlay, FaPlus, FaLock } from 'react-icons/fa'; 
 import Publicidad from '../pages/Publicidad';
 import ModalPlaylist from '../pages/ModalPlaylist';
+import { usePublicidad } from '../hooks/usePublicidad';
 import './AlbumDetails.css';
 
 const esProd = window.location.hostname.includes("netlify");
@@ -13,49 +14,99 @@ function AlbumDetails({ setTrackActual }) {
   const [trackCargando, setTrackCargando] = useState(null); 
   const [cancionesGuardadas, setCancionesGuardadas] = useState([]);
   const [guardandoTrack, setGuardandoTrack] = useState(null);
-  const [mostrarPublicidad, setMostrarPublicidad] = useState(false);
   const [modalPlaylist, setModalPlaylist] = useState(false);
-const [cancionSeleccionada, setCancionSeleccionada] = useState(null);
-const navigate = useNavigate()
+  const [cancionSeleccionada, setCancionSeleccionada] = useState(null);
+  const navigate = useNavigate();
+
+  const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad(setTrackActual);
 
   const esPremium = localStorage.getItem("esPremium") === "true";
 
-  useEffect(() => {
-    const fetchAlbumDetails = async () => {
-      try {
-        const nombreLimpio = artistName.toUpperCase().replace(/[\s/]/g, "");
-        let artistaParaLastFm = artistName;
-        if (nombreLimpio === "ACDC") {
-          artistaParaLastFm = "AC/DC"; 
-        }
-        const response = await fetch(
-          `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=aa182e9e95ab101a5f7ae68eba441e09&artist=${encodeURIComponent(artistaParaLastFm)}&album=${encodeURIComponent(albumName)}&format=json&autocorrect=1`
-        );      
-        const data = await response.json();
-        if (data.album) {
-          setAlbumInfo(data.album);
-        } else {
-          console.warn("Last.fm no encontró el álbum con ese formato de nombre.");
-        }
-      } catch (error) {
-        console.error("Error al traer el detalle:", error);
+ useEffect(() => {
+  const fetchAlbumDetails = async () => {
+    try {
+      const nombreLimpio = artistName.toUpperCase().replace(/[\s/]/g, "");
+      let artistaParaLastFm = artistName;
+      if (nombreLimpio === "ACDC") {
+        artistaParaLastFm = "AC/DC";
       }
-    };
-    if (artistName && albumName) {
-      fetchAlbumDetails();
+
+      const response = await fetch(
+        `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=aa182e9e95ab101a5f7ae68eba441e09&artist=${encodeURIComponent(artistaParaLastFm)}&album=${encodeURIComponent(albumName)}&format=json&autocorrect=1`
+      );
+      const data = await response.json();
+
+      if (data.album) {
+        const tracks = data.album.tracks?.track;
+        const tracklistRoto = !tracks || !Array.isArray(tracks);
+
+        if (tracklistRoto) {
+          // Fallback: buscar tracklist en MusicBrainz
+          try {
+            const mbRes = await fetch(
+              `https://musicbrainz.org/ws/2/release/?query=release:${encodeURIComponent(albumName)}+artist:${encodeURIComponent(artistaParaLastFm)}&fmt=json&limit=1`,
+              { headers: { 'User-Agent': 'MusicApp/1.0' } }
+            );
+            const mbData = await mbRes.json();
+            const releaseId = mbData.releases?.[0]?.id;
+
+            if (releaseId) {
+              const mbTracksRes = await fetch(
+                `https://musicbrainz.org/ws/2/release/${releaseId}?inc=recordings&fmt=json`,
+                { headers: { 'User-Agent': 'MusicApp/1.0' } }
+              );
+              const mbTracksData = await mbTracksRes.json();
+              const media = mbTracksData.media?.[0]?.tracks;
+
+              if (media && media.length > 0) {
+                // Convertimos el formato de MusicBrainz al formato que espera el componente
+                const tracksFormateados = media.map(t => ({
+                  name: t.title,
+                  duration: Math.round(t.length / 1000) || 0,
+                  url: '',
+                  streamable: { '#text': '0', fulltrack: '0' }
+                }));
+
+                // Usamos info visual de Last.fm + tracklist de MusicBrainz
+                setAlbumInfo({
+                  ...data.album,
+                  tracks: { track: tracksFormateados }
+                });
+                return;
+              }
+            }
+          } catch (mbError) {
+            console.warn("MusicBrainz fallback falló:", mbError);
+          }
+
+          // Si MusicBrainz también falla, al menos no rompemos el .map
+          if (tracks && !Array.isArray(tracks)) {
+            data.album.tracks.track = [tracks];
+          }
+        }
+
+        setAlbumInfo(data.album);
+      } else {
+        console.warn("Last.fm no encontró el álbum con ese formato de nombre.");
+      }
+    } catch (error) {
+      console.error("Error al traer el detalle:", error);
     }
-  }, [albumName, artistName]);
+  };
+
+  if (artistName && albumName) {
+    fetchAlbumDetails();
+  }
+}, [albumName, artistName]);
 
   useEffect(() => {
     const obtenerFavoritos = async () => {
-      // En Netlify: leer del localStorage
       if (esProd) {
         const guardadas = JSON.parse(localStorage.getItem("favoritos") || "[]");
         const claves = guardadas.map(c => `${c.artist}-${c.title}`);
         setCancionesGuardadas(claves);
         return;
       }
-      // Local: leer del backend
       try {
         const token = localStorage.getItem('token');
         const response = await fetch(`/api/favorites`, {
@@ -75,19 +126,6 @@ const navigate = useNavigate()
   const reproducirPista = async (trackName, index) => {
     setTrackCargando(index);
 
-    if (!esPremium) {
-      const clicks = parseInt(localStorage.getItem('contadorPublicidad')) || 0;
-      const siguiente = clicks + 1;
-      if (siguiente >= 3) {
-        localStorage.setItem('contadorPublicidad', '0');
-        setTrackCargando(null);
-        setMostrarPublicidad(true);
-        return;
-      } else {
-        localStorage.setItem('contadorPublicidad', siguiente.toString());
-      }
-    }
-
     try {
       const trackLimpio = trackName.replace(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f\u1100-\u11ff\u3130-\u318f\uac00-\ud7af]/g, "").trim();
       const query = `${albumInfo.artist} ${trackLimpio}`;
@@ -97,11 +135,15 @@ const navigate = useNavigate()
       if (data.data && data.data.length > 0) {
         const trackEncontrado = data.data[0];
         const portadaLastFm = albumInfo.image?.[2]?.['#text'] || 'https://via.placeholder.com/150';
-        setTrackActual({
-          title: trackLimpio,
-          artist: albumInfo.artist,
-          url: trackEncontrado.preview,
-          cover: trackEncontrado.album?.cover_medium || portadaLastFm
+
+        // Pasamos la reproducción por el hook — pausa y muestra ad si toca
+        conPublicidad(() => {
+          setTrackActual({
+            title: trackLimpio,
+            artist: albumInfo.artist,
+            url: trackEncontrado.preview,
+            cover: trackEncontrado.album?.cover_medium || portadaLastFm
+          });
         });
       } else {
         alert(`No se encontró una vista previa de audio para "${trackLimpio}" en Deezer.`);
@@ -122,7 +164,6 @@ const navigate = useNavigate()
 
     setGuardandoTrack(index);
 
-    // En Netlify: guardar en localStorage
     if (esProd) {
       const guardadas = JSON.parse(localStorage.getItem("favoritos") || "[]");
       const nueva = {
@@ -140,7 +181,6 @@ const navigate = useNavigate()
       return;
     }
 
-    // Local: guardar en el backend
     try {
       const cancionFavorita = {
         title: track.name,
@@ -181,7 +221,7 @@ const navigate = useNavigate()
     <div className="album-detail-container">
 
       {mostrarPublicidad && (
-        <Publicidad onCerrar={() => setMostrarPublicidad(false)} />
+        <Publicidad onCerrar={cerrarYContinuar} />
       )}
 
       <header className="album-header">
@@ -194,15 +234,15 @@ const navigate = useNavigate()
           <p className="type">Álbum</p>
           <h1>{albumInfo.name}</h1>
           <div className="album-metadata">
-          <span
-                className="artist-name-main"
-                onClick={() => navigate(`/artist/${encodeURIComponent(albumInfo.artist)}`)}
-                style={{ cursor: 'pointer' }}
-                onMouseEnter={e => e.target.style.textDecoration = 'underline'}
-                onMouseLeave={e => e.target.style.textDecoration = 'none'}
-              >
-                {albumInfo.artist}
-      </span>
+            <span
+              className="artist-name-main"
+              onClick={() => navigate(`/artist/${encodeURIComponent(albumInfo.artist)}`)}
+              style={{ cursor: 'pointer' }}
+              onMouseEnter={e => e.target.style.textDecoration = 'underline'}
+              onMouseLeave={e => e.target.style.textDecoration = 'none'}
+            >
+              {albumInfo.artist}
+            </span>
             {albumInfo.tags?.tag?.length > 0 && (
               <span className="genre-tag"> • {albumInfo.tags.tag[0].name}</span>
             )}
@@ -220,7 +260,10 @@ const navigate = useNavigate()
           <hr />
           <div className="tracklist">
             {albumInfo.tracks?.track ? (
-              albumInfo.tracks.track.map((track, index) => {
+  (Array.isArray(albumInfo.tracks.track) 
+    ? albumInfo.tracks.track 
+    : [albumInfo.tracks.track]
+  ).map((track, index) => {
                 const yaGuardada = cancionesGuardadas.includes(`${albumInfo.artist}-${track.name}`);
                 const cargando = guardandoTrack === index;
 
@@ -247,42 +290,42 @@ const navigate = useNavigate()
                         : "0:00"
                       }
                     </span>
-                   <button 
-  className={`add-playlist-btn ${!esPremium ? 'add-playlist-btn--locked' : ''}`}
-  onClick={() => {
-    if (!esPremium) {
-      alert("🔒 Necesitás ser usuario Premium para agregar canciones.");
-      return;
-    }
-    setCancionSeleccionada({
-      title: track.name,
-      artist: albumInfo.artist,
-      album: albumInfo.name,
-      duration: track.duration ? parseInt(track.duration) : 0,
-      genre: albumInfo.tags?.tag?.[0]?.name || ''
-    });
-    setModalPlaylist(true);
-  }}
-  disabled={cargando}
-  title={!esPremium ? "Función exclusiva Premium" : "Agregar a playlist"}
->
-  {cargando ? (
-    <span className="mini-spinner">...</span>
-  ) : !esPremium ? (
-    <FaLock />
-  ) : (
-    <FaPlus />
-  )}
-</button>
-{modalPlaylist && cancionSeleccionada && (
-  <ModalPlaylist
-    cancion={cancionSeleccionada}
-    onCerrar={() => {
-      setModalPlaylist(false);
-      setCancionSeleccionada(null);
-    }}
-  />
-)}
+                    <button 
+                      className={`add-playlist-btn ${!esPremium ? 'add-playlist-btn--locked' : ''}`}
+                      onClick={() => {
+                        if (!esPremium) {
+                          alert("🔒 Necesitás ser usuario Premium para agregar canciones.");
+                          return;
+                        }
+                        setCancionSeleccionada({
+                          title: track.name,
+                          artist: albumInfo.artist,
+                          album: albumInfo.name,
+                          duration: track.duration ? parseInt(track.duration) : 0,
+                          genre: albumInfo.tags?.tag?.[0]?.name || ''
+                        });
+                        setModalPlaylist(true);
+                      }}
+                      disabled={cargando}
+                      title={!esPremium ? "Función exclusiva Premium" : "Agregar a playlist"}
+                    >
+                      {cargando ? (
+                        <span className="mini-spinner">...</span>
+                      ) : !esPremium ? (
+                        <FaLock />
+                      ) : (
+                        <FaPlus />
+                      )}
+                    </button>
+                    {modalPlaylist && cancionSeleccionada && (
+                      <ModalPlaylist
+                        cancion={cancionSeleccionada}
+                        onCerrar={() => {
+                          setModalPlaylist(false);
+                          setCancionSeleccionada(null);
+                        }}
+                      />
+                    )}
                   </div>
                 );
               })

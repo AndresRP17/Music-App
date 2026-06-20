@@ -1,0 +1,188 @@
+/* Overlay oscuro de fondo */
+.rep-exp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  backdrop-filter: blur(6px);
+}
+
+/* Modal principal */
+.rep-exp-modal {
+  background: #121212;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  width: 100%;
+  max-width: 860px;
+  max-height: 90vh;
+  display: flex;
+  gap: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Botón cerrar */
+.rep-exp-cerrar {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+.rep-exp-cerrar:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Lado izquierdo */
+.rep-exp-izq {
+  flex: 0 0 300px;
+  background: #0a0a0a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 28px;
+  gap: 12px;
+}
+
+.rep-exp-portada {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+.rep-exp-titulo {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+  margin: 0;
+}
+
+.rep-exp-artista {
+  font-size: 0.85rem;
+  color: #b3b3b3;
+  text-align: center;
+  margin: 0;
+}
+
+.rep-exp-audio {
+  width: 100%;
+  margin-top: 8px;
+  accent-color: #ff2d55;
+}
+
+/* Lado derecho: letra */
+.rep-exp-der {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 28px;
+  overflow: hidden;
+}
+
+.rep-exp-letra-titulo {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #8a8a8f;
+  margin: 0 0 20px;
+}
+
+/* Estado cargando / error */
+.rep-exp-estado {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+  font-size: 0.9rem;
+  text-align: center;
+  gap: 8px;
+}
+
+.rep-exp-spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-top-color: #ff2d55;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Letra */
+.rep-exp-letra-contenido {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+.rep-exp-letra-contenido::-webkit-scrollbar {
+  width: 4px;
+}
+.rep-exp-letra-contenido::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+}
+
+.rep-exp-linea {
+  font-size: 0.95rem;
+  color: #e0e0e0;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.rep-exp-linea-vacia {
+  margin: 0;
+  height: 16px;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .rep-exp-modal {
+    flex-direction: column;
+    max-height: 95vh;
+  }
+
+  .rep-exp-izq {
+    flex: none;
+    padding: 24px 20px 16px;
+    gap: 8px;
+  }
+
+  .rep-exp-portada {
+    width: 120px;
+    height: 120px;
+  }
+
+  .rep-exp-der {
+    padding: 16px 20px 24px;
+    overflow-y: auto;
+  }
+}

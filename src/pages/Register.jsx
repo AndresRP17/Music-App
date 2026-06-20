@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "./Login.css";
+import "./Register.css";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -21,6 +21,16 @@ export default function Register() {
     }
 
     setCargando(true);
+
+    // Bypass Netlify (igual que en Login)
+    if (window.location.hostname.includes("netlify")) {
+      setTimeout(() => {
+        setExito(true);
+        setTimeout(() => navigate("/"), 2000);
+        setCargando(false);
+      }, 1000);
+      return;
+    }
 
     try {
       await axios.post("/api/music_users", {
@@ -44,15 +54,18 @@ export default function Register() {
 
   return (
     <div className="login-split-container">
-      <div className="login-image-side">
+
+      {/* Imagen diferente al login */}
+      <div className="login-image-side register-image-side">
         <div className="login-image-overlay">
-          <h2>MusicApp</h2>
-          <p>Tu música, tus álbumes, tu espacio personal.</p>
+          <h2>Empezá hoy.</h2>
+          <p>Creá tu cuenta y llevá tu música a otro nivel.</p>
         </div>
       </div>
 
       <div className="login-form-side">
         <div className="login-box">
+
           <div className="login-header">
             <h2>Crear cuenta</h2>
             <p>Ingresá tus datos para registrarte.</p>
@@ -61,15 +74,8 @@ export default function Register() {
           {error && <div className="login-error-alert">{error}</div>}
 
           {exito && (
-            <div style={{
-              background: '#d4edda',
-              color: '#155724',
-              padding: '12px',
-              borderRadius: '8px',
-              textAlign: 'center',
-              marginBottom: '16px'
-            }}>
-              ✅ ¡Usuario creado con éxito! Redirigiendo...
+            <div className="register-success-alert">
+              ¡Usuario creado con éxito! Redirigiendo...
             </div>
           )}
 
@@ -92,21 +98,26 @@ export default function Register() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Ingrese una clave"
+                placeholder="Mínimo 4 caracteres"
                 required
                 disabled={cargando || exito}
               />
             </div>
 
-            <button type="submit" disabled={cargando || exito} className="login-submit-btn">
+            <button
+              type="submit"
+              disabled={cargando || exito}
+              className="login-submit-btn"
+            >
               {cargando ? "Registrando..." : "Crear cuenta"}
             </button>
           </form>
 
-          <p style={{ textAlign: 'center', marginTop: '16px' }}>
+          <p style={{ textAlign: "center", marginTop: "16px", color: "#8a8a8f", fontSize: "0.9rem" }}>
             ¿Ya tenés cuenta?{" "}
-            <a href="/" style={{ color: '#6c63ff' }}>Iniciá sesión</a>
+            <a href="/" className="register-link">Iniciá sesión</a>
           </p>
+
         </div>
       </div>
     </div>
