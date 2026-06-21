@@ -7,7 +7,7 @@ import Publicidad from '../pages/Publicidad';
 import { usePublicidad } from '../hooks/usePublicidad';
 import './Search.css';
 
-function Search({ setTrackActual }) {
+function Search({ reproducirLista }) {
   const [historial, setHistorial] = useState([]);
   const [busqueda, setBusqueda] = useState('');
   const [albumes, setAlbumes] = useState([]);
@@ -19,7 +19,7 @@ function Search({ setTrackActual }) {
   const [modalPlaylist, setModalPlaylist] = useState(false);
   const [cancionSeleccionada, setCancionSeleccionada] = useState(null);
   const navigate = useNavigate();
-  const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad(setTrackActual);
+  const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad(null);
 
   const API_KEY = 'aa182e9e95ab101a5f7ae68eba441e09';
 
@@ -37,7 +37,6 @@ function Search({ setTrackActual }) {
       ...historialActual.filter(item => item.name !== album.name)
     ].slice(0, 5);
     localStorage.setItem('historialBusqueda', JSON.stringify(nuevoHistorial));
-
     conPublicidad(() => {
       navigate(`/album/${encodeURIComponent(album.name)}/${encodeURIComponent(nombreArtista)}`);
     });
@@ -76,15 +75,11 @@ function Search({ setTrackActual }) {
 
           const resArtistas = await fetch(`/deezer/search/artist?q=${encodeURIComponent(busqueda)}`);
           const dataArtistas = await resArtistas.json();
-          if (dataArtistas.data) {
-            setArtistas(dataArtistas.data.slice(0, 12));
-          }
+          if (dataArtistas.data) setArtistas(dataArtistas.data.slice(0, 12));
 
           const resCanciones = await fetch(`/deezer/search?q=${encodeURIComponent(busqueda)}`);
           const dataCanciones = await resCanciones.json();
-          if (dataCanciones.data) {
-            setCanciones(dataCanciones.data.slice(0, 20));
-          }
+          if (dataCanciones.data) setCanciones(dataCanciones.data.slice(0, 20));
 
         } catch (error) {
           console.error("Error en la API:", error);
@@ -111,7 +106,6 @@ function Search({ setTrackActual }) {
         </div>
       </main>
 
-      {/* Buscador */}
       <div className="search-section">
         <h1>Buscar</h1>
         <div className="search-input-wrapper">
@@ -131,7 +125,6 @@ function Search({ setTrackActual }) {
         </div>
       </div>
 
-      {/* Historial */}
       {busqueda.length === 0 && (
         <div className="historial-section">
           {historial.length > 0 ? (
@@ -162,10 +155,8 @@ function Search({ setTrackActual }) {
         </div>
       )}
 
-      {/* Resultados */}
       {busqueda.length > 2 && (
         <>
-          {/* Tabs */}
           <div className="search-tabs">
             <button className={`search-tab ${tab === 'albumes' ? 'active' : ''}`} onClick={() => setTab('albumes')}>
               Álbumes {albumes.length > 0 && <span className="tab-count">{albumes.length}</span>}
@@ -178,7 +169,6 @@ function Search({ setTrackActual }) {
             </button>
           </div>
 
-          {/* Skeleton */}
           {cargando ? (
             <div className="album-grid">
               {[...Array(8)].map((_, i) => (
@@ -243,7 +233,7 @@ function Search({ setTrackActual }) {
               {canciones.length === 0 ? (
                 <p style={{ color: '#aaa', padding: '20px 0' }}>No se encontraron canciones.</p>
               ) : (
-                canciones.map((cancion) => (
+                canciones.map((cancion, index) => (
                   <div
                     key={cancion.id}
                     style={{ display: 'grid', gridTemplateColumns: '48px 1fr auto', gap: '12px', padding: '8px 12px', borderRadius: '8px', alignItems: 'center' }}
@@ -274,12 +264,15 @@ function Search({ setTrackActual }) {
                         {Math.floor(cancion.duration / 60)}:{(cancion.duration % 60).toString().padStart(2, '0')}
                       </span>
                       <button
-                        onClick={() => conPublicidad(() => setTrackActual({
-                          title: cancion.title,
-                          artist: cancion.artist.name,
-                          url: cancion.preview,
-                          cover: cancion.album?.cover_medium || 'https://via.placeholder.com/150'
-                        }))}
+                        onClick={() => {
+                          const lista = canciones.map(c => ({
+                            title: c.title,
+                            artist: c.artist.name,
+                            url: c.preview,
+                            cover: c.album?.cover_medium || 'https://via.placeholder.com/150'
+                          }));
+                          conPublicidad(() => reproducirLista(lista, index));
+                        }}
                         style={{ background: '#1db954', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', flexShrink: 0 }}
                       >
                         <FaPlay style={{ fontSize: '11px', marginLeft: '1px' }} />
@@ -308,7 +301,6 @@ function Search({ setTrackActual }) {
         </>
       )}
 
-      {/* Modal playlist */}
       {modalPlaylist && cancionSeleccionada && (
         <ModalPlaylist
           cancion={cancionSeleccionada}
@@ -316,7 +308,6 @@ function Search({ setTrackActual }) {
         />
       )}
 
-      {/* Publicidad */}
       {mostrarPublicidad && (
         <Publicidad onCerrar={cerrarYContinuar} />
       )}
