@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState } from "react";
-import LayoutCliente from "./componentes/ClienteLayout";
+import ClienteLayout from "./componentes/ClienteLayout";
 import LayoutAdmin from "./componentes/AdminLayout"; 
 import Home from "./pages/Home";
 import Search from "./pages/Search";
@@ -53,7 +53,7 @@ const [role, setRole] = useState(localStorage.getItem('role'));
         <Route path="/login" element={<Navigate to="/" replace />} />
         
         {/* ================= ZONA CLIENTE ================= */}
-        <Route element={<LayoutCliente trackActual={trackActual} setTrackActual={setTrackActual} cerrarSesion={cerrarSesion} />}>
+        <Route element={<ClienteLayout trackActual={trackActual} setTrackActual={setTrackActual} cerrarSesion={cerrarSesion} />}>
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<Search setTrackActual={setTrackActual} />} />
           <Route path="/mi-musica" element={<MiMusica setTrackActual={setTrackActual} />} />

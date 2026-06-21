@@ -186,3 +186,61 @@
     overflow-y: auto;
   }
 }
+
+/* Controles custom del expandido */
+.rep-exp-progreso-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.rep-exp-progreso-bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+}
+
+.rep-exp-progreso-fill {
+  height: 100%;
+  background: #ff2d55;
+  border-radius: 2px;
+  transition: width 0.1s linear;
+}
+
+.rep-exp-tiempo {
+  font-size: 11px;
+  color: #8a8a8f;
+  min-width: 32px;
+  text-align: center;
+}
+
+.rep-exp-play-btn {
+  margin-top: 16px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #ff2d55;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.rep-exp-play-btn:hover {
+  background: #e02447;
+  transform: scale(1.05);
+}
+
+.rep-exp-audio-slot audio {
+  width: 100%;
+  accent-color: #ff2d55;
+}
