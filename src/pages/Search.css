@@ -369,7 +369,7 @@ h1 {
 
     .artista-card:hover { transform: none; }
 
-    .search-tabs { gap: 1px; }
+    .search-tabs { gap: 4px; }
     .search-tab { padding: 6px 10px; font-size: 12px; }
     .historial-header h2 { font-size: 1.2rem; }
 }
