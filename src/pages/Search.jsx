@@ -183,7 +183,6 @@ function Search({ reproducirLista, pausar }) {
           ) : tab === 'albumes' ? (
             <>
               <div className="filter-bar">
-                <span>{albumes.length} resultados</span>
                 <select className="sort-select" value={orden} onChange={(e) => setOrden(e.target.value)}>
                   <option value="popular">Relevancia</option>
                   <option value="az">A - Z</option>
