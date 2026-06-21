@@ -332,7 +332,8 @@ h1 {
         padding: 0;
     }
 
-    .sort-select { width: 100%; }
+    .sort-select { width: 30%; }
+    .sort-select option { font-size: 10px;}
     .search-input { max-width: 100%; font-size: 16px; }
 
     .album-grid {
