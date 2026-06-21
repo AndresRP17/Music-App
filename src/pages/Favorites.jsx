@@ -2,26 +2,26 @@ import { useState, useEffect } from 'react';
 import { FaPlay, FaSearch } from 'react-icons/fa';
 import { MdDelete } from "react-icons/md";
 import Publicidad from './Publicidad';
+import { usePublicidad } from '../hooks/usePublicidad';
 import './Favorites.css';
 
 const esProd = window.location.hostname.includes("netlify");
 
-const Favorites = ({ setTrackActual }) => {
+const Favorites = ({ reproducirLista }) => {
   const [cancionesFavoritas, setCancionesFavoritas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [trackCargando, setTrackCargando] = useState(null); 
-  const [mostrarPublicidad, setMostrarPublicidad] = useState(false);
   const [busqueda, setBusqueda] = useState('');
 
+  const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad(null);
+
   const obtenerFavoritos = async () => {
-    // En Netlify: leer del localStorage
     if (esProd) {
       const guardadas = JSON.parse(localStorage.getItem("favoritos") || "[]");
       setCancionesFavoritas(guardadas);
       setCargando(false);
       return;
     }
-    // Local: leer del backend
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`${import.meta.env.VITE_API_URL}/favorites`, {
@@ -34,8 +34,6 @@ const Favorites = ({ setTrackActual }) => {
       if (response.ok) {
         const data = await response.json();
         setCancionesFavoritas(data); 
-      } else {
-        console.error("Error al obtener canciones del servidor");
       }
     } catch (error) {
       console.error("Error de red:", error);
@@ -58,7 +56,6 @@ const Favorites = ({ setTrackActual }) => {
   });
 
   const eliminarCancion = async (id) => {
-    // En Netlify: eliminar del localStorage
     if (esProd) {
       const guardadas = JSON.parse(localStorage.getItem("favoritos") || "[]");
       const nuevas = guardadas.filter(c => c.id !== id);
@@ -66,7 +63,6 @@ const Favorites = ({ setTrackActual }) => {
       setCancionesFavoritas(nuevas);
       return;
     }
-    // Local: eliminar del backend
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(`${import.meta.env.VITE_API_URL}/favorites/${id}`, {
@@ -75,8 +71,6 @@ const Favorites = ({ setTrackActual }) => {
       });
       if (response.ok) {
         setCancionesFavoritas(prev => prev.filter(c => c.id !== id));
-      } else {
-        console.error("No se pudo eliminar");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -85,35 +79,34 @@ const Favorites = ({ setTrackActual }) => {
 
   const reproducirPista = async (cancion, index) => {
     setTrackCargando(index);
-
-    const esPremium = localStorage.getItem("esPremium") === "true";
-    if (!esPremium) {
-      const clicks = parseInt(localStorage.getItem('contadorPublicidad')) || 0;
-      const siguiente = clicks + 1;
-      if (siguiente >= 3) {
-        localStorage.setItem('contadorPublicidad', '0');
-        setTrackCargando(null);
-        setMostrarPublicidad(true);
-        return;
-      } else {
-        localStorage.setItem('contadorPublicidad', siguiente.toString());
-      }
-    }
-
     try {
       const query = `${cancion.artist} ${cancion.title}`;
       const response = await fetch(`/deezer/search?q=${encodeURIComponent(query)}`);
       const data = await response.json();
+
       if (data.data && data.data.length > 0) {
-        const trackEncontrado = data.data[0];
-        setTrackActual({
-          title: cancion.title,
-          artist: cancion.artist,
-          url: trackEncontrado.preview,
-          cover: trackEncontrado.album?.cover_medium || 'https://via.placeholder.com/150'
-        });
+        // Armamos la lista completa de favoritos con URLs de Deezer
+        const listaConUrls = await Promise.all(
+          cancionesFiltradas.map(async (c) => {
+            try {
+              const r = await fetch(`/deezer/search?q=${encodeURIComponent(`${c.artist} ${c.title}`)}`);
+              const d = await r.json();
+              const track = d.data?.[0];
+              return {
+                title: c.title,
+                artist: c.artist,
+                url: track?.preview || null,
+                cover: track?.album?.cover_medium || 'https://via.placeholder.com/150'
+              };
+            } catch {
+              return { title: c.title, artist: c.artist, url: null, cover: 'https://via.placeholder.com/150' };
+            }
+          })
+        );
+
+        conPublicidad(() => reproducirLista(listaConUrls, index));
       } else {
-        alert(`No se encontró vista previa de audio para "${cancion.title}"`);
+        alert(`No se encontró vista previa para "${cancion.title}"`);
       }
     } catch (error) {
       console.error("Error consultando la API de Deezer:", error);
@@ -122,20 +115,11 @@ const Favorites = ({ setTrackActual }) => {
     }
   };
 
-  if (cargando) {
-    return (
-      <div className="playlist-loading-view">
-        <p>Cargando favoritos...</p>
-      </div>
-    );
-  }
+  if (cargando) return <div className="playlist-loading-view"><p>Cargando favoritos...</p></div>;
 
   return (
     <div className="playlist-container">
-
-      {mostrarPublicidad && (
-        <Publicidad onCerrar={() => setMostrarPublicidad(false)} />
-      )}
+      {mostrarPublicidad && <Publicidad onCerrar={cerrarYContinuar} />}
 
       <header className="playlist-header">
         <h1>Tus Favoritos</h1>
@@ -172,7 +156,7 @@ const Favorites = ({ setTrackActual }) => {
             <span>TÍTULO</span>
             <span>ÁLBUM</span>
             <span style={{ textAlign: 'right', paddingRight: '4px' }}>DURACIÓN</span>
-            <span></span> 
+            <span></span>
           </div>
           <hr />
           <div className="tracklist">
@@ -188,16 +172,15 @@ const Favorites = ({ setTrackActual }) => {
                 <div key={cancion.id || index} className="playlist-track-row">
                   <div className="playlist-track-number-wrapper">
                     <span className="playlist-track-number">{index + 1}</span>
-                    <button 
-                      className="playlist-play-row-btn" 
+                    <button
+                      className="playlist-play-row-btn"
                       onClick={() => reproducirPista(cancion, index)}
                       disabled={trackCargando === index}
                     >
-                      {trackCargando === index ? (
-                        <span className="mini-spinner">...</span>
-                      ) : (
-                        <FaPlay style={{ fontSize: '15px', marginLeft: '1px' }} />
-                      )}
+                      {trackCargando === index
+                        ? <span className="mini-spinner">...</span>
+                        : <FaPlay style={{ fontSize: '15px', marginLeft: '1px' }} />
+                      }
                     </button>
                   </div>
                   <div className="playlist-meta-container">
@@ -206,7 +189,7 @@ const Favorites = ({ setTrackActual }) => {
                   </div>
                   <span className="playlist-album-name">{albumDetectado}</span>
                   <span className="playlist-track-duration">
-                    {cancion.duration 
+                    {cancion.duration
                       ? `${Math.floor(cancion.duration / 60)}:${(cancion.duration % 60).toString().padStart(2, '0')}`
                       : "0:00"
                     }
@@ -219,7 +202,7 @@ const Favorites = ({ setTrackActual }) => {
                       }
                     }}
                   >
-                    <MdDelete/>
+                    <MdDelete />
                   </button>
                 </div>
               );

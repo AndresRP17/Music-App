@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import Favorites from './Favorites';        // tus favoritos actuales
-import MisPlaylists from './MisPlaylists'; // nuevo componente (lo creamos después)
+import Favorites from './Favorites';
+import MisPlaylists from './MisPlaylists';
 import './MiMusica.css';
 
-const MiMusica = ({ setTrackActual }) => {
+const MiMusica = ({ reproducirLista }) => {
   const [pestanaActiva, setPestanaActiva] = useState('favoritos');
 
   return (
@@ -24,9 +24,9 @@ const MiMusica = ({ setTrackActual }) => {
       </div>
 
       <div className="mi-musica-contenido">
-        {pestanaActiva === 'favoritos' 
-          ? <Favorites setTrackActual={setTrackActual} />
-          : <MisPlaylists setTrackActual={setTrackActual} />
+        {pestanaActiva === 'favoritos'
+          ? <Favorites reproducirLista={reproducirLista} />
+          : <MisPlaylists reproducirLista={reproducirLista} />
         }
       </div>
     </div>

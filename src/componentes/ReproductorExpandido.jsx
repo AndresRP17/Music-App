@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { FaTimes, FaMusic, FaPlay, FaPause } from "react-icons/fa";
+import { FaTimes, FaMusic, FaPlay, FaPause, FaStepBackward, FaStepForward } from "react-icons/fa";
 import "./ReproductorExpandido.css";
 
-function ReproductorExpandido({ trackActual, audioRef, onCerrar }) {
+function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual, onAnterior, onSiguiente, onCerrar }) {
   const [letra, setLetra] = useState(null);
   const [cargandoLetra, setCargandoLetra] = useState(true);
   const [errorLetra, setErrorLetra] = useState(false);
@@ -11,7 +11,9 @@ function ReproductorExpandido({ trackActual, audioRef, onCerrar }) {
   const [duracion, setDuracion] = useState(0);
   const progressRef = useRef(null);
 
-  // Letra
+  const hayAnterior = listaActual.length > 0 && indexActual > 0;
+  const haySiguiente = listaActual.length > 0 && indexActual < listaActual.length - 1;
+
   useEffect(() => {
     const fetchLetra = async () => {
       setCargandoLetra(true);
@@ -34,7 +36,6 @@ function ReproductorExpandido({ trackActual, audioRef, onCerrar }) {
     fetchLetra();
   }, [trackActual.title, trackActual.artist]);
 
-  // Sincronizar progreso con el audio original
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -49,7 +50,6 @@ function ReproductorExpandido({ trackActual, audioRef, onCerrar }) {
     audio.addEventListener('play', onPlay);
     audio.addEventListener('pause', onPause);
 
-    // Estado inicial
     setProgreso(audio.currentTime);
     setDuracion(audio.duration || 0);
     setReproduciendo(!audio.paused);
@@ -73,8 +73,7 @@ function ReproductorExpandido({ trackActual, audioRef, onCerrar }) {
     const audio = audioRef.current;
     if (!audio || !duracion) return;
     const rect = progressRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const porcentaje = x / rect.width;
+    const porcentaje = (e.clientX - rect.left) / rect.width;
     audio.currentTime = porcentaje * duracion;
   };
 
@@ -91,20 +90,16 @@ function ReproductorExpandido({ trackActual, audioRef, onCerrar }) {
           <FaTimes />
         </button>
 
-        {/* Lado izquierdo: portada + controles propios */}
+        {/* Lado izquierdo */}
         <div className="rep-exp-izq">
           <img src={trackActual.cover} alt={trackActual.title} className="rep-exp-portada" />
           <h2 className="rep-exp-titulo">{trackActual.title}</h2>
           <p className="rep-exp-artista">{trackActual.artist}</p>
 
-          {/* Barra de progreso custom */}
+          {/* Barra de progreso */}
           <div className="rep-exp-progreso-wrap">
             <span className="rep-exp-tiempo">{formatTime(progreso)}</span>
-            <div
-              className="rep-exp-progreso-bar"
-              ref={progressRef}
-              onClick={handleProgressClick}
-            >
+            <div className="rep-exp-progreso-bar" ref={progressRef} onClick={handleProgressClick}>
               <div
                 className="rep-exp-progreso-fill"
                 style={{ width: duracion ? `${(progreso / duracion) * 100}%` : '0%' }}
@@ -113,22 +108,47 @@ function ReproductorExpandido({ trackActual, audioRef, onCerrar }) {
             <span className="rep-exp-tiempo">{formatTime(duracion)}</span>
           </div>
 
-          {/* Botón play/pause */}
-          <button className="rep-exp-play-btn" onClick={togglePlay}>
-            {reproduciendo ? <FaPause /> : <FaPlay />}
-          </button>
+          {/* Controles: anterior / play-pause / siguiente */}
+          <div className="rep-exp-controles">
+            <button
+              className="rep-exp-skip-btn"
+              onClick={onAnterior}
+              disabled={!hayAnterior}
+              title="Anterior"
+            >
+              <FaStepBackward />
+            </button>
+
+            <button className="rep-exp-play-btn" onClick={togglePlay}>
+              {reproduciendo ? <FaPause /> : <FaPlay />}
+            </button>
+
+            <button
+              className="rep-exp-skip-btn"
+              onClick={onSiguiente}
+              disabled={!haySiguiente}
+              title="Siguiente"
+            >
+              <FaStepForward />
+            </button>
+          </div>
         </div>
 
         {/* Lado derecho: letra */}
         <div className="rep-exp-der">
           <h3 className="rep-exp-letra-titulo">Letra</h3>
 
-          {cargandoLetra && (
-            <div className="rep-exp-estado">
-              <div className="rep-exp-spinner" />
-              <p>Buscando letra...</p>
-            </div>
-          )}
+         {cargandoLetra && (
+  <div className="rep-exp-skeleton">
+    {[...Array(12)].map((_, i) => (
+      <div
+        key={i}
+        className="rep-exp-skeleton-line"
+        style={{ width: `${55 + Math.random() * 40}%` }}
+      />
+    ))}
+  </div>
+)}
 
           {!cargandoLetra && errorLetra && (
             <div className="rep-exp-estado">

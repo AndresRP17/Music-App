@@ -8,7 +8,7 @@ import './AlbumDetails.css';
 
 const esProd = window.location.hostname.includes("netlify");
 
-function AlbumDetails({ setTrackActual }) {
+function AlbumDetails({ reproducirLista }) {
   const { albumName, artistName } = useParams();
   const [albumInfo, setAlbumInfo] = useState(null);
   const [trackCargando, setTrackCargando] = useState(null); 
@@ -18,86 +18,78 @@ function AlbumDetails({ setTrackActual }) {
   const [cancionSeleccionada, setCancionSeleccionada] = useState(null);
   const navigate = useNavigate();
 
-  const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad(setTrackActual);
+  const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad(null);
 
   const esPremium = localStorage.getItem("esPremium") === "true";
 
- useEffect(() => {
-  const fetchAlbumDetails = async () => {
-    try {
-      const nombreLimpio = artistName.toUpperCase().replace(/[\s/]/g, "");
-      let artistaParaLastFm = artistName;
-      if (nombreLimpio === "ACDC") {
-        artistaParaLastFm = "AC/DC";
-      }
-
-      const response = await fetch(
-        `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=aa182e9e95ab101a5f7ae68eba441e09&artist=${encodeURIComponent(artistaParaLastFm)}&album=${encodeURIComponent(albumName)}&format=json&autocorrect=1`
-      );
-      const data = await response.json();
-
-      if (data.album) {
-        const tracks = data.album.tracks?.track;
-        const tracklistRoto = !tracks || !Array.isArray(tracks);
-
-        if (tracklistRoto) {
-          // Fallback: buscar tracklist en MusicBrainz
-          try {
-            const mbRes = await fetch(
-              `https://musicbrainz.org/ws/2/release/?query=release:${encodeURIComponent(albumName)}+artist:${encodeURIComponent(artistaParaLastFm)}&fmt=json&limit=1`,
-              { headers: { 'User-Agent': 'MusicApp/1.0' } }
-            );
-            const mbData = await mbRes.json();
-            const releaseId = mbData.releases?.[0]?.id;
-
-            if (releaseId) {
-              const mbTracksRes = await fetch(
-                `https://musicbrainz.org/ws/2/release/${releaseId}?inc=recordings&fmt=json`,
-                { headers: { 'User-Agent': 'MusicApp/1.0' } }
-              );
-              const mbTracksData = await mbTracksRes.json();
-              const media = mbTracksData.media?.[0]?.tracks;
-
-              if (media && media.length > 0) {
-                // Convertimos el formato de MusicBrainz al formato que espera el componente
-                const tracksFormateados = media.map(t => ({
-                  name: t.title,
-                  duration: Math.round(t.length / 1000) || 0,
-                  url: '',
-                  streamable: { '#text': '0', fulltrack: '0' }
-                }));
-
-                // Usamos info visual de Last.fm + tracklist de MusicBrainz
-                setAlbumInfo({
-                  ...data.album,
-                  tracks: { track: tracksFormateados }
-                });
-                return;
-              }
-            }
-          } catch (mbError) {
-            console.warn("MusicBrainz fallback falló:", mbError);
-          }
-
-          // Si MusicBrainz también falla, al menos no rompemos el .map
-          if (tracks && !Array.isArray(tracks)) {
-            data.album.tracks.track = [tracks];
-          }
+  useEffect(() => {
+    const fetchAlbumDetails = async () => {
+      try {
+        const nombreLimpio = artistName.toUpperCase().replace(/[\s/]/g, "");
+        let artistaParaLastFm = artistName;
+        if (nombreLimpio === "ACDC") {
+          artistaParaLastFm = "AC/DC";
         }
 
-        setAlbumInfo(data.album);
-      } else {
-        console.warn("Last.fm no encontró el álbum con ese formato de nombre.");
-      }
-    } catch (error) {
-      console.error("Error al traer el detalle:", error);
-    }
-  };
+        const response = await fetch(
+          `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=aa182e9e95ab101a5f7ae68eba441e09&artist=${encodeURIComponent(artistaParaLastFm)}&album=${encodeURIComponent(albumName)}&format=json&autocorrect=1`
+        );
+        const data = await response.json();
 
-  if (artistName && albumName) {
-    fetchAlbumDetails();
-  }
-}, [albumName, artistName]);
+        if (data.album) {
+          const tracks = data.album.tracks?.track;
+          const tracklistRoto = !tracks || !Array.isArray(tracks);
+
+          if (tracklistRoto) {
+            try {
+              const mbRes = await fetch(
+                `https://musicbrainz.org/ws/2/release/?query=release:${encodeURIComponent(albumName)}+artist:${encodeURIComponent(artistaParaLastFm)}&fmt=json&limit=1`,
+                { headers: { 'User-Agent': 'MusicApp/1.0' } }
+              );
+              const mbData = await mbRes.json();
+              const releaseId = mbData.releases?.[0]?.id;
+
+              if (releaseId) {
+                const mbTracksRes = await fetch(
+                  `https://musicbrainz.org/ws/2/release/${releaseId}?inc=recordings&fmt=json`,
+                  { headers: { 'User-Agent': 'MusicApp/1.0' } }
+                );
+                const mbTracksData = await mbTracksRes.json();
+                const media = mbTracksData.media?.[0]?.tracks;
+
+                if (media && media.length > 0) {
+                  const tracksFormateados = media.map(t => ({
+                    name: t.title,
+                    duration: Math.round(t.length / 1000) || 0,
+                    url: '',
+                    streamable: { '#text': '0', fulltrack: '0' }
+                  }));
+                  setAlbumInfo({ ...data.album, tracks: { track: tracksFormateados } });
+                  return;
+                }
+              }
+            } catch (mbError) {
+              console.warn("MusicBrainz fallback falló:", mbError);
+            }
+
+            if (tracks && !Array.isArray(tracks)) {
+              data.album.tracks.track = [tracks];
+            }
+          }
+
+          setAlbumInfo(data.album);
+        } else {
+          console.warn("Last.fm no encontró el álbum con ese formato de nombre.");
+        }
+      } catch (error) {
+        console.error("Error al traer el detalle:", error);
+      }
+    };
+
+    if (artistName && albumName) {
+      fetchAlbumDetails();
+    }
+  }, [albumName, artistName]);
 
   useEffect(() => {
     const obtenerFavoritos = async () => {
@@ -125,25 +117,32 @@ function AlbumDetails({ setTrackActual }) {
 
   const reproducirPista = async (trackName, index) => {
     setTrackCargando(index);
-
     try {
+      const tracks = Array.isArray(albumInfo.tracks.track)
+        ? albumInfo.tracks.track
+        : [albumInfo.tracks.track];
+
       const trackLimpio = trackName.replace(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f\u1100-\u11ff\u3130-\u318f\uac00-\ud7af]/g, "").trim();
-      const query = `${albumInfo.artist} ${trackLimpio}`;
+      const query = `${albumInfo.artist} ${trackLimpio} ${albumInfo.name}`;
       const response = await fetch(`/deezer/search?q=${encodeURIComponent(query)}`);
       const data = await response.json();
 
       if (data.data && data.data.length > 0) {
-        const trackEncontrado = data.data[0];
+        const trackEncontrado = data.data.find(t =>
+          t.title.toLowerCase().includes(trackLimpio.toLowerCase())
+        ) || data.data[0];
+
         const portadaLastFm = albumInfo.image?.[2]?.['#text'] || 'https://via.placeholder.com/150';
 
-        // Pasamos la reproducción por el hook — pausa y muestra ad si toca
+        const listaSimple = tracks.map((t, i) => ({
+          title: t.name.replace(/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f\u1100-\u11ff\u3130-\u318f\uac00-\ud7af]/g, "").trim(),
+          artist: albumInfo.artist,
+          url: i === index ? trackEncontrado.preview : null,
+          cover: trackEncontrado.album?.cover_medium || portadaLastFm,
+        }));
+
         conPublicidad(() => {
-          setTrackActual({
-            title: trackLimpio,
-            artist: albumInfo.artist,
-            url: trackEncontrado.preview,
-            cover: trackEncontrado.album?.cover_medium || portadaLastFm
-          });
+          reproducirLista(listaSimple, index);
         });
       } else {
         alert(`No se encontró una vista previa de audio para "${trackLimpio}" en Deezer.`);
@@ -161,7 +160,6 @@ function AlbumDetails({ setTrackActual }) {
       alert("🔒 Necesitás ser usuario Premium para agregar canciones a tu playlist.");
       return;
     }
-
     setGuardandoTrack(index);
 
     if (esProd) {
@@ -260,13 +258,11 @@ function AlbumDetails({ setTrackActual }) {
           <hr />
           <div className="tracklist">
             {albumInfo.tracks?.track ? (
-  (Array.isArray(albumInfo.tracks.track) 
-    ? albumInfo.tracks.track 
-    : [albumInfo.tracks.track]
-  ).map((track, index) => {
-                const yaGuardada = cancionesGuardadas.includes(`${albumInfo.artist}-${track.name}`);
+              (Array.isArray(albumInfo.tracks.track)
+                ? albumInfo.tracks.track
+                : [albumInfo.tracks.track]
+              ).map((track, index) => {
                 const cargando = guardandoTrack === index;
-
                 return (
                   <div key={index} className="track-row">
                     <div className="track-number-wrapper">
@@ -276,11 +272,10 @@ function AlbumDetails({ setTrackActual }) {
                         onClick={() => reproducirPista(track.name, index)}
                         disabled={trackCargando === index}
                       >
-                        {trackCargando === index ? (
-                          <span className="mini-spinner">...</span>
-                        ) : (
-                          <FaPlay />
-                        )}
+                        {trackCargando === index
+                          ? <span className="mini-spinner">...</span>
+                          : <FaPlay />
+                        }
                       </button>
                     </div>
                     <span className="track-name">{track.name}</span>
@@ -309,13 +304,11 @@ function AlbumDetails({ setTrackActual }) {
                       disabled={cargando}
                       title={!esPremium ? "Función exclusiva Premium" : "Agregar a playlist"}
                     >
-                      {cargando ? (
-                        <span className="mini-spinner">...</span>
-                      ) : !esPremium ? (
-                        <FaLock />
-                      ) : (
-                        <FaPlus />
-                      )}
+                      {cargando
+                        ? <span className="mini-spinner">...</span>
+                        : !esPremium ? <FaLock />
+                        : <FaPlus />
+                      }
                     </button>
                     {modalPlaylist && cancionSeleccionada && (
                       <ModalPlaylist

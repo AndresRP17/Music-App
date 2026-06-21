@@ -3,9 +3,46 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import ReproductorExpandido from "./ReproductorExpandido";
 
-function ClienteLayout({ trackActual, setTrackActual, cerrarSesion }) {
+function ClienteLayout({ trackActual, setTrackActual, listaActual, indexActual, reproducirLista, cerrarSesion }) {
   const [expandido, setExpandido] = useState(false);
   const audioRef = useRef(null);
+
+  const buscarYReproducir = async (index) => {
+    const cancion = listaActual[index];
+    if (!cancion) return;
+
+    // Si ya tiene URL, reproducimos directo
+    if (cancion.url) {
+      reproducirLista(listaActual, index);
+      return;
+    }
+
+    // Si no tiene URL, la buscamos en Deezer
+    try {
+      const query = `${cancion.artist} ${cancion.title}`;
+      const res = await fetch(`/deezer/search?q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      if (data.data && data.data.length > 0) {
+        const track = data.data[0];
+        const listaActualizada = listaActual.map((t, i) =>
+          i === index ? { ...t, url: track.preview, cover: track.album?.cover_medium || t.cover } : t
+        );
+        reproducirLista(listaActualizada, index);
+      }
+    } catch (err) {
+      console.error("Error buscando en Deezer:", err);
+    }
+  };
+
+  const reproducirAnterior = () => {
+    if (listaActual.length === 0 || indexActual <= 0) return;
+    buscarYReproducir(indexActual - 1);
+  };
+
+  const reproducirSiguiente = () => {
+    if (listaActual.length === 0 || indexActual >= listaActual.length - 1) return;
+    buscarYReproducir(indexActual + 1);
+  };
 
   return (
     <div className="container">
@@ -27,7 +64,6 @@ function ClienteLayout({ trackActual, setTrackActual, cerrarSesion }) {
               </div>
             </div>
 
-            {/* Se oculta cuando el modal está abierto, pero sigue existiendo y sonando */}
             <audio
               ref={audioRef}
               src={trackActual.url}
@@ -44,6 +80,10 @@ function ClienteLayout({ trackActual, setTrackActual, cerrarSesion }) {
             <ReproductorExpandido
               trackActual={trackActual}
               audioRef={audioRef}
+              listaActual={listaActual}
+              indexActual={indexActual}
+              onAnterior={reproducirAnterior}
+              onSiguiente={reproducirSiguiente}
               onCerrar={() => setExpandido(false)}
             />
           )}

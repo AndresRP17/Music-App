@@ -4,20 +4,21 @@ import { MdDelete } from 'react-icons/md';
 import { FaPlay, FaSearch } from 'react-icons/fa';
 import { IoArrowBack } from 'react-icons/io5';
 import Publicidad from './Publicidad';
+import { usePublicidad } from '../hooks/usePublicidad';
 import './Favorites.css';
 
 const esProd = window.location.hostname.includes("netlify");
 
-const PlaylistDetalle = ({ setTrackActual }) => {
+const PlaylistDetalle = ({ reproducirLista }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [canciones, setCanciones] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [nombrePlaylist, setNombrePlaylist] = useState('');
   const [trackCargando, setTrackCargando] = useState(null);
-  const [mostrarPublicidad, setMostrarPublicidad] = useState(false);
   const [busqueda, setBusqueda] = useState('');
 
+  const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad(null);
   const token = localStorage.getItem('token');
 
   useEffect(() => {
@@ -31,7 +32,6 @@ const PlaylistDetalle = ({ setTrackActual }) => {
         setCargando(false);
         return;
       }
-
       try {
         const resPlaylist = await fetch(`/api/playlists/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -40,7 +40,6 @@ const PlaylistDetalle = ({ setTrackActual }) => {
           const dataPlaylist = await resPlaylist.json();
           setNombrePlaylist(dataPlaylist.name);
         }
-
         const resCanciones = await fetch(`/api/playlist_songs/playlist/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -54,7 +53,6 @@ const PlaylistDetalle = ({ setTrackActual }) => {
         setCargando(false);
       }
     };
-
     obtenerDatos();
   }, [id]);
 
@@ -69,36 +67,27 @@ const PlaylistDetalle = ({ setTrackActual }) => {
 
   const reproducirPista = async (cancion, index) => {
     setTrackCargando(index);
-
-    const esPremium = localStorage.getItem("esPremium") === "true";
-    if (!esPremium) {
-      const clicks = parseInt(localStorage.getItem('contadorPublicidad')) || 0;
-      const siguiente = clicks + 1;
-      if (siguiente >= 3) {
-        localStorage.setItem('contadorPublicidad', '0');
-        setTrackCargando(null);
-        setMostrarPublicidad(true);
-        return;
-      } else {
-        localStorage.setItem('contadorPublicidad', siguiente.toString());
-      }
-    }
-
     try {
-      const query = `${cancion.artist} ${cancion.title}`;
-      const response = await fetch(`/deezer/search?q=${encodeURIComponent(query)}`);
-      const data = await response.json();
-      if (data.data && data.data.length > 0) {
-        const trackEncontrado = data.data[0];
-        setTrackActual({
-          title: cancion.title,
-          artist: cancion.artist,
-          url: trackEncontrado.preview,
-          cover: trackEncontrado.album?.cover_medium || 'https://via.placeholder.com/150'
-        });
-      } else {
-        alert(`No se encontró vista previa para "${cancion.title}"`);
-      }
+      // Resolvemos URLs de toda la lista para poder navegar con siguiente/anterior
+      const listaConUrls = await Promise.all(
+        cancionesFiltradas.map(async (c) => {
+          try {
+            const r = await fetch(`/deezer/search?q=${encodeURIComponent(`${c.artist} ${c.title}`)}`);
+            const d = await r.json();
+            const track = d.data?.[0];
+            return {
+              title: c.title,
+              artist: c.artist,
+              url: track?.preview || null,
+              cover: track?.album?.cover_medium || 'https://via.placeholder.com/150'
+            };
+          } catch {
+            return { title: c.title, artist: c.artist, url: null, cover: 'https://via.placeholder.com/150' };
+          }
+        })
+      );
+
+      conPublicidad(() => reproducirLista(listaConUrls, index));
     } catch (error) {
       console.error("Error consultando Deezer:", error);
     } finally {
@@ -108,7 +97,6 @@ const PlaylistDetalle = ({ setTrackActual }) => {
 
   const eliminarCancion = async (idCancion) => {
     if (!window.confirm('¿Eliminar esta canción de la playlist?')) return;
-
     if (esProd) {
       const songs = JSON.parse(localStorage.getItem(`playlist_songs_${id}`) || '[]');
       const nuevas = songs.filter(c => c.id !== idCancion);
@@ -116,7 +104,6 @@ const PlaylistDetalle = ({ setTrackActual }) => {
       setCanciones(nuevas);
       return;
     }
-
     try {
       const response = await fetch(`/api/playlist_songs/${idCancion}`, {
         method: 'DELETE',
@@ -130,15 +117,11 @@ const PlaylistDetalle = ({ setTrackActual }) => {
     }
   };
 
-  if (cargando) return (
-    <div className="playlist-loading-view">
-      <p>Cargando playlist...</p>
-    </div>
-  );
+  if (cargando) return <div className="playlist-loading-view"><p>Cargando playlist...</p></div>;
 
   return (
     <div className="playlist-container">
-      {mostrarPublicidad && <Publicidad onCerrar={() => setMostrarPublicidad(false)} />}
+      {mostrarPublicidad && <Publicidad onCerrar={cerrarYContinuar} />}
 
       <header className="playlist-header" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <button

@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState } from "react";
-import ClienteLayout from "./componentes/ClienteLayout";
+import LayoutCliente from "./componentes/ClienteLayout";
 import LayoutAdmin from "./componentes/AdminLayout"; 
 import Home from "./pages/Home";
 import Search from "./pages/Search";
@@ -13,34 +13,38 @@ import ListaUsuarios from "./componentes/ListaUsuarios";
 import DetalleUsuario from "./componentes/DetalleUsuario";
 import Configuracion from './pages/Configuration';
 import MiMusica from "./pages/MiMusica";
-import PlaylistDetalle from "./pages/PlaylistDetalle"; 
+import PlaylistDetalle from "./pages/PlaylistDetalle";
 import ArtistDetail from "./pages/ArtistDetail";
 import './App.css';
 
 function App() {
   const [trackActual, setTrackActual] = useState(null);
+  const [listaActual, setListaActual] = useState([]);
+  const [indexActual, setIndexActual] = useState(0);
 
-  // Estado inicial: revisamos si el usuario ya tiene sesión activa en este navegador
   const [token, setToken] = useState(localStorage.getItem('token'));
-const [role, setRole] = useState(localStorage.getItem('role'));
+  const [role, setRole] = useState(localStorage.getItem('role'));
 
-  // Función para cerrar sesión (la puedes pasar a los layouts si quieres un botón de Logout)
   const cerrarSesion = () => {
     localStorage.clear();
     setRole(null);
     setToken(null);
   };
 
-  // CONTROL DE ACCESO: Si NO hay token, forzamos a que solo vea el Login
+  // Función central para reproducir — reemplaza todos los setTrackActual directos
+  const reproducirLista = (canciones, index) => {
+    setListaActual(canciones);
+    setIndexActual(index);
+    setTrackActual(canciones[index]);
+  };
+
   if (!token) {
     return (
       <BrowserRouter>
         <Routes>
-          {/* Cualquier URL a la que intente entrar lo mandará al formulario de Login */}
           <Route path="/login" element={<Login setToken={setToken} />} />
+          <Route path="/register" element={<Register />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
-          <Route path="/register" element={<Register />} />  
-
         </Routes>
       </BrowserRouter>
     );
@@ -49,22 +53,28 @@ const [role, setRole] = useState(localStorage.getItem('role'));
   return (
     <BrowserRouter>
       <Routes>
-        
         <Route path="/login" element={<Navigate to="/" replace />} />
-        
-        {/* ================= ZONA CLIENTE ================= */}
-        <Route element={<ClienteLayout trackActual={trackActual} setTrackActual={setTrackActual} cerrarSesion={cerrarSesion} />}>
+
+        <Route element={
+          <LayoutCliente
+            trackActual={trackActual}
+            setTrackActual={setTrackActual}
+            listaActual={listaActual}
+            indexActual={indexActual}
+            reproducirLista={reproducirLista}
+            cerrarSesion={cerrarSesion}
+          />
+        }>
           <Route path="/" element={<Home />} />
-          <Route path="/search" element={<Search setTrackActual={setTrackActual} />} />
-          <Route path="/mi-musica" element={<MiMusica setTrackActual={setTrackActual} />} />
+          <Route path="/search" element={<Search reproducirLista={reproducirLista} />} />
+          <Route path="/mi-musica" element={<MiMusica reproducirLista={reproducirLista} />} />
           <Route path="/Favorites" element={<Navigate to="/mi-musica" replace />} />
-          <Route path="/playlist/:id" element={<PlaylistDetalle setTrackActual={setTrackActual} />} /> {/* 👈 agregado */}
+          <Route path="/playlist/:id" element={<PlaylistDetalle reproducirLista={reproducirLista} />} />
           <Route path="/configuracion" element={<Configuracion />} />
-          <Route path="/album/:albumName/:artistName" element={<AlbumDetail setTrackActual={setTrackActual} />} />
-          <Route path="/artist/:artistName" element={<ArtistDetail setTrackActual={setTrackActual} />} />
+          <Route path="/album/:albumName/:artistName" element={<AlbumDetail reproducirLista={reproducirLista} />} />
+          <Route path="/artist/:artistName" element={<ArtistDetail reproducirLista={reproducirLista} />} />
         </Route>
 
-      {/* ================= ZONA ADMIN ================= */}
         <Route element={
           role === 'admin'
             ? <LayoutAdmin cerrarSesion={cerrarSesion} />
