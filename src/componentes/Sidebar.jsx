@@ -3,7 +3,7 @@ import "./Sidebar.css"
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FaHome, FaSearch } from "react-icons/fa";
-import { IoIosHeartHalf, IoIosMusicalNotes, IoIosList } from "react-icons/io";
+import { IoIosMusicalNotes } from 'react-icons/io';
 import { GrConfigure } from "react-icons/gr";
 import { FiLogOut } from "react-icons/fi";
 
@@ -42,7 +42,7 @@ function Sidebar({ cerrarSesion }) {
 
   return (
     <aside className="sidebar">
-      <h2>MusicApp<IoIosMusicalNotes /> </h2>
+      <h2>MusicApp<IoIosMusicalNotes /></h2>
       <img src={logoSrc} alt="logo" className="logo" />
 
       <ul>

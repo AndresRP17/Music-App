@@ -155,9 +155,9 @@ body {
     left: 50%;
     /* El translate(-50%, -50%) lo centra perfecto sin importar el tamaño del botón */
     transform: translate(-50%, -50%) scale(0.8); 
-    background: transparent;
+    background: red;
     border: none;
-    color: #e4d9db; /* Rojo Apple Music directo */
+    color: #b00b2a; /* Rojo Apple Music directo */
     font-size: 12px;
     cursor: pointer;
     opacity: 0;
@@ -356,18 +356,14 @@ body {
 }
 
 .add-playlist-btn {
-  background: none;
-  border: none;
-  color: #fff; /* o el color de tu tema */
+  background: black;
+  border-radius: 20px;
   cursor: pointer;
   transition: color 0.2s;
-  padding: 8px;
+  padding: 6px;
   margin-left: 30px;
 }
 
-.add-playlist-btn:hover:not(:disabled) {
-  color: #1db954; /* Un verde estilo Spotify, por ejemplo */
-}
 
 .add-playlist-btn:disabled {
   opacity: 0.5;

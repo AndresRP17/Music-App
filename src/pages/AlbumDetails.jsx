@@ -8,7 +8,7 @@ import './AlbumDetails.css';
 
 const esProd = window.location.hostname.includes("netlify");
 
-function AlbumDetails({ reproducirLista }) {
+function AlbumDetails({ reproducirLista, pausar }) {
   const { albumName, artistName } = useParams();
   const [albumInfo, setAlbumInfo] = useState(null);
   const [trackCargando, setTrackCargando] = useState(null); 
@@ -18,7 +18,7 @@ function AlbumDetails({ reproducirLista }) {
   const [cancionSeleccionada, setCancionSeleccionada] = useState(null);
   const navigate = useNavigate();
 
-  const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad(null);
+  const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad(pausar);
 
   const esPremium = localStorage.getItem("esPremium") === "true";
 

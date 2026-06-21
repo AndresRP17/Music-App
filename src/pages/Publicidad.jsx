@@ -1,10 +1,14 @@
+import { useEffect } from 'react';
 function Publicidad({ onCerrar }) {
   const esPremium = localStorage.getItem("esPremium") === "true";
 
-  if (esPremium) {
-    onCerrar();
-    return null;
-  }
+  useEffect(() => {
+    if (esPremium) {
+      onCerrar();
+    }
+  }, []);  // se ejecuta una vez, después del primer render
+
+  if (esPremium) return null;
 
   return (
     <div style={{

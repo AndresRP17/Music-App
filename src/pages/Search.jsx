@@ -7,7 +7,7 @@ import Publicidad from '../pages/Publicidad';
 import { usePublicidad } from '../hooks/usePublicidad';
 import './Search.css';
 
-function Search({ reproducirLista }) {
+function Search({ reproducirLista, pausar }) {
   const [historial, setHistorial] = useState([]);
   const [busqueda, setBusqueda] = useState('');
   const [albumes, setAlbumes] = useState([]);
@@ -19,7 +19,7 @@ function Search({ reproducirLista }) {
   const [modalPlaylist, setModalPlaylist] = useState(false);
   const [cancionSeleccionada, setCancionSeleccionada] = useState(null);
   const navigate = useNavigate();
-  const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad(null);
+  const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad(pausar);
 
   const API_KEY = 'aa182e9e95ab101a5f7ae68eba441e09';
 
@@ -273,7 +273,7 @@ function Search({ reproducirLista }) {
                           }));
                           conPublicidad(() => reproducirLista(lista, index));
                         }}
-                        style={{ background: '#1db954', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', flexShrink: 0 }}
+                        style={{ background: '#b80f0f', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', flexShrink: 0 }}
                       >
                         <FaPlay style={{ fontSize: '11px', marginLeft: '1px' }} />
                       </button>

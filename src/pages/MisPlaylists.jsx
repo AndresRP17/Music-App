@@ -105,8 +105,8 @@ const MisPlaylists = () => {
   };
 
   if (cargando) return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#ff2d55', fontSize: '1.4rem', fontWeight: 600 }}>
-      <p>Cargando playlists...</p>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'red', fontSize: '1.4rem', fontWeight: 600 }}>
+          <p style={{ color: '#ff2d55', fontSize: '1.3rem' }}>Cargando playlist...</p>
     </div>
   );
 
@@ -116,11 +116,11 @@ const MisPlaylists = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
         <div>
           <h1 style={{ fontSize: '2.8rem', fontWeight: 700, color: '#ff2d55', margin: 0 }}>Mis Playlists</h1>
-          <p style={{ color: '#aaa', margin: '8px 0 0', fontSize: '1rem' }}>Tu colección de playlists personalizadas</p>
+          <p style={{ color: '#f1ebeb', margin: '8px 0 0', fontSize: '1rem' }}>Tu colección de playlists personalizadas</p>
         </div>
         <button
           onClick={() => setCreando(!creando)}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#1db954', border: 'none', borderRadius: '20px', color: '#fff', padding: '12px 22px', cursor: 'pointer', fontWeight: 700, fontSize: '14px', flexShrink: 0 }}
+          style={{ display: 'flex', alignItems: 'center', margin: '10px', gap: '8px', background: '#1db954', border: 'none', borderRadius: '20px', color: '#fff', padding: '12px 22px', cursor: 'pointer', fontWeight: 700, fontSize: '14px', flexShrink: 0 }}
         >
           <FaPlus /> Nueva Playlist
         </button>

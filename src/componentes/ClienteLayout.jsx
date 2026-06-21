@@ -1,23 +1,28 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";  // ← agregá useEffect
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import ReproductorExpandido from "./ReproductorExpandido";
 
-function ClienteLayout({ trackActual, setTrackActual, listaActual, indexActual, reproducirLista, cerrarSesion }) {
+function ClienteLayout({ trackActual, setTrackActual, listaActual, indexActual, reproducirLista, cerrarSesion, onPausarRef }) {
   const [expandido, setExpandido] = useState(false);
   const audioRef = useRef(null);
+
+  // ← acá va, fuera de cualquier función
+  useEffect(() => {
+    if (onPausarRef) {
+      onPausarRef.current = () => audioRef.current?.pause();
+    }
+  }, []);
 
   const buscarYReproducir = async (index) => {
     const cancion = listaActual[index];
     if (!cancion) return;
 
-    // Si ya tiene URL, reproducimos directo
     if (cancion.url) {
       reproducirLista(listaActual, index);
       return;
     }
 
-    // Si no tiene URL, la buscamos en Deezer
     try {
       const query = `${cancion.artist} ${cancion.title}`;
       const res = await fetch(`/deezer/search?q=${encodeURIComponent(query)}`);
@@ -70,7 +75,7 @@ function ClienteLayout({ trackActual, setTrackActual, listaActual, indexActual, 
               controls
               autoPlay
               className="reproductor-audio"
-              style={{ visibility: expandido ? 'hidden' : 'visible' }}
+              style={{ visibility: expandido ? 'none' : 'visible' }}
             />
 
             <button className="reproductor-cerrar" onClick={() => setTrackActual(null)}>×</button>

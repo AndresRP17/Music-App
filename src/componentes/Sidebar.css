@@ -109,7 +109,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
 }
 
 .sidebar li svg {
@@ -343,11 +342,11 @@ audio {
         padding-bottom: calc(var(--sp-nav-height) + var(--sp-player-height) + 16px);
     }
 
-    .sidebar h2,
-.logout-btn,
-.copy {
-    display: none !important;
+.sidebar h2,
+.logout-btn {
+display: none !important;
 }
+
 
 .logo {
     display: none !important;

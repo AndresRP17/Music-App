@@ -10,9 +10,8 @@ export function usePublicidad(setTrackActual) {
 
     if (siguiente >= 3) {
       localStorage.setItem('contadorPublicidad', '0');
+      if (setTrackActual) setTrackActual(null); // pausa limpiando el track
       setAccionPendiente(() => accion);
-      // Pausar la canción actual antes de mostrar el ad
-      if (setTrackActual) setTrackActual(null);
       setMostrarPublicidad(true);
     } else {
       localStorage.setItem('contadorPublicidad', siguiente.toString());

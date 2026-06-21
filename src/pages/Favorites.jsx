@@ -7,13 +7,12 @@ import './Favorites.css';
 
 const esProd = window.location.hostname.includes("netlify");
 
-const Favorites = ({ reproducirLista }) => {
+const Favorites = ({ reproducirLista, pausar }) => {
   const [cancionesFavoritas, setCancionesFavoritas] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [trackCargando, setTrackCargando] = useState(null); 
   const [busqueda, setBusqueda] = useState('');
-
-  const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad(null);
+  const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad(pausar);
 
   const obtenerFavoritos = async () => {
     if (esProd) {

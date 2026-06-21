@@ -3,7 +3,7 @@ import Favorites from './Favorites';
 import MisPlaylists from './MisPlaylists';
 import './MiMusica.css';
 
-const MiMusica = ({ reproducirLista }) => {
+const MiMusica = ({ reproducirLista, pausar }) => {
   const [pestanaActiva, setPestanaActiva] = useState('favoritos');
 
   return (
@@ -25,7 +25,7 @@ const MiMusica = ({ reproducirLista }) => {
 
       <div className="mi-musica-contenido">
         {pestanaActiva === 'favoritos'
-          ? <Favorites reproducirLista={reproducirLista} />
+          ? <Favorites reproducirLista={reproducirLista} pausar={pausar} />
           : <MisPlaylists reproducirLista={reproducirLista} />
         }
       </div>

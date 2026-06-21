@@ -18,7 +18,7 @@
   position: relative;
   height: 400px;
   background-size: cover;
-  background-position: center 35%; /* 👈 sube un poco el foco */
+  background-position: center 35%; 
   background-repeat: no-repeat;
 }
 
