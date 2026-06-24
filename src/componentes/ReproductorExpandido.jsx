@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { FaTimes, FaMusic, FaPlay, FaPause, FaStepBackward, FaStepForward, FaAlignLeft } from "react-icons/fa";
 import "./ReproductorExpandido.css";
 
-// Parsea el formato LRC: [mm:ss.xx] texto
 function parseLRC(lrc) {
   const lineas = lrc.split('\n');
   const resultado = [];
@@ -21,15 +20,15 @@ function parseLRC(lrc) {
 }
 
 function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual, onAnterior, onSiguiente, onCerrar }) {
-  const [letra, setLetra] = useState(null);         // letra plana (fallback)
-  const [lrcLineas, setLrcLineas] = useState(null); // letra sincronizada
+  const [letra, setLetra] = useState(null);
+  const [lrcLineas, setLrcLineas] = useState(null);
   const [lineaActiva, setLineaActiva] = useState(0);
   const [cargandoLetra, setCargandoLetra] = useState(true);
   const [errorLetra, setErrorLetra] = useState(false);
   const [reproduciendo, setReproduciendo] = useState(true);
   const [progreso, setProgreso] = useState(0);
   const [duracion, setDuracion] = useState(0);
-  const [mostrarLetraMobile, setMostrarLetraMobile] = useState(false);
+  const [mostrarLetra, setMostrarLetra] = useState(false);
   const progressRef = useRef(null);
   const letraContenedorRef = useRef(null);
   const lineaActivaRef = useRef(null);
@@ -37,7 +36,6 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
   const hayAnterior = listaActual.length > 0 && indexActual > 0;
   const haySiguiente = listaActual.length > 0 && indexActual < listaActual.length - 1;
 
-  // Fetch letra desde lrclib
   useEffect(() => {
     const fetchLetra = async () => {
       setCargandoLetra(true);
@@ -60,10 +58,8 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
         ) || data[0];
 
         if (resultado?.syncedLyrics) {
-          // Tenemos letra sincronizada — parseamos el LRC
           setLrcLineas(parseLRC(resultado.syncedLyrics));
         } else if (resultado?.plainLyrics) {
-          // Solo letra plana
           setLetra(resultado.plainLyrics);
         } else {
           setErrorLetra(true);
@@ -77,7 +73,6 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
     fetchLetra();
   }, [trackActual.title, trackActual.artist]);
 
-  // Sincronizar línea activa con el tiempo del audio
   useEffect(() => {
     if (!lrcLineas) return;
     const audio = audioRef.current;
@@ -85,7 +80,6 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
 
     const onTimeUpdate = () => {
       const t = audio.currentTime;
-      // Buscamos la última línea cuyo tiempo <= tiempo actual
       let idx = 0;
       for (let i = 0; i < lrcLineas.length; i++) {
         if (lrcLineas[i].tiempo <= t) idx = i;
@@ -98,7 +92,6 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
     return () => audio.removeEventListener('timeupdate', onTimeUpdate);
   }, [lrcLineas, audioRef]);
 
-  // Auto-scroll a la línea activa
   useEffect(() => {
     if (lineaActivaRef.current && letraContenedorRef.current) {
       lineaActivaRef.current.scrollIntoView({
@@ -108,7 +101,6 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
     }
   }, [lineaActiva]);
 
-  // Audio listeners
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -135,9 +127,8 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
     };
   }, [audioRef]);
 
-  // Al cambiar canción ocultamos letra en mobile
   useEffect(() => {
-    setMostrarLetraMobile(false);
+    setMostrarLetra(false);
   }, [trackActual.title]);
 
   const togglePlay = () => {
@@ -160,7 +151,6 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
     return `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
   };
 
-  // Click en línea sincronizada → salta a ese tiempo
   const saltarALinea = (tiempo) => {
     const audio = audioRef.current;
     if (audio) audio.currentTime = tiempo;
@@ -168,13 +158,14 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
 
   return (
     <div className="rep-exp-overlay" onClick={onCerrar}>
-      <div className="rep-exp-modal" onClick={e => e.stopPropagation()}>
-
+      <div
+        className={`rep-exp-modal ${mostrarLetra ? 'rep-exp-modal--expandido' : ''}`}
+        onClick={e => e.stopPropagation()}
+      >
         <button className="rep-exp-cerrar" onClick={onCerrar}>
           <FaTimes />
         </button>
 
-        {/* Lado izquierdo: portada + controles */}
         <div className="rep-exp-izq">
           <img src={trackActual.cover} alt={trackActual.title} className="rep-exp-portada" />
           <h2 className="rep-exp-titulo">{trackActual.title}</h2>
@@ -203,20 +194,17 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
             </button>
           </div>
 
-          {/* Botón ver letra — solo mobile */}
           <button
             className="rep-exp-letra-toggle"
-            onClick={() => setMostrarLetraMobile(v => !v)}
+            onClick={() => setMostrarLetra(v => !v)}
           >
             <FaAlignLeft />
-            {mostrarLetraMobile ? 'Ocultar letra' : 'Ver letra'}
+            {mostrarLetra ? 'Ocultar letra' : 'Ver letra'}
           </button>
         </div>
 
-        {/* Lado derecho: letra */}
-        <div className={`rep-exp-der ${mostrarLetraMobile ? 'rep-exp-der--visible' : ''}`}>
-          <h3 className="rep-exp-letra-titulo">
-          </h3>
+        <div className={`rep-exp-der ${mostrarLetra ? 'rep-exp-der--visible' : ''}`}>
+          <h3 className="rep-exp-letra-titulo"></h3>
 
           {cargandoLetra && (
             <div className="rep-exp-skeleton">
@@ -233,7 +221,6 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
             </div>
           )}
 
-          {/* Letra sincronizada */}
           {!cargandoLetra && lrcLineas && (
             <div className="rep-exp-letra-contenido" ref={letraContenedorRef}>
               {lrcLineas.map((linea, i) => (
@@ -249,7 +236,6 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
             </div>
           )}
 
-          {/* Letra plana (fallback) */}
           {!cargandoLetra && letra && !lrcLineas && (
             <div className="rep-exp-letra-contenido">
               {letra.split('\n').map((linea, i) => (
@@ -260,7 +246,6 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
             </div>
           )}
         </div>
-
       </div>
     </div>
   );
