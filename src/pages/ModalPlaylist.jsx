@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { IoIosClose } from 'react-icons/io';
 import { FiMusic } from 'react-icons/fi';
+import { useToast } from './ToastContext';
 
 const esProd = window.location.hostname.includes("netlify");
 
@@ -11,6 +12,7 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
   const [cargando, setCargando] = useState(true);
   const [creandoNueva, setCreandoNueva] = useState(false);
   const [nombreNueva, setNombreNueva] = useState('');
+  const { mostrarToast } = useToast();
 
   const token = localStorage.getItem('token');
   const userId = localStorage.getItem('id');
@@ -47,6 +49,17 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
   const agregarAPlaylist = async (playlist) => {
     if (esProd) {
       const songs = JSON.parse(localStorage.getItem(`playlist_songs_${playlist.id}`) || '[]');
+
+      const yaExiste = songs.some(s =>
+        s.title.toLowerCase().trim() === (cancion.title || cancion.name).toLowerCase().trim() &&
+        s.artist.toLowerCase().trim() === cancion.artist.toLowerCase().trim()
+      );
+      if (yaExiste) {
+        mostrarToast(`"${cancion.title || cancion.name}" ya está en "${playlist.name}"`, 'error');
+        onCerrar();
+        return;
+      }
+
       const nueva = {
         id: Date.now(),
         id_playlist: playlist.id,
@@ -57,7 +70,7 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
         genre: cancion.genre || ''
       };
       localStorage.setItem(`playlist_songs_${playlist.id}`, JSON.stringify([...songs, nueva]));
-      alert(`"${nueva.title}" agregada a "${playlist.name}"`);
+      mostrarToast(`"${nueva.title}" agregada a "${playlist.name}"`);
       onCerrar();
       return;
     }
@@ -78,13 +91,17 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
         })
       });
       if (response.ok) {
-        alert(`"${cancion.title || cancion.name}" agregada a "${playlist.name}"`);
+        mostrarToast(`"${cancion.title || cancion.name}" agregada a "${playlist.name}"`);
+        onCerrar();
+      } else if (response.status === 409) {
+        mostrarToast(`"${cancion.title || cancion.name}" ya está en "${playlist.name}"`, 'error');
         onCerrar();
       } else {
-        alert('Error al agregar la canción');
+        mostrarToast('Error al agregar la canción', 'error');
       }
     } catch (error) {
       console.error('Error:', error);
+      mostrarToast('Error al agregar la canción', 'error');
     }
   };
 
@@ -117,12 +134,24 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
       }
     } catch (error) {
       console.error('Error:', error);
+      mostrarToast('Error al crear la playlist', 'error');
     }
   };
 
   const agregarAFavoritos = async () => {
     if (esProd) {
       const favoritos = JSON.parse(localStorage.getItem('favoritos') || '[]');
+
+      const yaExiste = favoritos.some(f =>
+        f.title.toLowerCase().trim() === (cancion.title || cancion.name).toLowerCase().trim() &&
+        f.artist.toLowerCase().trim() === cancion.artist.toLowerCase().trim()
+      );
+      if (yaExiste) {
+        mostrarToast(`"${cancion.title || cancion.name}" ya está en Favoritos`, 'error');
+        onCerrar();
+        return;
+      }
+
       const nuevo = {
         id: Date.now(),
         title: cancion.title || cancion.name,
@@ -132,7 +161,7 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
         genre: cancion.genre || ''
       };
       localStorage.setItem('favoritos', JSON.stringify([...favoritos, nuevo]));
-      alert(`"${nuevo.title}" agregada a Favoritos`);
+      mostrarToast(`"${nuevo.title}" agregada a Favoritos`);
       onCerrar();
       return;
     }
@@ -152,13 +181,17 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
         })
       });
       if (response.ok) {
-        alert(`"${cancion.title || cancion.name}" agregada a Favoritos`);
+        mostrarToast(`"${cancion.title || cancion.name}" agregada a Favoritos`);
+        onCerrar();
+      } else if (response.status === 409) {
+        mostrarToast(`"${cancion.title || cancion.name}" ya está en Favoritos`, 'error');
         onCerrar();
       } else {
-        alert('Error al agregar a favoritos');
+        mostrarToast('Error al agregar a favoritos', 'error');
       }
     } catch (error) {
       console.error('Error:', error);
+      mostrarToast('Error al agregar a favoritos', 'error');
     }
   };
 
@@ -171,7 +204,6 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
         style={{ background: 'var(--color-background-primary, #1a1a1a)', borderRadius: '12px', width: '320px', overflow: 'hidden', border: '0.5px solid #333' }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderBottom: '0.5px solid #333' }}>
           <h2 style={{ margin: 0, fontSize: '15px', fontWeight: 500, color: '#fff' }}>Agregar a playlist</h2>
           <button onClick={onCerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', fontSize: '20px', display: 'flex', alignItems: 'center' }}>
@@ -179,7 +211,6 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
           </button>
         </div>
 
-        {/* Favoritos */}
         <div
           onClick={agregarAFavoritos}
           style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 16px', cursor: 'pointer', borderBottom: '0.5px solid #333' }}
@@ -192,7 +223,6 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
           <div style={{ fontSize: '14px', color: '#fff' }}>Agregar a Favoritos</div>
         </div>
 
-        {/* Buscador */}
         <div style={{ padding: '10px 16px', borderBottom: '0.5px solid #333' }}>
           <input
             type="text"
@@ -203,7 +233,6 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
           />
         </div>
 
-        {/* Lista de playlists */}
         <div style={{ maxHeight: '220px', overflowY: 'auto' }}>
           {cargando ? (
             <p style={{ padding: '16px', color: '#aaa', fontSize: '14px' }}>Cargando...</p>
@@ -227,7 +256,6 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
           )}
         </div>
 
-        {/* Footer — crear nueva */}
         <div style={{ padding: '10px 16px', borderTop: '0.5px solid #333' }}>
           {creandoNueva ? (
             <div style={{ display: 'flex', gap: '8px' }}>

@@ -6,7 +6,7 @@ function SidebarAdmin() {
       <h2 style={{ color: "#e9efeb", marginBottom: "30px" }}> MusicAdmin🎵</h2>
       <ul style={{ listStyle: "none", padding: 0 }}>
         <li style={{ margin: "20px 0" }}>
-          <Link to="/admin" style={{ color: "white", textDecoration: "none", fontWeight: "bold" }}>📊 Estadísticas Deezer</Link>
+          <Link to="/admin" style={{ color: "white", textDecoration: "none", fontWeight: "bold" }}>📊 Estadísticas de la app</Link>
         </li>
         <li style={{ margin: "20px 0" }}>
         </li>

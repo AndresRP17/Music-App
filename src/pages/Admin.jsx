@@ -1,15 +1,6 @@
 import { useState, useEffect } from "react";
 import { Doughnut, Bar } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-} from "chart.js";
-
+import {Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement,} from "chart.js";
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
 function Admin() {
@@ -41,7 +32,7 @@ function Admin() {
       });
   }, []);
 
-  // EFFECT 2: Estadísticas globales — todos los usuarios + sus favoritos
+  // EFFECT 2: Estadísticas globales — todos los usuarios + favoritos + playlists
   useEffect(() => {
     setLoadingStats(true);
     const token = localStorage.getItem('token');
@@ -60,12 +51,29 @@ function Admin() {
           return;
         }
 
-        // Paso 2: traer favoritos de cada usuario en paralelo
+        // Paso 2: por cada usuario, traer favoritos Y proyección (playlists) en paralelo
         const fetches = usuarios.map(u =>
-          fetch(`${import.meta.env.VITE_API_URL}/favorites?id_user=${u.id}`, { headers })
-            .then(res => res.ok ? res.json() : [])
-            .then(favs => Array.isArray(favs) ? favs : [])
-            .catch(() => [])
+          Promise.all([
+            fetch(`${import.meta.env.VITE_API_URL}/favorites?id_user=${u.id}`, { headers })
+              .then(res => res.ok ? res.json() : [])
+              .then(favs => Array.isArray(favs) ? favs : [])
+              .catch(() => []),
+            fetch(`${import.meta.env.VITE_API_URL}/music_users/${u.id}/projection`, { headers })
+              .then(res => res.ok ? res.json() : {})
+              .catch(() => ({})),
+          ]).then(([favs, proy]) => {
+            // Combinar favoritos + canciones de playlists, deduplicando por id
+            const seenIds = new Set(favs.map(c => c.id).filter(Boolean));
+            const playlistSongs = (proy?.playlists ?? []).flatMap(pl => pl.canciones ?? []);
+
+            const extras = playlistSongs.filter(c => {
+              if (c.id && seenIds.has(c.id)) return false;
+              if (c.id) seenIds.add(c.id);
+              return true;
+            });
+
+            return [...favs, ...extras];
+          })
         );
 
         return Promise.all(fetches);
@@ -186,14 +194,14 @@ function Admin() {
           <span className="stat-icon">📊</span>
           <div>
             <h3>Categorías Activas</h3>
-            <p className="stat-number">{genres.length} Macro-Géneros</p>
+            <p className="stat-number">{genres.length} Géneros</p>
           </div>
         </div>
         <div className="stat-card">
           <span className="stat-icon">🌎</span>
           <div>
             <h3>Región del Análisis</h3>
-            <p className="stat-number">Worldwide (Global)</p>
+            <p className="stat-number"> Global</p>
           </div>
         </div>
         <div className="stat-card">
@@ -206,7 +214,7 @@ function Admin() {
         <div className="stat-card">
           <span className="stat-icon">❤️</span>
           <div>
-            <h3>Total Canciones Guardadas</h3>
+            <h3>Total Canciones (incl. Playlists)</h3>
             <p className="stat-number">{loadingStats ? "..." : `${userStats?.total ?? 0} canciones`}</p>
           </div>
         </div>
@@ -370,7 +378,6 @@ function Admin() {
           )}
         </section>
       </div>
-
     </div>
   );
 }

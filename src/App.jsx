@@ -15,13 +15,14 @@ import Configuracion from './pages/Configuration';
 import MiMusica from "./pages/MiMusica";
 import PlaylistDetalle from "./pages/PlaylistDetalle";
 import ArtistDetail from "./pages/ArtistDetail";
+import { ToastProvider } from "./pages/ToastContext";
 import './App.css';
 
 function App() {
   const [trackActual, setTrackActual] = useState(null);
   const [listaActual, setListaActual] = useState([]);
   const [indexActual, setIndexActual] = useState(0);
-  const pausarRef = useRef(null); // ← guarda la función pausar de LayoutCliente
+  const pausarRef = useRef(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [role, setRole] = useState(localStorage.getItem('role'));
 
@@ -31,11 +32,10 @@ function App() {
     setToken(null);
   };
 
-const pausar = () => {
-  pausarRef.current?.();
-};
+  const pausar = () => {
+    pausarRef.current?.();
+  };
 
-  // Función central para reproducir — reemplaza todos los setTrackActual directos
   const reproducirLista = (canciones, index) => {
     setListaActual(canciones);
     setIndexActual(index);
@@ -55,44 +55,46 @@ const pausar = () => {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Navigate to="/" replace />} />
+    <ToastProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Navigate to="/" replace />} />
 
-        <Route element={
-          <LayoutCliente
-            trackActual={trackActual}
-            setTrackActual={setTrackActual}
-            listaActual={listaActual}
-            indexActual={indexActual}
-            reproducirLista={reproducirLista}
-            cerrarSesion={cerrarSesion}
-            onPausarRef={pausarRef}
-          />
-        }>
-          <Route path="/" element={<Home />} />
-          <Route path="/search" element={<Search reproducirLista={reproducirLista} pausar={pausar} />} />
-          <Route path="/mi-musica" element={<MiMusica reproducirLista={reproducirLista} pausar={pausar} />} />
-          <Route path="/Favorites" element={<Navigate to="/mi-musica" replace />} />
-          <Route path="/playlist/:id" element={<PlaylistDetalle reproducirLista={reproducirLista} pausar={pausar} />} />
-          <Route path="/configuracion" element={<Configuracion />} />
-          <Route path="/album/:albumName/:artistName" element={<AlbumDetail reproducirLista={reproducirLista} pausar={pausar} />} />
-          <Route path="/artist/:artistName" element={<ArtistDetail reproducirLista={reproducirLista} />} />
-        </Route>
+          <Route element={
+            <LayoutCliente
+              trackActual={trackActual}
+              setTrackActual={setTrackActual}
+              listaActual={listaActual}
+              indexActual={indexActual}
+              reproducirLista={reproducirLista}
+              cerrarSesion={cerrarSesion}
+              onPausarRef={pausarRef}
+            />
+          }>
+            <Route path="/" element={<Home />} />
+            <Route path="/search" element={<Search reproducirLista={reproducirLista} pausar={pausar} />} />
+            <Route path="/mi-musica" element={<MiMusica reproducirLista={reproducirLista} pausar={pausar} />} />
+            <Route path="/Favorites" element={<Navigate to="/mi-musica" replace />} />
+            <Route path="/playlist/:id" element={<PlaylistDetalle reproducirLista={reproducirLista} pausar={pausar} />} />
+            <Route path="/configuracion" element={<Configuracion />} />
+            <Route path="/album/:albumName/:artistName" element={<AlbumDetail reproducirLista={reproducirLista} pausar={pausar} />} />
+            <Route path="/artist/:artistName" element={<ArtistDetail reproducirLista={reproducirLista} />} />
+          </Route>
 
-        <Route element={
-          role === 'admin'
-            ? <LayoutAdmin cerrarSesion={cerrarSesion} />
-            : <Navigate to="/" replace />
-        }>
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/admin/usuarios" element={<ListaUsuarios />} />
-          <Route path="/admin/usuarios/:id" element={<DetalleUsuario />} />
-        </Route>
+          <Route element={
+            role === 'admin'
+              ? <LayoutAdmin cerrarSesion={cerrarSesion} />
+              : <Navigate to="/" replace />
+          }>
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/usuarios" element={<ListaUsuarios />} />
+            <Route path="/admin/usuarios/:id" element={<DetalleUsuario />} />
+          </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </ToastProvider>
   );
 }
 

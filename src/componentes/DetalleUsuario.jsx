@@ -32,33 +32,40 @@ function getInitials(email) {
 }
 
 function DetalleUsuario() {
-  const { id } = useParams();
+  const { id } = useParams(); // Usamos 'id' de la URL directamente
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
+  const [userProjection, setUserProjection] = useState(null);
   const [loading, setLoading] = useState(true);
+  
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
 
+  // CARGA INICIAL
   useEffect(() => {
-  Promise.all([
-    fetch(`${import.meta.env.VITE_API_URL}/music_users/${id}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-    }).then(res => res.json()),
+    setLoading(true);
+    const token = localStorage.getItem('token');
+    const headers = { Authorization: `Bearer ${token}` };
 
-    fetch(`${import.meta.env.VITE_API_URL}/favorites?id_user=${id}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-    }).then(res => res.json()),
-  ])
-    .then(([usuario, canciones]) => {
-      setStats({
-        email: usuario.email,
-        canciones: Array.isArray(canciones) ? canciones : [],
-      });
-    })
-    .catch(err => console.error(err))
-    .finally(() => setLoading(false));
-}, [id]);
+    Promise.all([
+      fetch(`${import.meta.env.VITE_API_URL}/music_users/${id}`, { headers }).then(res => res.json()),
+      fetch(`${import.meta.env.VITE_API_URL}/favorites?id_user=${id}`, { headers }).then(res => res.json()),
+      fetch(`${import.meta.env.VITE_API_URL}/music_users/${id}/projection`, { headers })
+        .then(res => res.ok ? res.json() : { error: true })
+        .catch(() => ({ error: true }))
+    ])
+      .then(([usuario, canciones, proy]) => {
+        setStats({
+          email: usuario.email,
+          canciones: Array.isArray(canciones) ? canciones : [],
+        });
+        setUserProjection(proy);
+      })
+      .catch(err => console.error("Error cargando los datos del usuario:", err))
+      .finally(() => setLoading(false));
+  }, [id]);
 
+  // CONTROL DEL GRÁFICO
   useEffect(() => {
     if (!stats?.canciones || !chartRef.current) return;
 
@@ -179,10 +186,45 @@ function DetalleUsuario() {
         </div>
       </div>
 
-      {/* Tabla canciones */}
+      {/* SECCIÓN: Playlists del usuario */}
       <div style={{ background: '#1a1a1a', border: '0.5px solid #2a2a2a', borderRadius: '12px', padding: '20px', marginTop: '20px' }}>
         <h2 style={{ fontSize: '13px', fontWeight: '500', color: '#888', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-          Canciones guardadas
+          Playlists de este Usuario
+        </h2>
+        
+        {!userProjection || userProjection.error || !userProjection.playlists || userProjection.playlists.length === 0 ? (
+          <p style={{ color: '#555', fontSize: '13px' }}>Este usuario no posee playlists creadas o no se pudieron cargar desde el servidor.</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {userProjection.playlists.map(pl => (
+              <div key={pl.id} style={{ background: '#222', border: '1px solid #2a2a2a', borderRadius: '8px', padding: '14px' }}>
+                <h4 style={{ margin: '0 0 10px', color: '#378ADD', fontSize: '14px', fontWeight: '500' }}>
+                  📂 {pl.name} <span style={{ color: '#666', fontSize: '12px' }}>({pl.canciones?.length ?? 0} canciones)</span>
+                </h4>
+                
+                {!pl.canciones || pl.canciones.length === 0 ? (
+                  <p style={{ color: '#555', fontSize: '12px', margin: 0 }}>Lista vacía.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {pl.canciones.map((c, i) => (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid #2d2d2d', fontSize: '13px' }}>
+                        <span style={{ color: '#eee' }}>{c.title || "Sin título"}</span>
+                        <span style={{ color: '#aaa' }}>{c.artist || "Artista desconocido"}</span>
+                        <span style={{ color: '#555' }}>{c.genre || "Gen."}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Tabla canciones guardadas (Favoritos) */}
+      <div style={{ background: '#1a1a1a', border: '0.5px solid #2a2a2a', borderRadius: '12px', padding: '20px', marginTop: '20px' }}>
+        <h2 style={{ fontSize: '13px', fontWeight: '500', color: '#888', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          Canciones guardadas (Favoritos)
         </h2>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
           <thead>

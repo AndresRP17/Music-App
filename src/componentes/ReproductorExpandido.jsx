@@ -216,7 +216,6 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
         {/* Lado derecho: letra */}
         <div className={`rep-exp-der ${mostrarLetraMobile ? 'rep-exp-der--visible' : ''}`}>
           <h3 className="rep-exp-letra-titulo">
-            Letra {lrcLineas && <span className="rep-exp-sync-badge">sincronizada</span>}
           </h3>
 
           {cargandoLetra && (

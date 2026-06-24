@@ -19,7 +19,6 @@ function AlbumDetails({ reproducirLista, pausar }) {
   const navigate = useNavigate();
 
   const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad(pausar);
-
   const esPremium = localStorage.getItem("esPremium") === "true";
 
   useEffect(() => {
@@ -155,64 +154,6 @@ function AlbumDetails({ reproducirLista, pausar }) {
     }
   };
 
-  const agregarAFavoritos = async (track, index) => {
-    if (!esPremium) {
-      alert("🔒 Necesitás ser usuario Premium para agregar canciones a tu playlist.");
-      return;
-    }
-    setGuardandoTrack(index);
-
-    if (esProd) {
-      const guardadas = JSON.parse(localStorage.getItem("favoritos") || "[]");
-      const nueva = {
-        id: Date.now(),
-        title: track.name,
-        artist: albumInfo.artist,
-        album: albumInfo.name,
-        duration: track.duration ? parseInt(track.duration) : 0,
-        genre: albumInfo.tags?.tag?.[0]?.name || "Unknown"
-      };
-      localStorage.setItem("favoritos", JSON.stringify([...guardadas, nueva]));
-      setCancionesGuardadas(prev => [...prev, `${albumInfo.artist}-${track.name}`]);
-      alert(`¡"${track.name}" se guardó en tus favoritos!`);
-      setGuardandoTrack(null);
-      return;
-    }
-
-    try {
-      const cancionFavorita = {
-        title: track.name,
-        artist: albumInfo.artist,
-        album: albumInfo.name,
-        duration: track.duration ? parseInt(track.duration) : 0,
-        genre: albumInfo.tags?.tag?.[0]?.name || "Unknown"
-      };
-      const token = localStorage.getItem('token'); 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/favorites`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
-        },
-        body: JSON.stringify(cancionFavorita)
-      });
-      if (!response.ok) {
-        const textoError = await response.text();
-        console.error("El servidor respondió con error:", textoError);
-        alert("Error al guardar la canción.");
-        return;
-      }
-      await response.json();
-      setCancionesGuardadas(prev => [...prev, `${albumInfo.artist}-${track.name}`]);
-      alert(`¡"${track.name}" se guardó en tus favoritos!`);
-    } catch (error) {
-      console.error("Error al conectar con el backend:", error);
-      alert("Hubo un error de red al intentar guardar la canción.");
-    } finally {
-      setGuardandoTrack(null);
-    }
-  };
-
   if (!albumInfo) return <div className="loading">Cargando...</div>;
 
   return (
@@ -310,15 +251,6 @@ function AlbumDetails({ reproducirLista, pausar }) {
                         : <FaPlus />
                       }
                     </button>
-                    {modalPlaylist && cancionSeleccionada && (
-                      <ModalPlaylist
-                        cancion={cancionSeleccionada}
-                        onCerrar={() => {
-                          setModalPlaylist(false);
-                          setCancionSeleccionada(null);
-                        }}
-                      />
-                    )}
                   </div>
                 );
               })
@@ -343,6 +275,16 @@ function AlbumDetails({ reproducirLista, pausar }) {
           )}
         </aside>
       </div>
+
+      {modalPlaylist && cancionSeleccionada && (
+        <ModalPlaylist
+          cancion={cancionSeleccionada}
+          onCerrar={() => {
+            setModalPlaylist(false);
+            setCancionSeleccionada(null);
+          }}
+        />
+      )}
     </div>
   );
 } 

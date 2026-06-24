@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaSearch, FaTimes, FaPlay, FaPlus } from 'react-icons/fa';
+import { FaSearch, FaTimes, FaPlay, FaPlus, FaLock } from 'react-icons/fa';
 import { MdHistory, MdDeleteSweep } from 'react-icons/md';
 import ModalPlaylist from './ModalPlaylist';
 import Publicidad from '../pages/Publicidad';
@@ -20,6 +20,9 @@ function Search({ reproducirLista, pausar }) {
   const [cancionSeleccionada, setCancionSeleccionada] = useState(null);
   const navigate = useNavigate();
   const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad(pausar);
+
+  // Conexión directa con tu LocalStorage
+  const esPremium = localStorage.getItem("esPremium") === "true";
 
   const API_KEY = 'aa182e9e95ab101a5f7ae68eba441e09';
 
@@ -190,18 +193,18 @@ function Search({ reproducirLista, pausar }) {
               </div>
               <div className="album-grid">
                 {albumes.map((album, index) => {
-                  const nombreArtista = typeof album.artist === 'object' ? album.artist.name : album.artist;
+                  const ExtractedArtist = typeof album.artist === 'object' ? album.artist.name : album.artist;
                   return (
                     <div key={`${album.name}-${index}`} className="album-card" onClick={() => manejarClickAlbum(album)}>
                       <img src={album.image[3]['#text'] || 'https://via.placeholder.com/300'} alt={album.name} />
                       <h3>{album.name}</h3>
                       <p
-                        onClick={(e) => { e.stopPropagation(); navigate(`/artist/${encodeURIComponent(nombreArtista)}`); }}
+                        onClick={(e) => { e.stopPropagation(); navigate(`/artist/${encodeURIComponent(ExtractedArtist)}`); }}
                         style={{ cursor: 'pointer' }}
                         onMouseEnter={e => e.target.style.color = '#fff'}
                         onMouseLeave={e => e.target.style.color = '#b3b3b3'}
                       >
-                        {nombreArtista}
+                        {ExtractedArtist}
                       </p>
                     </div>
                   );
@@ -276,21 +279,44 @@ function Search({ reproducirLista, pausar }) {
                       >
                         <FaPlay style={{ fontSize: '11px', marginLeft: '1px' }} />
                       </button>
+
+                      {/* BOTÓN PRESERVADO Y CORREGIDO */}
                       <button
-                        onClick={() => {
-                          setCancionSeleccionada({
-                            title: cancion.title,
-                            artist: cancion.artist.name,
-                            album: cancion.album?.title || '',
-                            duration: cancion.duration || 0,
-                            genre: ''
-                          });
-                          setModalPlaylist(true);
-                        }}
-                        style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#aaa', flexShrink: 0 }}
-                      >
-                        <FaPlus style={{ fontSize: '11px' }} />
-                      </button>
+  onClick={() => {
+    if (!esPremium) {
+      alert("🔒 Necesitás ser usuario Premium para agregar canciones.");
+      return;
+    }
+    setCancionSeleccionada({
+      title: cancion.title,
+      artist: cancion.artist.name,
+      album: cancion.album?.title || '',
+      duration: cancion.duration || 0,
+      genre: ''
+    });
+    setModalPlaylist(true);
+  }}
+  style={{ 
+    background: 'transparent', 
+    border: '1px solid rgba(255,255,255,0.2)', 
+    borderRadius: '50%', 
+    width: '32px', 
+    height: '32px', 
+    display: 'flex', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    cursor: esPremium ? 'pointer' : 'not-allowed', 
+    color: '#fff', 
+    flexShrink: 0,
+    opacity: esPremium ? 1 : 0.35
+  }}
+>
+  {esPremium ? (
+    <FaPlus style={{ fontSize: '11px', color: '#aaa' }} />
+  ) : (
+    <FaLock style={{ fontSize: '11px', color: '#666' }} />
+  )}
+</button>
                     </div>
                   </div>
                 ))
