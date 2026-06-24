@@ -16,7 +16,7 @@ export function ToastProvider({ children }) {
       {toast && (
         <div style={{
           position: 'fixed',
-          bottom: '32px',
+          top: '32px',
           left: '50%',
           transform: 'translateX(-50%)',
           background: '#1e1e1e',
