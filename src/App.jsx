@@ -42,6 +42,19 @@ function App() {
     setTrackActual(canciones[index]);
   };
 
+  useEffect(() => {
+    const sincronizarRol = () => {
+      setRole(localStorage.getItem('role'));
+    };
+
+    // Escuchamos el evento que creamos en la configuración
+    window.addEventListener("rolActualizado", sincronizarRol);
+
+    return () => {
+      window.removeEventListener("rolActualizado", sincronizarRol);
+    };
+  }, []);
+
   if (!token) {
     return (
       <BrowserRouter>
@@ -53,6 +66,8 @@ function App() {
       </BrowserRouter>
     );
   }
+
+  
 
   return (
     <ToastProvider>

@@ -16,6 +16,7 @@ const getColor = (id) => COLORES[id % COLORES.length];
 
 const MisPlaylists = () => {
   const [playlists, setPlaylists] = useState([]);
+  const [cantidadCanciones, setCantidadCanciones] = useState({});
   const [cargando, setCargando] = useState(true);
   const [nombreNueva, setNombreNueva] = useState('');
   const [creando, setCreando] = useState(false);
@@ -23,10 +24,40 @@ const MisPlaylists = () => {
   const token = localStorage.getItem('token');
   const userId = localStorage.getItem('id');
 
+  const obtenerCantidadesProd = (listas) => {
+    const counts = {};
+    for (const pl of listas) {
+      const songs = JSON.parse(localStorage.getItem(`playlist_songs_${pl.id}`) || '[]');
+      counts[pl.id] = songs.length;
+    }
+    setCantidadCanciones(counts);
+  };
+
+  const obtenerCantidadesApi = async (listas) => {
+    const results = await Promise.all(
+      listas.map(async (pl) => {
+        try {
+          const r = await fetch(`/api/playlist_songs/playlist/${pl.id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (!r.ok) return { id: pl.id, count: 0 };
+          const songs = await r.json();
+          return { id: pl.id, count: Array.isArray(songs) ? songs.length : 0 };
+        } catch {
+          return { id: pl.id, count: 0 };
+        }
+      })
+    );
+    const counts = {};
+    results.forEach(({ id, count }) => { counts[id] = count; });
+    setCantidadCanciones(counts);
+  };
+
   const obtenerPlaylists = async () => {
     if (esProd) {
       const guardadas = JSON.parse(localStorage.getItem('playlists') || '[]');
       setPlaylists(guardadas);
+      obtenerCantidadesProd(guardadas);
       setCargando(false);
       return;
     }
@@ -37,6 +68,7 @@ const MisPlaylists = () => {
       if (response.ok) {
         const data = await response.json();
         setPlaylists(data);
+        obtenerCantidadesApi(data);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -57,6 +89,7 @@ const MisPlaylists = () => {
       const nueva = { id: Date.now(), name: nombreNueva };
       localStorage.setItem('playlists', JSON.stringify([...guardadas, nueva]));
       setPlaylists([...guardadas, nueva]);
+      setCantidadCanciones(prev => ({ ...prev, [nueva.id]: 0 }));
       setNombreNueva('');
       setCreando(false);
       return;
@@ -88,6 +121,7 @@ const MisPlaylists = () => {
       localStorage.setItem('playlists', JSON.stringify(nuevas));
       localStorage.removeItem(`playlist_songs_${id}`);
       setPlaylists(nuevas);
+      setCantidadCanciones(prev => { const n = { ...prev }; delete n[id]; return n; });
       return;
     }
 
@@ -98,6 +132,7 @@ const MisPlaylists = () => {
       });
       if (response.ok) {
         setPlaylists(prev => prev.filter(p => p.id !== id));
+        setCantidadCanciones(prev => { const n = { ...prev }; delete n[id]; return n; });
       }
     } catch (error) {
       console.error('Error:', error);
@@ -106,7 +141,7 @@ const MisPlaylists = () => {
 
   if (cargando) return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'red', fontSize: '1.4rem', fontWeight: 600 }}>
-          <p style={{ color: '#ff2d55', fontSize: '1.3rem' }}>Cargando playlist...</p>
+      <p style={{ color: '#ff2d55', fontSize: '1.3rem' }}>Cargando playlist...</p>
     </div>
   );
 
@@ -156,39 +191,52 @@ const MisPlaylists = () => {
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '20px' }}>
-          {playlists.map((playlist) => (
-            <div
-              key={playlist.id}
-              onClick={() => navigate(`/playlist/${playlist.id}`)}
-              style={{ cursor: 'pointer', borderRadius: '10px', overflow: 'hidden', background: '#181818', transition: 'transform 0.2s, background 0.2s', position: 'relative' }}
-              onMouseEnter={e => e.currentTarget.style.background = '#282828'}
-              onMouseLeave={e => e.currentTarget.style.background = '#181818'}
-            >
-              {/* Parte superior con color e ícono */}
-              <div style={{ background: getColor(playlist.id), height: '140px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <FiMusic style={{ fontSize: '52px', color: 'rgba(255,255,255,0.8)' }} />
-              </div>
+          {playlists.map((playlist) => {
+            const count = cantidadCanciones[playlist.id];
+            const labelCanciones = count === undefined
+              ? '...'
+              : count === 0
+                ? 'Sin canciones'
+                : count === 1
+                  ? '1 canción'
+                  : `${count} canciones`;
 
-              {/* Info */}
-              <div style={{ padding: '12px 14px 14px' }}>
-                <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {playlist.name}
-                </h3>
-                <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#aaa' }}>Playlist</p>
-              </div>
-
-              {/* Botón eliminar */}
-              <button
-                onClick={(e) => eliminarPlaylist(e, playlist.id)}
-                style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', color: '#fff', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '16px', opacity: 0, transition: 'opacity 0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.opacity = '1'}
-                onMouseLeave={e => e.currentTarget.style.opacity = '0'}
-                className="delete-playlist-btn"
+            return (
+              <div
+                key={playlist.id}
+                onClick={() => navigate(`/playlist/${playlist.id}`)}
+                style={{ cursor: 'pointer', borderRadius: '10px', overflow: 'hidden', background: '#181818', transition: 'transform 0.2s, background 0.2s', position: 'relative' }}
+                onMouseEnter={e => e.currentTarget.style.background = '#282828'}
+                onMouseLeave={e => e.currentTarget.style.background = '#181818'}
               >
-                <MdDelete />
-              </button>
-            </div>
-          ))}
+                {/* Parte superior con color e ícono */}
+                <div style={{ background: getColor(playlist.id), height: '140px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <FiMusic style={{ fontSize: '52px', color: 'rgba(255,255,255,0.8)' }} />
+                </div>
+
+                {/* Info */}
+                <div style={{ padding: '12px 14px 14px' }}>
+                  <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {playlist.name}
+                  </h3>
+                  <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#aaa' }}>
+                    {labelCanciones}
+                  </p>
+                </div>
+
+                {/* Botón eliminar */}
+                <button
+                  onClick={(e) => eliminarPlaylist(e, playlist.id)}
+                  style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(0,0,0,0.5)', border: 'none', borderRadius: '50%', color: '#fff', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '16px', opacity: 0, transition: 'opacity 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+                  onMouseLeave={e => e.currentTarget.style.opacity = '0'}
+                  className="delete-playlist-btn"
+                >
+                  <MdDelete />
+                </button>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

@@ -21,8 +21,9 @@ function Search({ reproducirLista, pausar }) {
   const navigate = useNavigate();
   const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad(pausar);
 
-  // Conexión directa con tu LocalStorage
-  const esPremium = localStorage.getItem("esPremium") === "true";
+  // NUEVO FUNCIONAMIENTO EN BASE A TU ROL REAL
+const role = localStorage.getItem("role") || "user";
+const esPremium = role === "premium" || role === "admin";
 
   const API_KEY = 'aa182e9e95ab101a5f7ae68eba441e09';
 

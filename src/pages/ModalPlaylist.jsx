@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus, FaCheck } from 'react-icons/fa';
 import { IoIosClose } from 'react-icons/io';
 import { FiMusic } from 'react-icons/fi';
 import { useToast } from './ToastContext';
@@ -12,26 +12,84 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
   const [cargando, setCargando] = useState(true);
   const [creandoNueva, setCreandoNueva] = useState(false);
   const [nombreNueva, setNombreNueva] = useState('');
+  const [yaEnFavoritos, setYaEnFavoritos] = useState(false);
+  // Map de playlistId -> bool (si ya tiene la canción)
+  const [cancionEnPlaylist, setCancionEnPlaylist] = useState({});
   const { mostrarToast } = useToast();
 
   const token = localStorage.getItem('token');
   const userId = localStorage.getItem('id');
+
+  const tituloCancion = (cancion.title || cancion.name || '').toLowerCase().trim();
+  const artistaCancion = (cancion.artist || '').toLowerCase().trim();
+
+  // Chequea si una canción ya está (por título + artista)
+  const yaExisteEnLista = (lista) =>
+    lista.some(
+      s =>
+        (s.title || s.name || '').toLowerCase().trim() === tituloCancion &&
+        (s.artist || '').toLowerCase().trim() === artistaCancion
+    );
 
   useEffect(() => {
     const obtenerPlaylists = async () => {
       if (esProd) {
         const guardadas = JSON.parse(localStorage.getItem('playlists') || '[]');
         setPlaylists(guardadas);
+
+        // Chequear favoritos
+        const favoritos = JSON.parse(localStorage.getItem('favoritos') || '[]');
+        setYaEnFavoritos(yaExisteEnLista(favoritos));
+
+        // Chequear canción en cada playlist
+        const estadoPlaylists = {};
+        for (const pl of guardadas) {
+          const songs = JSON.parse(localStorage.getItem(`playlist_songs_${pl.id}`) || '[]');
+          estadoPlaylists[pl.id] = yaExisteEnLista(songs);
+        }
+        setCancionEnPlaylist(estadoPlaylists);
         setCargando(false);
         return;
       }
+
       try {
+        // Traer playlists
         const response = await fetch('/api/playlists', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
+        console.log(playlists) // o data, justo después del fetch de playlists
         if (response.ok) {
           const data = await response.json();
           setPlaylists(data);
+
+          // Chequear cada playlist en paralelo
+          const checks = await Promise.all(
+            data.map(async (pl) => {
+              try {
+                const r = await fetch(`/api/playlist_songs/playlist/${pl.id}`,  {
+                  headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!r.ok) return { id: pl.id, existe: false };
+                const songs = await r.json();
+                return { id: pl.id, existe: yaExisteEnLista(songs) };
+              } catch {
+                return { id: pl.id, existe: false };
+              }
+            })
+          );
+
+          const estadoPlaylists = {};
+          checks.forEach(({ id, existe }) => { estadoPlaylists[id] = existe; });
+          setCancionEnPlaylist(estadoPlaylists);
+        }
+
+        // Chequear favoritos
+        const favRes = await fetch('/api/favorites', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (favRes.ok) {
+          const favData = await favRes.json();
+          setYaEnFavoritos(yaExisteEnLista(favData));
         }
       } catch (error) {
         console.error('Error:', error);
@@ -39,7 +97,9 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
         setCargando(false);
       }
     };
+
     obtenerPlaylists();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const playlistsFiltradas = playlists.filter(p =>
@@ -47,19 +107,11 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
   );
 
   const agregarAPlaylist = async (playlist) => {
+    // Si ya está, no hacer nada (el botón está deshabilitado, pero por si acaso)
+    if (cancionEnPlaylist[playlist.id]) return;
+
     if (esProd) {
       const songs = JSON.parse(localStorage.getItem(`playlist_songs_${playlist.id}`) || '[]');
-
-      const yaExiste = songs.some(s =>
-        s.title.toLowerCase().trim() === (cancion.title || cancion.name).toLowerCase().trim() &&
-        s.artist.toLowerCase().trim() === cancion.artist.toLowerCase().trim()
-      );
-      if (yaExiste) {
-        mostrarToast(`"${cancion.title || cancion.name}" ya está en "${playlist.name}"`, 'error');
-        onCerrar();
-        return;
-      }
-
       const nueva = {
         id: Date.now(),
         id_playlist: playlist.id,
@@ -74,6 +126,7 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
       onCerrar();
       return;
     }
+
     try {
       const response = await fetch('/api/playlist_songs', {
         method: 'POST',
@@ -109,9 +162,9 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
     if (!nombreNueva.trim()) return;
 
     if (esProd) {
-      const playlists = JSON.parse(localStorage.getItem('playlists') || '[]');
+      const playlistsActuales = JSON.parse(localStorage.getItem('playlists') || '[]');
       const nueva = { id: Date.now(), name: nombreNueva };
-      localStorage.setItem('playlists', JSON.stringify([...playlists, nueva]));
+      localStorage.setItem('playlists', JSON.stringify([...playlistsActuales, nueva]));
       await agregarAPlaylist(nueva);
       return;
     }
@@ -123,10 +176,7 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          id_user: userId,
-          name: nombreNueva
-        })
+        body: JSON.stringify({ id_user: userId, name: nombreNueva })
       });
       if (response.ok) {
         const nueva = await response.json();
@@ -139,19 +189,10 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
   };
 
   const agregarAFavoritos = async () => {
+    if (yaEnFavoritos) return;
+
     if (esProd) {
       const favoritos = JSON.parse(localStorage.getItem('favoritos') || '[]');
-
-      const yaExiste = favoritos.some(f =>
-        f.title.toLowerCase().trim() === (cancion.title || cancion.name).toLowerCase().trim() &&
-        f.artist.toLowerCase().trim() === cancion.artist.toLowerCase().trim()
-      );
-      if (yaExiste) {
-        mostrarToast(`"${cancion.title || cancion.name}" ya está en Favoritos`, 'error');
-        onCerrar();
-        return;
-      }
-
       const nuevo = {
         id: Date.now(),
         title: cancion.title || cancion.name,
@@ -165,6 +206,7 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
       onCerrar();
       return;
     }
+
     try {
       const response = await fetch('/api/favorites', {
         method: 'POST',
@@ -204,6 +246,7 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
         style={{ background: 'var(--color-background-primary, #1a1a1a)', borderRadius: '12px', width: '320px', overflow: 'hidden', border: '0.5px solid #333' }}
         onClick={e => e.stopPropagation()}
       >
+        {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', borderBottom: '0.5px solid #333' }}>
           <h2 style={{ margin: 0, fontSize: '15px', fontWeight: 500, color: '#fff' }}>Agregar a playlist</h2>
           <button onClick={onCerrar} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#aaa', fontSize: '20px', display: 'flex', alignItems: 'center' }}>
@@ -211,18 +254,33 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
           </button>
         </div>
 
+        {/* Fila de Favoritos */}
         <div
-          onClick={agregarAFavoritos}
-          style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 16px', cursor: 'pointer', borderBottom: '0.5px solid #333' }}
-          onMouseEnter={e => e.currentTarget.style.background = '#2a2a2a'}
-          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+          onClick={yaEnFavoritos ? undefined : agregarAFavoritos}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            padding: '10px 16px',
+            cursor: yaEnFavoritos ? 'default' : 'pointer',
+            borderBottom: '0.5px solid #333',
+            opacity: yaEnFavoritos ? 0.6 : 1,
+            transition: 'background 0.15s'
+          }}
+          onMouseEnter={e => { if (!yaEnFavoritos) e.currentTarget.style.background = '#2a2a2a'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
         >
           <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#2a2a2a', border: '0.5px solid #444', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <span style={{ color: '#e25555', fontSize: '16px' }}>♥</span>
+            <span style={{ color: yaEnFavoritos ? '#1db954' : '#e25555', fontSize: '16px' }}>
+              {yaEnFavoritos ? '✓' : '♥'}
+            </span>
           </div>
-          <div style={{ fontSize: '14px', color: '#fff' }}>Agregar a Favoritos</div>
+          <div style={{ fontSize: '14px', color: yaEnFavoritos ? '#aaa' : '#fff' }}>
+            {yaEnFavoritos ? 'Ya está en Favoritos' : 'Agregar a Favoritos'}
+          </div>
         </div>
 
+        {/* Buscador */}
         <div style={{ padding: '10px 16px', borderBottom: '0.5px solid #333' }}>
           <input
             type="text"
@@ -233,29 +291,54 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
           />
         </div>
 
+        {/* Lista de playlists */}
         <div style={{ maxHeight: '220px', overflowY: 'auto' }}>
           {cargando ? (
             <p style={{ padding: '16px', color: '#aaa', fontSize: '14px' }}>Cargando...</p>
           ) : playlistsFiltradas.length === 0 ? (
             <p style={{ padding: '16px', color: '#aaa', fontSize: '14px' }}>No se encontraron playlists</p>
           ) : (
-            playlistsFiltradas.map(playlist => (
-              <div
-                key={playlist.id}
-                onClick={() => agregarAPlaylist(playlist)}
-                style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 16px', cursor: 'pointer', transition: 'background 0.15s' }}
-                onMouseEnter={e => e.currentTarget.style.background = '#2a2a2a'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-              >
-                <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#2a2a2a', border: '0.5px solid #444', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <FiMusic style={{ color: '#aaa', fontSize: '16px' }} />
+            playlistsFiltradas.map(playlist => {
+              const yaEsta = !!cancionEnPlaylist[playlist.id];
+              return (
+                <div
+                  key={playlist.id}
+                  onClick={() => !yaEsta && agregarAPlaylist(playlist)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '10px 16px',
+                    cursor: yaEsta ? 'default' : 'pointer',
+                    opacity: yaEsta ? 0.6 : 1,
+                    transition: 'background 0.15s'
+                  }}
+                  onMouseEnter={e => { if (!yaEsta) e.currentTarget.style.background = '#2a2a2a'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                >
+                  <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#2a2a2a', border: `0.5px solid ${yaEsta ? '#1db954' : '#444'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {yaEsta
+                      ? <FaCheck style={{ color: '#1db954', fontSize: '14px' }} />
+                      : <FiMusic style={{ color: '#aaa', fontSize: '16px' }} />
+                    }
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '14px', color: yaEsta ? '#aaa' : '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {playlist.name}
+                    </div>
+                    {yaEsta && (
+                      <div style={{ fontSize: '11px', color: '#1db954', marginTop: '1px' }}>
+                        Ya agregada
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div style={{ fontSize: '14px', color: '#fff' }}>{playlist.name}</div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
 
+        {/* Crear nueva playlist */}
         <div style={{ padding: '10px 16px', borderTop: '0.5px solid #333' }}>
           {creandoNueva ? (
             <div style={{ display: 'flex', gap: '8px' }}>

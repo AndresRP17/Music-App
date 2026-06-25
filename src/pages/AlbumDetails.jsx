@@ -19,7 +19,9 @@ function AlbumDetails({ reproducirLista, pausar }) {
   const navigate = useNavigate();
 
   const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad(pausar);
-  const esPremium = localStorage.getItem("esPremium") === "true";
+  // NUEVO FUNCIONAMIENTO EN BASE A TU ROL REAL
+const role = localStorage.getItem("role") || "user";
+const esPremium = role === "premium" || role === "admin";
 
   useEffect(() => {
     const fetchAlbumDetails = async () => {

@@ -1,24 +1,34 @@
 import { useEffect, useState, useRef } from 'react';
 
 function Publicidad({ onCerrar }) {
-  const esPremium = localStorage.getItem("esPremium") === "true";
   const [segundos, setSegundos] = useState(5);
   const [puedeSkippear, setPuedeSkippear] = useState(false);
   const [mostrarConfirm, setMostrarConfirm] = useState(false);
   const [tabOculta, setTabOculta] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [resetMsg, setResetMsg] = useState(false);
+  
   const btnRef = useRef(null);
   const lastPos = useRef({ x: 0, y: 0, time: Date.now() });
   const segundosRef = useRef(5);
   const puedeSkippearRef = useRef(false);
 
-  useEffect(() => {
-    if (esPremium) { onCerrar(); return; }
+  // Levantamos el rol dinámicamente
+  const role = localStorage.getItem("role") || "user";
+  const esPremium = role === "premium" || role === "admin";
 
-    // pedir permiso de notificaciones a los 2s
+  useEffect(() => {
+    // 1. Si ya es Premium o Admin, cerramos al toque
+    if (esPremium) {
+      onCerrar();
+      return;
+    }
+
+    // 2. Pedir permiso de notificaciones a los 2s
     const tNotif = setTimeout(async () => {
       if (!('Notification' in window)) return;
+      if (Notification.permission === 'denied') return;
+
       const permiso = await Notification.requestPermission();
       if (permiso === 'granted') {
         new Notification('🎵 Tu música está pausada', {
@@ -28,6 +38,7 @@ function Publicidad({ onCerrar }) {
       }
     }, 2000);
 
+    // 3. Intervalo de la cuenta regresiva del anuncio (5s)
     const intervalo = setInterval(() => {
       setSegundos(prev => {
         const nuevo = prev - 1;
@@ -42,6 +53,7 @@ function Publicidad({ onCerrar }) {
       });
     }, 1000);
 
+    // 4. Manejador de cambio de pestaña (Anti-trampas)
     const handleVisibility = () => {
       const oculta = document.hidden;
       setTabOculta(oculta);
@@ -54,13 +66,15 @@ function Publicidad({ onCerrar }) {
     };
     document.addEventListener('visibilitychange', handleVisibility);
 
+    // ✨ LIMPIEZA TOTAL: Desmontamos timers y eventos limpiamente
     return () => {
       clearInterval(intervalo);
       clearTimeout(tNotif);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, []);
+  }, [onCerrar, esPremium]);
 
+  // Manejo del mouse (Botón esquivo y detector de velocidad de movimiento)
   const handleMouseMove = (e) => {
     if (!btnRef.current) return;
 
@@ -102,6 +116,8 @@ function Publicidad({ onCerrar }) {
   };
 
   if (esPremium) return null;
+
+  // Abajo continuaría tu return (...) con el HTML de la publicidad
 
   return (
     <div

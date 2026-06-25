@@ -48,35 +48,75 @@ function ListaUsuarios() {
           .filter(u => u.email)
           .map((u, i) => {
             const color = COLORS[i % COLORS.length];
+            
+            // --- DETECCIÓN DE ROL PARA LOS ÍCONOS DE DISTINCIÓN ---
+            const esAdmin = u.role === 'admin';
+            const esPremium = u.role === 'premium';
+
             return (
               <div
                 key={u.id}
                 onClick={() => navigate(`/admin/usuarios/${u.id}`)}
                 style={{
                   background: '#1a1a1a',
-                  border: '0.5px solid #2a2a2a',
+                  border: esAdmin ? '0.5px solid #FAC775' : '0.5px solid #2a2a2a', // Borde dorado sutil si es admin
                   borderRadius: '12px',
                   padding: '16px 20px',
                   cursor: 'pointer',
-                  transition: 'border-color 0.15s',
+                  position: 'relative', // Para si después querés meter algo absoluto
+                  transition: 'border-color 0.15s, transform 0.15s',
                 }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = '#444'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = '#2a2a2a'}
+                onMouseEnter={e => e.currentTarget.style.borderColor = esAdmin ? '#FAC775' : '#444'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = esAdmin ? '#FAC775' : '#2a2a2a'}
               >
-                <div style={{
-                  width: '44px', height: '44px', borderRadius: '50%',
-                  background: color.bg, color: color.fg,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontWeight: '500', fontSize: '15px', marginBottom: '10px',
-                }}>
-                  {getInitials(u.email)}
+                {/* Contenedor del Avatar y la Corona/Escudo */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                  <div style={{
+                    width: '44px', height: '44px', borderRadius: '50%',
+                    background: color.bg, color: color.fg,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontWeight: '500', fontSize: '15px',
+                  }}>
+                    {getInitials(u.email)}
+                  </div>
+
+                  {/* 👑 Corona para Premium o 🛡️ Escudo para Admin */}
+                  {esAdmin && <span style={{ fontSize: '20px', title: 'Administrador' }}>🛡️</span>}
+                  {esPremium && <span style={{ fontSize: '20px', title: 'Miembro Premium' }}>👑</span>}
                 </div>
-                <p style={{ fontWeight: '500', fontSize: '14px', marginBottom: '4px' }}>
+
+                {/* Email del usuario */}
+                <p style={{ 
+                  fontWeight: '500', 
+                  fontSize: '14px', 
+                  marginBottom: '6px',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis' 
+                }}>
                   {u.email}
                 </p>
-                <p style={{ color: '#888', fontSize: '12px' }}>
-                  {u.total_songs ?? '—'} canciones guardadas
-                </p>
+
+                {/* --- ETIQUETA VISUAL DE ROL (BADGE) --- */}
+                <div style={{ marginBottom: '12px' }}>
+                  {esAdmin && (
+                    <span style={{ background: 'rgba(250, 199, 117, 0.15)', color: '#FAC775', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>
+                      ADMIN
+                    </span>
+                  )}
+                  {esPremium && (
+                    <span style={{ background: 'rgba(181, 212, 244, 0.15)', color: '#B5D4F4', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>
+                      PREMIUM
+                    </span>
+                  )}
+                  {!esAdmin && !esPremium && (
+                    <span style={{ background: 'rgba(255, 255, 255, 0.08)', color: '#888', padding: '2px 6px', borderRadius: '4px', fontSize: '10px' }}>
+                      GRATUITO
+                    </span>
+                  )}
+                </div>
+
+                
                 <p style={{ color: '#555', fontSize: '11px', marginTop: '8px', textAlign: 'right' }}>
                   Ver estadísticas →
                 </p>

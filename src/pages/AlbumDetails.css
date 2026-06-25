@@ -306,6 +306,12 @@ body {
     cursor: pointer;
 }
 
+.add-playlist-btn--saved {
+  color: #1db954 !important;
+  opacity: 0.75;
+  cursor: default !important;
+}
+
 /* --- RESPONSIVE --- */
 @media (max-width: 1100px) {
     .detail-layout {

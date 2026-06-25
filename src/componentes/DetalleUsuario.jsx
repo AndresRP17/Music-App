@@ -32,7 +32,7 @@ function getInitials(email) {
 }
 
 function DetalleUsuario() {
-  const { id } = useParams(); // Usamos 'id' de la URL directamente
+  const { id } = useParams();
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [userProjection, setUserProjection] = useState(null);
@@ -57,6 +57,7 @@ function DetalleUsuario() {
       .then(([usuario, canciones, proy]) => {
         setStats({
           email: usuario.email,
+          role: usuario.role, // ✨ GUARDAMOS EL ROL DEL USUARIO ACÁ
           canciones: Array.isArray(canciones) ? canciones : [],
         });
         setUserProjection(proy);
@@ -112,6 +113,10 @@ function DetalleUsuario() {
   const { topArtists, topGenres } = calcStats(stats.canciones || []);
   const total = stats.canciones?.length ?? 0;
 
+  // Variables auxiliares para los condicionales
+  const esAdmin = stats.role === 'admin';
+  const esPremium = stats.role === 'premium';
+
   return (
     <div style={{ padding: '24px', color: 'white' }}>
 
@@ -126,17 +131,41 @@ function DetalleUsuario() {
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '28px' }}>
         <div style={{
           width: '52px', height: '52px', borderRadius: '50%',
-          background: '#B5D4F4', color: '#0C447C',
+          background: esAdmin ? '#FAC775' : '#B5D4F4', // Cambia el fondo del avatar si es admin
+          color: esAdmin ? '#633806' : '#0C447C',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontWeight: '500', fontSize: '18px',
         }}>
           {getInitials(stats.email)}
         </div>
         <div>
-          <h1 style={{ fontSize: '20px', fontWeight: '500', marginBottom: '2px' }}>
+          <h1 style={{ fontSize: '20px', fontWeight: '500', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             {stats.email ?? 'Usuario'}
+            {/* 👑 Corona / 🛡️ Escudo al lado del mail */}
+            {esAdmin && <span style={{ fontSize: '18px' }}>🛡️</span>}
+            {esPremium && <span style={{ fontSize: '18px' }}>👑</span>}
           </h1>
-          <p style={{ color: '#888', fontSize: '13px' }}>{total} canciones guardadas</p>
+          
+          {/* Badge del tipo de cuenta justo abajo del mail */}
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px', marginBottom: '4px' }}>
+            {esAdmin && (
+              <span style={{ background: 'rgba(250, 199, 117, 0.15)', color: '#FAC775', padding: '1px 6px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>
+                ADMINISTRADOR
+              </span>
+            )}
+            {esPremium && (
+              <span style={{ background: 'rgba(181, 212, 244, 0.15)', color: '#B5D4F4', padding: '1px 6px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>
+                MIEMBRO PREMIUM
+              </span>
+            )}
+            {!esAdmin && !esPremium && (
+              <span style={{ background: 'rgba(255, 255, 255, 0.08)', color: '#888', padding: '1px 6px', borderRadius: '4px', fontSize: '11px' }}>
+                CUENTA GRATUITA
+              </span>
+            )}
+            <span style={{ color: '#666', fontSize: '13px' }}>•</span>
+            <p style={{ color: '#888', fontSize: '13px', margin: 0 }}>{total} canciones guardadas</p>
+          </div>
         </div>
       </div>
 
