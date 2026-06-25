@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import "./styles/Configuration.css";
 
@@ -10,14 +11,14 @@ function Configuracion() {
   const [role, setRole] = useState(localStorage.getItem("role") || "user");
   const [logoPreview, setLogoPreview] = useState(() => {
     const logo = localStorage.getItem(`logo_${userId}`);
-    return logo ? `http://localhost:8086/${logo}` : null;
+    // En Netlify usamos la preview local en base64 u objectURL, si no busca localhost
+    return logo ? (logo.startsWith("blob:") || logo.startsWith("data:") ? logo : `http://localhost:8086/${logo}`) : null;
   });
 
   useEffect(() => {
-    // acá dejás solo lo que SÍ necesita el effect, por ejemplo fetches al backend
+    // Acá dejás solo lo que SÍ necesita el effect, por ejemplo fetches al backend
   }, [userId]);
 
-  // Constante auxiliar: sos premium si tu rol es 'premium' O si sos 'admin'
   const esPremiumOAdmin = role === "premium" || role === "admin";
 
   const handleFileChange = (e) => {
@@ -30,6 +31,16 @@ function Configuracion() {
   const handleUpload = async () => {
     if (!archivo) return setMensaje("Seleccioná una imagen primero");
 
+    // 🌟 BYPASS LOGO PARA NETLIFY (Modo Demo)
+    if (window.location.hostname.includes("netlify")) {
+      const fakeUrl = URL.createObjectURL(archivo);
+      localStorage.setItem(`logo_${userId}`, fakeUrl);
+      window.dispatchEvent(new Event("logoActualizado"));
+      setMensaje("✅ Logo actualizado! (Modo Demo)");
+      return;
+    }
+
+    // 🖥️ CÓDIGO REAL PARA LOCALHOST
     const formData = new FormData();
     formData.append("logo", archivo);
     formData.append("token", token);
@@ -55,119 +66,92 @@ function Configuracion() {
   };
 
   const activarPremium = async () => {
-  try {
-    const res = await fetch('/api/music_users/role', { // Usás el ID del usuario
-      method: "post",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        token: token, // Pasás el token si tu service lo pide para validar
-        role: "premium"
-      })
-    });
-
-    if (res.ok) {
+    // 🌟 BYPASS PARA NETLIFY (Modo Demo)
+    if (window.location.hostname.includes("netlify")) {
       localStorage.setItem("role", "premium");
       setRole("premium");
       window.dispatchEvent(new Event("rolActualizado"));
-      setMensaje("🌟 ¡Ahora sos Premium! Sin anuncios.");
+      setMensaje("🌟 ¡Ahora sos Premium! Sin anuncios. (Modo Demo)");
+      return;
     }
-  } catch  {
-    setMensaje("❌ Error de conexión");
-  }
-};
 
-const cancelarPremium = async () => {
-  try {
-    console.log("Enviando petición de cancelación...");
-    
-    const res = await fetch('/api/music_users/role', {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        token: token,   // Asegurate de que esta variable 'token' tenga el valor real
-        role: "user"
-      })
-    });
+    // 🖥️ CÓDIGO REAL PARA LOCALHOST
+    try {
+      const res = await fetch('/api/music_users/role', {
+        method: "post",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: token, role: "premium" })
+      });
 
-    console.log("Respuesta del servidor recibida. Status:", res.status);
-
-    if (res.ok) {
-  console.log("¡Petición exitosa! Actualizando estados...");
-  localStorage.setItem("role", "user");
-  setRole("user");
-  setMensaje("Plan cambiado a gratuito.");
-  
-  // 🌟 DISPARÁS EL MISMO NOMBRE QUE ESCUCHA TU SIDEBAR:
-  window.dispatchEvent(new Event("rolActualizado")); 
-
-    } else {
-      const errorData = await res.json();
-      console.log("El servidor respondió con error:", errorData);
-      setMensaje("❌ No se pudo cancelar el plan");
+      if (res.ok) {
+        localStorage.setItem("role", "premium");
+        setRole("premium");
+        window.dispatchEvent(new Event("rolActualizado"));
+        setMensaje("🌟 ¡Ahora sos Premium! Sin anuncios.");
+      }
+    } catch {
+      setMensaje("❌ Error de conexión");
     }
-  } catch (error) {
-    console.error("Error en la conexión del fetch:", error);
-    setMensaje("❌ Error de conexión");
-  }
-};
+  };
+
+  const cancelarPremium = async () => {
+    // 🌟 BYPASS PARA NETLIFY (Modo Demo)
+    if (window.location.hostname.includes("netlify")) {
+      localStorage.setItem("role", "user");
+      setRole("user");
+      window.dispatchEvent(new Event("rolActualizado"));
+      setMensaje("Plan cambiado a gratuito. (Modo Demo)");
+      return;
+    }
+
+    // 🖥️ CÓDIGO REAL PARA LOCALHOST (Limpiado y corregido sin errores de sintaxis)
+    try {
+      console.log("Enviando petición de cancelación...");
+      const res = await fetch('/api/music_users/role', {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: token, role: "user" })
+      });
+
+      if (res.ok) {
+        localStorage.setItem("role", "user");
+        setRole("user");
+        setMensaje("Plan cambiado a gratuito.");
+        window.dispatchEvent(new Event("rolActualizado")); 
+      } else {
+        setMensaje("❌ No se pudo cancelar el plan");
+      }
+    } catch (error) {
+      console.error("Error en la conexión del fetch:", error);
+      setMensaje("❌ Error de conexión");
+    }
+  };
 
   return (
-    <div className="configuracion">
-      <h2 style={{ color: role === "premium" || role === "admin" ? '#d0b412' : '' }}>Configuración</h2>
-
-      <div className="logo-section">
-        <img
-          src={logoPreview || "/yuuta.jpg"}
-          alt="Logo actual"
-          className="logo-preview"
-        />
-        <label className="upload-label">
-          Elegir imagen
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            hidden
-          />
-        </label>
-        <button onClick={handleUpload}>Guardar logo</button>
-        {mensaje && <p className="mensaje">{mensaje}</p>}
+    <div className="configuration-container">
+      <h2>Configuración de Cuenta</h2>
+      {mensaje && <p className="config-message">{mensaje}</p>}
+      
+      <div className="config-section">
+        <h3>Foto de Perfil</h3>
+        {logoPreview && <img src={logoPreview} alt="Preview" className="logo-preview-img" style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', marginBottom: '10px' }} />}
+        <input type="file" accept="image/*" onChange={handleFileChange} />
+        <button onClick={handleUpload} className="config-btn">Actualizar Foto</button>
       </div>
 
-      {/* SECCIÓN PREMIUM ADAPTADA */}
-      <div className="premium-section">
-        {esPremiumOAdmin ? (
-          <>
-            <div className="premium-badge">
-              {role === "admin" ? "🛠️ Cuenta Administrador" : "🌟 Sos usuario Premium"}
-            </div>
-            <p className="premium-desc">
-              {role === "admin" 
-                ? "Tenés acceso total a la app por ser Administrador." 
-                : "Estás disfrutando de la app sin anuncios."}
-            </p>
-            
-            {/* Si es Admin, no le dejamos ver el botón de cancelar su suscripción */}
-            {role !== "admin" && (
-              <button className="btn-cancelar-premium" onClick={cancelarPremium}>
-                Cancelar Premium
-              </button>
-            )}
-          </>
+      <div className="config-section">
+        <h3>Suscripción</h3>
+        <p>Rol actual: <strong style={{ color: esPremiumOAdmin ? '#d0b412' : '#fff' }}>{role.toUpperCase()}</strong></p>
+        {role === "user" ? (
+          <button onClick={activarPremium} className="config-btn premium-btn" style={{ background: '#d0b412', color: '#000', fontWeight: 'bold' }}>
+            👑 Hacerse Premium
+          </button>
+        ) : role === "premium" ? (
+          <button onClick={cancelarPremium} className="config-btn cancel-btn">
+            Cancelar Suscripción Premium
+          </button>
         ) : (
-          <>
-            <div className="premium-badge free">🎵 Plan Gratuito</div>
-            <p className="premium-desc">
-              Actualizate a Premium y olvidate de los anuncios para siempre.
-            </p>
-            <button className="btn-premium" onClick={activarPremium}>
-              ⭐ Hacerse Premium
-            </button>
-          </>
+          <p style={{ color: '#aaa', fontSize: '0.9rem' }}>Sos Administrador. Tenés acceso total.</p>
         )}
       </div>
     </div>
