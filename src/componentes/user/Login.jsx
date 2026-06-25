@@ -12,21 +12,25 @@ export default function Login({ setToken, setRole }) {
     e.preventDefault();
     setError("");
 
-    // 1. BYPASS PARA NETLIFY (Modo Demo)
-    if (window.location.hostname.includes("netlify")) {
-      setCargando(true);
-      setTimeout(() => {
-        const tokenFalso = "token-demo-netlify-2026";
-        localStorage.setItem("token", tokenFalso);
-        localStorage.setItem("role", "user");
-        localStorage.setItem("id", "999");
-        localStorage.setItem("logo", "yuuta.jpg");
-        setToken(tokenFalso);
-        setRole("user");
-        setCargando(false);
-      }, 1000);
-      return;
-    }
+   // 1. BYPASS PARA NETLIFY (Modo Demo)
+if (window.location.hostname.includes("netlify")) {
+  setCargando(true);
+  setTimeout(() => {
+    // 🌟 LIMPIAMOS EL LOCALSTORAGE para borrar roles viejos (ej: admin de localhost)
+    localStorage.clear();
+
+    const tokenFalso = "token-demo-netlify-2026";
+    localStorage.setItem("token", tokenFalso);
+    localStorage.setItem("role", "user"); // Aseguramos que sea user
+    localStorage.setItem("id", "999");
+    localStorage.setItem("logo", "yuuta.jpg");
+    
+    setToken(tokenFalso);
+    setRole("user"); // Forzamos el estado de React en user
+    setCargando(false);
+  }, 1000);
+  return;
+}
 
     // 2. CÓDIGO REAL (Localhost)
     if (password.length < 4) {
