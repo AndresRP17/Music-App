@@ -117,7 +117,7 @@ const cancelarPremium = async () => {
 
   return (
     <div className="configuracion">
-      <h2>Configuración</h2>
+      <h2 style={{ color: role === "premium" || role === "admin" ? '#d0b412' : '' }}>Configuración</h2>
 
       <div className="logo-section">
         <img

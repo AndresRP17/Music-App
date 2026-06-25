@@ -73,31 +73,38 @@ function Sidebar({ cerrarSesion }) {
       src={logoSrc} 
       alt="logo" 
       className="logo" 
-    />  <ul>
-        {navItems.map(({ to, icon, label }) => (
-          <Link key={to} to={to} style={{ textDecoration: "none" }}>
-            <li className={isActive(to) ? "active" : ""}>
-              {icon}
-              <span>{label}</span>
-            </li>
-          </Link>
-        ))}
+    />  {/* 🌟 Antes de tu return, asegurate de tener esta variable definida:
+const esPremium = role === "premium" || role === "admin"; 
+*/}
 
-        {/*  BOTÓN CONDICIONAL EXCLUSIVO PARA EL ADMIN */}
-        {role === "admin" && (
-          <Link to="/admin" style={{ textDecoration: "none" }} className="hide-on-mobile">
-            <li className={isActive("/admin") ? "active" : ""}>
-              <FaChartBar />
-              <span>Estadísticas</span>
-            </li>
-          </Link>
-        )}
+<ul>
+  {navItems.map(({ to, icon, label }) => (
+    <Link key={to} to={to} style={{ textDecoration: "none" }}>
+      {/* 🌟 CLAVAMOS LA CONDICIÓN DIRECTA ACÁ ADENTRO */}
+      <li className={isActive(to) ? `active ${(role === "premium" || role === "admin") ? 'premium' : ''}` : ""}>
+        {icon}
+        <span>{label}</span>
+      </li>
+    </Link>
+  ))}
 
-        <li className="nav-logout" onClick={cerrarSesion}>
-          <FiLogOut />
-          <span>Salir</span>
-        </li>
-      </ul>
+  {/* BOTÓN CONDICIONAL EXCLUSIVO PARA EL ADMIN */}
+  {role === "admin" && (
+    <Link to="/admin" style={{ textDecoration: "none" }} className="hide-on-mobile">
+      {/* Al ser Admin, ya sabemos que entra en la bolsa de premium para el CSS, así que se la dejamos fija si está activo */}
+      <li className={isActive("/admin") ? "active premium" : ""}>
+        <FaChartBar />
+        <span>Estadísticas</span>
+      </li>
+    </Link>
+  )}
+
+  <li className="nav-logout" onClick={cerrarSesion}>
+    <FiLogOut />
+    <span>Salir</span>
+  </li>
+
+</ul>
 
       <p className="copy">© 2026 By Andres Fernandez</p>
     </aside>

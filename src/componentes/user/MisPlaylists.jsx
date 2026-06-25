@@ -160,12 +160,19 @@ const MisPlaylists = () => {
     }
   };
 
-  if (cargando) return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '1.4rem', fontWeight: 600 }}>
-      {/* 🌟 ACOMODADO EL CARTEL DE CARGA PARA QUE SE PINTE DORADO SI ES PREMIUM */}
-      <p >Cargando playlist...</p>
+ if (cargando) {
+  const role = localStorage.getItem("role") || "user";
+  const esPremium = role === "premium" || role === "admin";
+
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '1.4rem', fontWeight: 600, background: '#121212' }}>
+      {/* 🌟 CAMBIO ACÁ: Color dinámico directo en el estilo del párrafo */}
+      <p style={{ color: esPremium ? '#d0b412' : '#fff', margin: 0 }}>
+        Cargando playlist...
+      </p>
     </div>
   );
+}
 
 
   return (

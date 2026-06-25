@@ -18,11 +18,11 @@ export default function Login({ setToken, setRole }) {
       setTimeout(() => {
         const tokenFalso = "token-demo-netlify-2026";
         localStorage.setItem("token", tokenFalso);
-        localStorage.setItem("role", "admin");
+        localStorage.setItem("role", "user");
         localStorage.setItem("id", "999");
         localStorage.setItem("logo", "yuuta.jpg");
         setToken(tokenFalso);
-        setRole("admin");
+        setRole("user");
         setCargando(false);
       }, 1000);
       return;
