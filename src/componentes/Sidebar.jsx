@@ -73,7 +73,7 @@ function Sidebar({ cerrarSesion }) {
 
         {/* 🛠️ BOTÓN CONDICIONAL EXCLUSIVO PARA EL ADMIN */}
         {role === "admin" && (
-          <Link to="/admin" style={{ textDecoration: "none" }}>
+          <Link to="/admin" style={{ textDecoration: "none" }} className="hide-on-mobile">
             <li className={isActive("/admin") ? "active" : ""}>
               <FaChartBar />
               <span>Estadísticas</span>

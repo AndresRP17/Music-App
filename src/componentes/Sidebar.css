@@ -342,6 +342,7 @@ audio {
         padding-bottom: calc(var(--sp-nav-height) + var(--sp-player-height) + 16px);
     }
 
+.hide-on-mobile,
 .sidebar h2,
 .logout-btn {
 display: none !important;
