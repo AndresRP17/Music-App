@@ -6,15 +6,13 @@ ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarEle
 function Admin() {
   const [genres, setGenres] = useState([]);
   const [loadingChart, setLoadingChart] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResult, setSearchResult] = useState(null);
-  const [loadingSearch, setLoadingSearch] = useState(false);
   const [userStats, setUserStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(true);
+  const [rolesStats, setRolesStats] = useState({ total: 0, admins: 0, premium: 0, users: 0 });
 
   // EFFECT 1: Géneros globales de Deezer
   useEffect(() => {
-    setLoadingChart(true);
+    
     fetch("/deezer/genre")
       .then((res) => res.json())
       .then((data) => {
@@ -34,11 +32,10 @@ function Admin() {
 
   // EFFECT 2: Estadísticas globales — todos los usuarios + favoritos + playlists
   useEffect(() => {
-    setLoadingStats(true);
+    
     const token = localStorage.getItem('token');
     const headers = { Authorization: `Bearer ${token}` };
 
-    // Paso 1: traer todos los usuarios
     fetch(`${import.meta.env.VITE_API_URL}/music_users`, { headers })
       .then(res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -51,7 +48,12 @@ function Admin() {
           return;
         }
 
-        // Paso 2: por cada usuario, traer favoritos Y proyección (playlists) en paralelo
+        // Conteo por rol
+        const admins  = usuarios.filter(u => u.role === 'admin').length;
+        const premium = usuarios.filter(u => u.role === 'premium').length;
+        const users   = usuarios.filter(u => u.role === 'user').length;
+        setRolesStats({ total: usuarios.length, admins, premium, users });
+
         const fetches = usuarios.map(u =>
           Promise.all([
             fetch(`${import.meta.env.VITE_API_URL}/favorites?id_user=${u.id}`, { headers })
@@ -62,16 +64,13 @@ function Admin() {
               .then(res => res.ok ? res.json() : {})
               .catch(() => ({})),
           ]).then(([favs, proy]) => {
-            // Combinar favoritos + canciones de playlists, deduplicando por id
             const seenIds = new Set(favs.map(c => c.id).filter(Boolean));
             const playlistSongs = (proy?.playlists ?? []).flatMap(pl => pl.canciones ?? []);
-
             const extras = playlistSongs.filter(c => {
               if (c.id && seenIds.has(c.id)) return false;
               if (c.id) seenIds.add(c.id);
               return true;
             });
-
             return [...favs, ...extras];
           })
         );
@@ -81,9 +80,7 @@ function Admin() {
       .then(todasLasCanciones => {
         if (!todasLasCanciones) return;
 
-        // Paso 3: aplanar todo en un solo array
         const todas = todasLasCanciones.flat();
-
         const artistCount = {};
         const albumCount  = {};
         const genreCount  = {};
@@ -112,7 +109,6 @@ function Admin() {
       });
   }, []);
 
-  // Gráfico de dona (géneros globales de Deezer)
   const chartLabels = genres.map((g) => g.name);
   const baseValues = [35, 25, 18, 12, 10, 8, 5];
   const chartValues = baseValues.slice(0, genres.length);
@@ -145,7 +141,6 @@ function Admin() {
     cutout: "70%",
   };
 
-  // Gráfico de barras: artistas más guardados globalmente
   const barData = userStats ? {
     labels: userStats.topArtists.map(([name]) => name),
     datasets: [{
@@ -197,20 +192,41 @@ function Admin() {
             <p className="stat-number">{genres.length} Géneros</p>
           </div>
         </div>
+
+        {/* CARD USUARIOS TOTALES */}
         <div className="stat-card">
-          <span className="stat-icon">🌎</span>
+          <span className="stat-icon">👥</span>
           <div>
-            <h3>Región del Análisis</h3>
-            <p className="stat-number"> Global</p>
+            <h3>Usuarios Registrados</h3>
+            <p className="stat-number">
+              {loadingStats ? '...' : `${rolesStats.total} usuarios`}
+            </p>
           </div>
         </div>
-        <div className="stat-card">
-          <span className="stat-icon">⚡</span>
-          <div>
-            <h3>Estabilidad de Datos</h3>
-            <p className="stat-number">100% Online</p>
+
+        {/* CARD BREAKDOWN DE ROLES */}
+        <div className="stat-card" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="stat-icon">🎭</span>
+            <h3 style={{ margin: 0 }}>Roles</h3>
           </div>
+          {loadingStats ? (
+            <p className="stat-number">...</p>
+          ) : (
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.82rem', background: '#1a1a1a', borderRadius: '20px', padding: '4px 10px', border: '1px solid #e70404', color: '#e70404', fontWeight: 600 }}>
+                👑 {rolesStats.admins} admin{rolesStats.admins !== 1 ? 's' : ''}
+              </span>
+              <span style={{ fontSize: '0.82rem', background: '#1a1a1a', borderRadius: '20px', padding: '4px 10px', border: '1px solid #d6e109', color: '#d6e109', fontWeight: 600 }}>
+                ⭐ {rolesStats.premium} premium
+              </span>
+              <span style={{ fontSize: '0.82rem', background: '#1a1a1a', borderRadius: '20px', padding: '4px 10px', border: '1px solid #555', color: '#aaa', fontWeight: 600 }}>
+                🎵 {rolesStats.users} gratis
+              </span>
+            </div>
+          )}
         </div>
+
         <div className="stat-card">
           <span className="stat-icon">❤️</span>
           <div>
@@ -326,58 +342,6 @@ function Admin() {
 
         </div>
       )}
-
-      {/* FILA 3: Inspector de artistas */}
-      <div style={{ marginTop: "30px" }}>
-        <section className="graph-section" style={{ margin: 0, display: "flex", flexDirection: "column" }}>
-          <h2>🔍 Inspector de Datos</h2>
-          <p className="graph-subtitle">Audita la metadata profunda de Deezer</p>
-
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            if (!searchQuery.trim()) return;
-            setLoadingSearch(true);
-            fetch(`/deezer/search/artist?q=${searchQuery}`)
-              .then((res) => res.json())
-              .then((data) => {
-                if (data.data && data.data.length > 0) {
-                  return fetch(`/deezer/artist/${data.data[0].id}`);
-                }
-                throw new Error("Artista no encontrado");
-              })
-              .then((res) => res.json())
-              .then((artistInfo) => { setSearchResult(artistInfo); setLoadingSearch(false); })
-              .catch(() => { setSearchResult({ error: true }); setLoadingSearch(false); });
-          }} style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
-            <input
-              type="text"
-              placeholder="Ej: Iron Maiden, The Weeknd..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ flex: 1, background: "#222", border: "1px solid #333", padding: "8px 12px", borderRadius: "6px", color: "white" }}
-            />
-            <button type="submit" style={{ background: "#1db954", border: "none", padding: "8px 15px", borderRadius: "6px", fontWeight: "bold", cursor: "pointer" }}>Ver</button>
-          </form>
-
-          {loadingSearch && <div className="loader">Consultando base de datos...</div>}
-
-          {searchResult && !loadingSearch && (
-            searchResult.error ? (
-              <p style={{ color: "#ff5c5c", fontSize: "0.9rem" }}>No se encontraron registros.</p>
-            ) : (
-              <div style={{ background: "#222", padding: "15px", borderRadius: "10px", textAlign: "center", maxWidth: "300px" }}>
-                <img src={searchResult.picture_medium} alt={searchResult.name} style={{ width: "90px", borderRadius: "50%", marginBottom: "10px", border: "2px solid #1db954" }} />
-                <h3 style={{ margin: "5px 0" }}>{searchResult.name}</h3>
-                <div style={{ textAlign: "left", marginTop: "15px", fontSize: "0.85rem", color: "#ccc", display: "flex", flexDirection: "column", gap: "8px" }}>
-                  <p>👥 <strong>Fans en Deezer:</strong> {Number(searchResult.nb_fan).toLocaleString()}</p>
-                  <p>💿 <strong>Álbumes Públicos:</strong> {searchResult.nb_album}</p>
-                  <p>🆔 <strong>Deezer ID:</strong> {searchResult.id}</p>
-                </div>
-              </div>
-            )
-          )}
-        </section>
-      </div>
     </div>
   );
 }

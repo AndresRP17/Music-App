@@ -1,21 +1,20 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import LayoutCliente from "./componentes/ClienteLayout";
-import LayoutAdmin from "./componentes/AdminLayout"; 
-import Home from "./pages/Home";
-import Search from "./pages/Search";
-import Favorites from "./pages/Favorites"; 
-import AlbumDetail from "./pages/AlbumDetails";
-import Admin from "./pages/Admin";
-import Login from "./pages/Login"; 
-import Register from "./pages/Register";
-import ListaUsuarios from "./componentes/ListaUsuarios";
-import DetalleUsuario from "./componentes/DetalleUsuario";
-import Configuracion from './pages/Configuration';
-import MiMusica from "./pages/MiMusica";
-import PlaylistDetalle from "./pages/PlaylistDetalle";
-import ArtistDetail from "./pages/ArtistDetail";
-import { ToastProvider } from "./pages/ToastContext";
+import LayoutCliente from "./componentes/user/ClienteLayout";
+import LayoutAdmin from "./componentes/admin/AdminLayout"; 
+import Home from "./componentes/user/Home";
+import Search from "./componentes/user/Search";
+import AlbumDetail from "./componentes/user//AlbumDetails";
+import Admin from "./componentes/admin/Admin";
+import Login from "./componentes/user/Login"; 
+import Register from "./componentes/user//Register";
+import ListaUsuarios from "./componentes/admin/ListaUsuarios";
+import DetalleUsuario from "./componentes/admin/DetalleUsuario";
+import Configuracion from './componentes/user//Configuration';
+import MiMusica from "./componentes/user//MiMusica";
+import PlaylistDetalle from "./componentes/user/PlaylistDetalle";
+import ArtistDetail from "./componentes/user/ArtistDetail";
+import { ToastProvider } from "./context/ToastContext";
 import './App.css';
 
 function App() {
@@ -59,15 +58,13 @@ function App() {
     return (
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<Login setToken={setToken} />} />
+          <Route path="/login" element={<Login setToken={setToken} setRole={setRole} />} />
           <Route path="/register" element={<Register />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     );
   }
-
-  
 
   return (
     <ToastProvider>

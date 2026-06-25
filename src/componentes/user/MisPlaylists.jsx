@@ -1,8 +1,11 @@
+/* eslint-disable */
+
 import { useState, useEffect } from 'react';
 import { MdDelete } from 'react-icons/md';
 import { FaPlus } from 'react-icons/fa';
 import { FiMusic } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+
 
 const esProd = window.location.hostname.includes("netlify");
 
@@ -15,6 +18,9 @@ const COLORES = [
 const getColor = (id) => COLORES[id % COLORES.length];
 
 const MisPlaylists = () => {
+  // 🌟 PASO 1: AGREGAMOS EL ESTADO DEL ROL LEYENDO DESDE EL STORAGE
+  const [role, setRole] = useState(() => localStorage.getItem("role") || "user");
+
   const [playlists, setPlaylists] = useState([]);
   const [cantidadCanciones, setCantidadCanciones] = useState({});
   const [cargando, setCargando] = useState(true);
@@ -23,6 +29,18 @@ const MisPlaylists = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const userId = localStorage.getItem('id');
+
+  // 🌟 PASO 2: AGREGAMOS EL ESCUCHADOR PARA LOS CAMBIOS EN TIEMPO REAL
+  useEffect(() => {
+    const handleRolActualizado = () => {
+      setRole(localStorage.getItem("role") || "user");
+    };
+    window.addEventListener("rolActualizado", handleRolActualizado);
+    return () => window.removeEventListener("rolActualizado", handleRolActualizado);
+  }, []);
+
+  // Variable corta para meter en los estilos
+  const esPremium = role === "premium" || role === "admin";
 
   const obtenerCantidadesProd = (listas) => {
     const counts = {};
@@ -54,6 +72,9 @@ const MisPlaylists = () => {
   };
 
   const obtenerPlaylists = async () => {
+    // Forzamos un re-chequeo rápido del storage al arrancar la carga
+    setRole(localStorage.getItem("role") || "user");
+
     if (esProd) {
       const guardadas = JSON.parse(localStorage.getItem('playlists') || '[]');
       setPlaylists(guardadas);
@@ -140,25 +161,51 @@ const MisPlaylists = () => {
   };
 
   if (cargando) return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'red', fontSize: '1.4rem', fontWeight: 600 }}>
-      <p style={{ color: '#ff2d55', fontSize: '1.3rem' }}>Cargando playlist...</p>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '1.4rem', fontWeight: 600 }}>
+      {/* 🌟 ACOMODADO EL CARTEL DE CARGA PARA QUE SE PINTE DORADO SI ES PREMIUM */}
+      <p >Cargando playlist...</p>
     </div>
   );
+
 
   return (
     <div style={{ padding: '40px', minHeight: '100vh', color: 'white' }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
         <div>
-          <h1 style={{ fontSize: '2.8rem', fontWeight: 700, color: '#ff2d55', margin: 0 }}>Mis Playlists</h1>
-          <p style={{ color: '#f1ebeb', margin: '8px 0 0', fontSize: '1rem' }}>Tu colección de playlists personalizadas</p>
+<h1 
+  style={{ 
+    fontSize: '2.8rem', 
+    fontWeight: 700, 
+    margin: 0,
+    // 🌟 SI ES PREMIUM SE PONE DORADO, SINO MANTIENE SU COLOR ROSA ORIGINAL
+    color: role === "premium" || role === "admin" ? '#d0b412' : '#ff2d55' 
+  }}
+>
+  Mis Playlists 
+</h1>          <p style={{ color: '#f1ebeb', margin: '8px 0 0', fontSize: '1rem' }}>Tu colección de playlists personalizadas</p>
         </div>
-        <button
-          onClick={() => setCreando(!creando)}
-          style={{ display: 'flex', alignItems: 'center', margin: '10px', gap: '8px', background: '#1db954', border: 'none', borderRadius: '20px', color: '#fff', padding: '12px 22px', cursor: 'pointer', fontWeight: 700, fontSize: '14px', flexShrink: 0 }}
-        >
-          <FaPlus /> Nueva Playlist
-        </button>
+       <button
+  onClick={() => esPremium && setCreando(!creando)}
+  disabled={!esPremium}
+  style={{ 
+    display: 'flex', 
+    alignItems: 'center', 
+    margin: '10px', 
+    gap: '8px', 
+    background: esPremium ? '#d0b412' : '#555', // Gris si no es premium
+    border: 'none', 
+    borderRadius: '20px', 
+    color: esPremium ? '#fff' : '#aaa', 
+    padding: '12px 22px', 
+    cursor: esPremium ? 'pointer' : 'not-allowed', // Cambia el cursor a prohibido
+    fontWeight: 700, 
+    fontSize: '14px', 
+    flexShrink: 0 
+  }}
+>
+  <FaPlus /> Nueva Playlist {!esPremium && "🔒"}
+</button>
       </div>
 
       {/* Formulario crear */}
@@ -182,7 +229,7 @@ const MisPlaylists = () => {
         </div>
       )}
 
-      {/* Cards */}
+    {/* Cards */}
       {playlists.length === 0 ? (
         <div style={{ textAlign: 'center', marginTop: '80px', color: '#aaa' }}>
           <FiMusic style={{ fontSize: '64px', marginBottom: '16px', opacity: 0.3 }} />
@@ -205,9 +252,25 @@ const MisPlaylists = () => {
               <div
                 key={playlist.id}
                 onClick={() => navigate(`/playlist/${playlist.id}`)}
-                style={{ cursor: 'pointer', borderRadius: '10px', overflow: 'hidden', background: '#181818', transition: 'transform 0.2s, background 0.2s', position: 'relative' }}
-                onMouseEnter={e => e.currentTarget.style.background = '#282828'}
-                onMouseLeave={e => e.currentTarget.style.background = '#181818'}
+                style={{ 
+                  cursor: 'pointer', 
+                  borderRadius: '10px', 
+                  overflow: 'hidden', 
+                  background: '#181818', 
+                  transition: 'transform 0.2s, background 0.2s, border-color 0.2s', 
+                  position: 'relative',
+                  // 🌟 BORDE DINÁMICO: Si es premium le clava el dorado, si no, un gris oscuro sutil para que mantenga la misma estructura física
+                  border: esPremium ? '2px solid #d0b412' : '2px solid transparent',
+                  boxShadow: esPremium ? '0 4px 12px rgba(208, 180, 18, 0.15)' : 'none'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = '#282828';
+                  if (esPremium) e.currentTarget.style.boxShadow = '0 4px 16px rgba(208, 180, 18, 0.3)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = '#181818';
+                  if (esPremium) e.currentTarget.style.boxShadow = '0 4px 12px rgba(208, 180, 18, 0.15)';
+                }}
               >
                 {/* Parte superior con color e ícono */}
                 <div style={{ background: getColor(playlist.id), height: '140px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -223,7 +286,6 @@ const MisPlaylists = () => {
                     {labelCanciones}
                   </p>
                 </div>
-
                 {/* Botón eliminar */}
                 <button
                   onClick={(e) => eliminarPlaylist(e, playlist.id)}

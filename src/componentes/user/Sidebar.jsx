@@ -1,12 +1,11 @@
 // src/components/Sidebar.jsx
-import "./Sidebar.css"
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-// Sumamos FaChartBar para el ícono de estadísticas
 import { FaHome, FaSearch, FaChartBar } from "react-icons/fa"; 
 import { IoIosMusicalNotes } from 'react-icons/io';
 import { GrConfigure } from "react-icons/gr";
 import { FiLogOut } from "react-icons/fi";
+import "./styles/Sidebar.css"
 
 const navItems = [
   { to: "/",               icon: <FaHome />,         label: "Inicio" },
@@ -55,13 +54,26 @@ function Sidebar({ cerrarSesion }) {
     return location.pathname.startsWith(path);
   };
 
-  return (
-    <aside className="sidebar">
-      <h2>MusicApp<IoIosMusicalNotes /></h2>
-      <img src={logoSrc} alt="logo" className="logo" />
-
-      <ul>
-        {/* Ítems comunes de navegación */}
+ return (
+ <aside 
+  className="sidebar" 
+  style={{ 
+    // 🌟 Todo resuelto con la misma condición y con las comas en su lugar
+    border: (role === "premium" || role === "admin") ? '2px solid #d0b412' : 'none', 
+    boxShadow: (role === "premium" || role === "admin") ? '0 4px 12px rgba(208, 180, 18, 0.15)' : 'none' 
+  }}
+>
+  
+    {/* Cambiado 'none' por '' para el color del texto */}
+    <h2 style={{ color: role === "premium" || role === "admin" ? '#d0b412' : '' }}>
+      MusicApp {role === "premium" || role === "admin" ? <span style={{ verticalAlign: 'middle', position: 'relative', top: '-2px' }}>👑</span> : <IoIosMusicalNotes />}
+    </h2>
+    
+    <img 
+      src={logoSrc} 
+      alt="logo" 
+      className="logo" 
+    />  <ul>
         {navItems.map(({ to, icon, label }) => (
           <Link key={to} to={to} style={{ textDecoration: "none" }}>
             <li className={isActive(to) ? "active" : ""}>
@@ -71,7 +83,7 @@ function Sidebar({ cerrarSesion }) {
           </Link>
         ))}
 
-        {/* 🛠️ BOTÓN CONDICIONAL EXCLUSIVO PARA EL ADMIN */}
+        {/*  BOTÓN CONDICIONAL EXCLUSIVO PARA EL ADMIN */}
         {role === "admin" && (
           <Link to="/admin" style={{ textDecoration: "none" }} className="hide-on-mobile">
             <li className={isActive("/admin") ? "active" : ""}>
@@ -81,7 +93,6 @@ function Sidebar({ cerrarSesion }) {
           </Link>
         )}
 
-        {/* Cerrar sesión como último ítem del nav */}
         <li className="nav-logout" onClick={cerrarSesion}>
           <FiLogOut />
           <span>Salir</span>

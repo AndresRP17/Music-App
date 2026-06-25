@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Favorites from './Favorites';
 import MisPlaylists from './MisPlaylists';
-import './MiMusica.css';
+import './styles/MiMusica.css';
 
 const MiMusica = ({ reproducirLista, pausar }) => {
   const [pestanaActiva, setPestanaActiva] = useState('favoritos');

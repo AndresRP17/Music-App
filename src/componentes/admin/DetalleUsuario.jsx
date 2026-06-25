@@ -43,7 +43,6 @@ function DetalleUsuario() {
 
   // CARGA INICIAL
   useEffect(() => {
-    setLoading(true);
     const token = localStorage.getItem('token');
     const headers = { Authorization: `Bearer ${token}` };
 

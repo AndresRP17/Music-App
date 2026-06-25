@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { FaTimes, FaMusic, FaPlay, FaPause, FaStepBackward, FaStepForward, FaAlignLeft } from "react-icons/fa";
-import "./ReproductorExpandido.css";
+import "./styles/ReproductorExpandido.css";
 
 function parseLRC(lrc) {
   const lineas = lrc.split('\n');
@@ -18,6 +18,8 @@ function parseLRC(lrc) {
   }
   return resultado.sort((a, b) => a.tiempo - b.tiempo);
 }
+
+const SKELETON_WIDTHS = Array.from({ length: 12 }, () => `${55 + Math.random() * 40}%`);
 
 function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual, onAnterior, onSiguiente, onCerrar }) {
   const [letra, setLetra] = useState(null);
@@ -128,7 +130,6 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
   }, [audioRef]);
 
   useEffect(() => {
-    setMostrarLetra(false);
   }, [trackActual.title]);
 
   const togglePlay = () => {
@@ -207,12 +208,12 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
           <h3 className="rep-exp-letra-titulo"></h3>
 
           {cargandoLetra && (
-            <div className="rep-exp-skeleton">
-              {[...Array(12)].map((_, i) => (
-                <div key={i} className="rep-exp-skeleton-line" style={{ width: `${55 + Math.random() * 40}%` }} />
-              ))}
-            </div>
-          )}
+  <div className="rep-exp-skeleton">
+    {SKELETON_WIDTHS.map((width, i) => (
+      <div key={i} className="rep-exp-skeleton-line" style={{ width }} />
+    ))}
+  </div>
+)}
 
           {!cargandoLetra && errorLetra && (
             <div className="rep-exp-estado">

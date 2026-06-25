@@ -1,24 +1,20 @@
 import { useState, useEffect } from "react";
-import "./Configuration.css";
+import "./styles/Configuration.css";
 
 function Configuracion() {
-  const [logoPreview, setLogoPreview] = useState(null);
-  const [archivo, setArchivo] = useState(null);
-  const [mensaje, setMensaje] = useState("");
-  
-  // Guardamos el ROL real que viene de la base de datos ('user', 'premium', 'admin')
-  const [role, setRole] = useState("user");
-
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("id");
 
-  useEffect(() => {
-    const logoGuardado = localStorage.getItem(`logo_${userId}`);
-    if (logoGuardado) setLogoPreview(`http://localhost:8086/${logoGuardado}`);
+  const [archivo, setArchivo] = useState(null);
+  const [mensaje, setMensaje] = useState("");
+  const [role, setRole] = useState(localStorage.getItem("role") || "user");
+  const [logoPreview, setLogoPreview] = useState(() => {
+    const logo = localStorage.getItem(`logo_${userId}`);
+    return logo ? `http://localhost:8086/${logo}` : null;
+  });
 
-    // Traemos el rol del localStorage (asegurate de guardarlo al loguearte)
-    const rolGuardado = localStorage.getItem("role") || "user";
-    setRole(rolGuardado);
+  useEffect(() => {
+    // acá dejás solo lo que SÍ necesita el effect, por ejemplo fetches al backend
   }, [userId]);
 
   // Constante auxiliar: sos premium si tu rol es 'premium' O si sos 'admin'
@@ -53,7 +49,7 @@ function Configuracion() {
       } else {
         setMensaje("❌ Error al subir el logo");
       }
-    } catch (error) {
+    } catch {
       setMensaje("❌ Error de conexión");
     }
   };
@@ -77,37 +73,47 @@ function Configuracion() {
       window.dispatchEvent(new Event("rolActualizado"));
       setMensaje("🌟 ¡Ahora sos Premium! Sin anuncios.");
     }
-  } catch (error) {
+  } catch  {
     setMensaje("❌ Error de conexión");
   }
 };
 
- // LLAMADA REAL AL BACKEND PARA VOLVER A PLAN GRATUITO ('user')
-  const cancelarPremium = async () => {
-    try {
-      const res = await fetch('/api/music_users/role', {
-        method: "POST", // En mayúscula por buena práctica
-        headers: {
-          "Content-Type": "application/json",
-        },
-        // !!! TE FALTABA ESTO DE ACÁ ABAJO !!!
-        body: JSON.stringify({
-          token: token,   // El token de localStorage para saber quién es el usuario
-          role: "user"    // El rol que querés que se guarde ahora en la base de datos
-        })
-      });
+const cancelarPremium = async () => {
+  try {
+    console.log("Enviando petición de cancelación...");
+    
+    const res = await fetch('/api/music_users/role', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        token: token,   // Asegurate de que esta variable 'token' tenga el valor real
+        role: "user"
+      })
+    });
 
-      if (res.ok) {
-        localStorage.setItem("role", "user");
-        setRole("user");
-        setMensaje("Plan cambiado a gratuito.");
-      } else {
-        setMensaje("❌ No se pudo cancelar el plan");
-      }
-    } catch (error) {
-      setMensaje("❌ Error de conexión");
+    console.log("Respuesta del servidor recibida. Status:", res.status);
+
+    if (res.ok) {
+  console.log("¡Petición exitosa! Actualizando estados...");
+  localStorage.setItem("role", "user");
+  setRole("user");
+  setMensaje("Plan cambiado a gratuito.");
+  
+  // 🌟 DISPARÁS EL MISMO NOMBRE QUE ESCUCHA TU SIDEBAR:
+  window.dispatchEvent(new Event("rolActualizado")); 
+
+    } else {
+      const errorData = await res.json();
+      console.log("El servidor respondió con error:", errorData);
+      setMensaje("❌ No se pudo cancelar el plan");
     }
-  };
+  } catch (error) {
+    console.error("Error en la conexión del fetch:", error);
+    setMensaje("❌ Error de conexión");
+  }
+};
 
   return (
     <div className="configuracion">

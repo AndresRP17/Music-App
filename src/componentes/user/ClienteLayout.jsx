@@ -1,18 +1,18 @@
 import { useState, useRef, useEffect } from "react";  // ← agregá useEffect
 import { Outlet } from "react-router-dom";
-import Sidebar from "./Sidebar";
 import ReproductorExpandido from "./ReproductorExpandido";
+import Sidebar from "./Sidebar";
 
 function ClienteLayout({ trackActual, setTrackActual, listaActual, indexActual, reproducirLista, cerrarSesion, onPausarRef }) {
   const [expandido, setExpandido] = useState(false);
   const audioRef = useRef(null);
 
-  // ← acá va, fuera de cualquier función
-  useEffect(() => {
-    if (onPausarRef) {
-      onPausarRef.current = () => audioRef.current?.pause();
-    }
-  }, []);
+ useEffect(() => {
+  if (onPausarRef) {
+    onPausarRef.current = () => audioRef.current?.pause();
+  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
 
   const buscarYReproducir = async (index) => {
     const cancion = listaActual[index];

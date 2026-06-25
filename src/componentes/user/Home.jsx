@@ -1,8 +1,9 @@
+/* eslint-disable */
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Publicidad from '../pages/Publicidad';
-import { usePublicidad } from '../hooks/usePublicidad';
-import './Home.css';
+import Publicidad from './Publicidad';
+import { usePublicidad } from '../../hooks/usePublicidad';
+import './styles/Home.css';
 
 const MIS_ÁLBUMES_ELEGIDOS = {
   global: [
@@ -85,6 +86,9 @@ const MIS_ÁLBUMES_ELEGIDOS = {
 };
 
 function Home() {
+  // 🌟 PASO 1: ESTADO INICIAL DEL ROL LEYENDO DEL STORAGE
+  const [role, setRole] = useState(() => localStorage.getItem("role") || "user");
+
   const [topAlbums, setTopAlbums] = useState([]);
   const [rockAlbums, setRockAlbums] = useState([]);
   const [metalAlbums, setMetalAlbums] = useState([]);
@@ -103,6 +107,18 @@ function Home() {
   const popRef = useRef(null);
 
   const API_KEY = 'aa182e9e95ab101a5f7ae68eba441e09';
+
+  // Variable rápida para los condicionales
+  const esPremium = role === "premium" || role === "admin";
+
+  // 🌟 PASO 2: ESCUCHADOR EN TIEMPO REAL
+  useEffect(() => {
+    const handleRolActualizado = () => {
+      setRole(localStorage.getItem("role") || "user");
+    };
+    window.addEventListener("rolActualizado", handleRolActualizado);
+    return () => window.removeEventListener("rolActualizado", handleRolActualizado);
+  }, []);
 
   const heroAlbums = [
     {
@@ -153,6 +169,8 @@ function Home() {
 
   useEffect(() => {
     const fetchHomeData = async () => {
+      // Re-chequeo veloz antes de cargar la API
+      setRole(localStorage.getItem("role") || "user");
       try {
         const obtenerInfoPersonalizada = async (listaDiscos) => {
           const promesas = listaDiscos.map(async (disco) => {
@@ -217,18 +235,31 @@ function Home() {
     ].slice(0, 5);
     localStorage.setItem('historialBusqueda', JSON.stringify(nuevoHistorial));
 
-    conPublicidad(() => {
+    // 🌟 BENEFICIO PREMIUM: Si paga, entra directo. Si es gratis, tiene publicidad.
+    if (esPremium) {
       navigate(`/album/${encodeURIComponent(album.name)}/${encodeURIComponent(nombreArtista)}`);
-    });
+    } else {
+      conPublicidad(() => {
+        navigate(`/album/${encodeURIComponent(album.name)}/${encodeURIComponent(nombreArtista)}`);
+      });
+    }
   };
 
+  // 🌟 PASO 3: RECTIFICACIÓN DE LOS BOTONES CON LA CLASE PREMIUM-HOVER
   const renderSection = (titulo, albums, referencia) => (
     <section className="home-section">
       <div className="section-header">
-        <h2>{titulo}</h2>
+       <h2 
+  style={{ 
+    borderLeft: (role === "premium" || role === "admin") ? '5px solid #d0b412' : '5px solid #ff2d55' 
+  }}
+>
+  {titulo}
+</h2>
         <div className="carousel-controls">
-          <button onClick={() => scroll(referencia, 'left')}>‹</button>
-          <button onClick={() => scroll(referencia, 'right')}>›</button>
+          {/* Se inyecta la clase 'premium-hover' si corresponde */}
+          <button className={esPremium ? "premium-hover" : ""} onClick={() => scroll(referencia, 'left')}>‹</button>
+          <button className={esPremium ? "premium-hover" : ""} onClick={() => scroll(referencia, 'right')}>›</button>
         </div>
       </div>
       <div className="home-carousel" ref={referencia}>
@@ -246,18 +277,19 @@ function Home() {
             </div>
           ))
         ) : (
-          <p className="loading-text">Cargando sección...</p>
+          <p className="loading-text" style={{ color: esPremium ? '#d0b412' : '' }}>Cargando sección...</p>
         )}
       </div>
     </section>
   );
 
-  if (loading) return <div className="loading">Preparando tu música...</div>;
+  if (loading) return <div className="loading" style={{ color: esPremium ? '#d0b412' : '' }}>Preparando tu música...</div>;
 
   return (
     <div className="home-container">
 
-      {mostrarPublicidad && (
+      {/* Solo mostramos publicidad si NO es premium */}
+      {!esPremium && mostrarPublicidad && (
         <Publicidad onCerrar={cerrarYContinuar} />
       )}
 
@@ -267,18 +299,33 @@ function Home() {
         style={{
           cursor: 'pointer',
           backgroundImage: `url(${albumHeroActual.bg})`,
-          position: 'relative'
+          position: 'relative',
+          borderBottom: esPremium ? '4px solid #FFD700' : '' // Detalle premium abajo del banner
         }}
       >
-        <button className="hero-arrow arrow-left" onClick={anteriorHero} style={{ zIndex: 10 }}>‹</button>
-        <div className="hero-content" style={{ zIndex: 5 }}>
-          <span className="badge">{albumHeroActual.badge}</span>
+<button 
+  className={`hero-arrow arrow-left ${(role === "premium" || role === "admin") ? "premium-hover" : ""}`} 
+  onClick={anteriorHero} 
+  style={{ zIndex: 10 }}
+>
+  ‹
+</button>        <div className="hero-content" style={{ zIndex: 5 }}>
+          <span className="badge" style={{ backgroundColor: esPremium ? '#d0b412' : '', color: esPremium ? '#000' : '' }}>
+            {albumHeroActual.badge} {esPremium && "👑"}
+          </span>
           <h1>{albumHeroActual.title}</h1>
           <p>{albumHeroActual.description}</p>
-          <button className="btn-hero">Escuchar ahora</button>
+          <button className="btn-hero" style={{ backgroundColor: esPremium ? '#d0b412' : '', color: esPremium ? '#000' : '' }}>
+            Escuchar ahora
+          </button>
         </div>
-        <button className="hero-arrow arrow-right" onClick={siguienteHero} style={{ zIndex: 10 }}>›</button>
-      </section>
+<button 
+  className={`hero-arrow arrow-right ${(role === "premium" || role === "admin") ? "premium-hover" : ""}`} 
+  onClick={siguienteHero} 
+  style={{ zIndex: 10 }}
+>
+  ›
+</button>      </section>
 
       {renderSection("Top Global Seleccionado", topAlbums, topRef)}
       {renderSection("Rock Internacional", rockAlbums, rockRef)}

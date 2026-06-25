@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import { useEffect, useState, useRef } from 'react';
 
 function Publicidad({ onCerrar }) {

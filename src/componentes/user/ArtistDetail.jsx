@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { IoArrowBack } from 'react-icons/io5';
-import './Artist.css';
+import './styles/Artist.css';
 
 const API_KEY = 'aa182e9e95ab101a5f7ae68eba441e09';
 
-const ArtistDetail = ({ setTrackActual }) => {
+const ArtistDetail = () => {
   const { artistName } = useParams();
   const navigate = useNavigate();
   const [artistInfo, setArtistInfo] = useState(null);

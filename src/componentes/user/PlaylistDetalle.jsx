@@ -4,8 +4,8 @@ import { MdDelete } from 'react-icons/md';
 import { FaPlay, FaSearch } from 'react-icons/fa';
 import { IoArrowBack } from 'react-icons/io5';
 import Publicidad from './Publicidad';
-import { usePublicidad } from '../hooks/usePublicidad';
-import './Favorites.css';
+import { usePublicidad } from '../../hooks/usePublicidad';
+import './styles/Favorites.css';
 
 const esProd = window.location.hostname.includes("netlify");
 

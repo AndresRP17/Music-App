@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "./Register.css";
+import "./styles/Register.css";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -15,8 +15,8 @@ export default function Register() {
     e.preventDefault();
     setError("");
 
-    if (password.length < 4) {
-      setError("La contraseña debe tener al menos 4 caracteres.");
+    if (password.length < 5) {
+      setError("La contraseña debe tener al menos 5 caracteres.");
       return;
     }
 
