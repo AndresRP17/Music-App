@@ -13,7 +13,6 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
   const [creandoNueva, setCreandoNueva] = useState(false);
   const [nombreNueva, setNombreNueva] = useState("");
   const [yaEnFavoritos, setYaEnFavoritos] = useState(false);
-  // Map de playlistId -> bool (si ya tiene la canción)
   const [cancionEnPlaylist, setCancionEnPlaylist] = useState({});
   const { mostrarToast } = useToast();
 

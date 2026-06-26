@@ -133,7 +133,7 @@ function Search({ reproducirLista, pausar }) {
 
       <div className="search-section">
         <h1 style ={{ color: role === "premium" || role === "admin" ? ' #d0b412' : 'none' }}>Buscar</h1>
-        <div className="search-input-wrapper">
+        <div className="search-input-wrapper" >
           <FaSearch className="search-icon" />
           <input
             className="search-input"
@@ -141,6 +141,12 @@ function Search({ reproducirLista, pausar }) {
             placeholder="Artistas, álbumes, canciones..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
+            style={{
+    boxShadow:
+      role === "premium" || role === "admin"
+        ? "0 4px 10px rgba(208, 180, 18, 0.5)" // Sombra dorada difuminada
+        : "none",
+}}
           />
           {busqueda && (
             <button

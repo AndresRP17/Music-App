@@ -5,7 +5,7 @@ import { FaPlay, FaSearch } from 'react-icons/fa';
 import { IoArrowBack } from 'react-icons/io5';
 import Publicidad from './Publicidad';
 import { usePublicidad } from '../../hooks/usePublicidad';
-import './styles/Favorites.css';
+import './styles/PlaylistDetalle.css';
 
 const esProd = window.location.hostname.includes("netlify");
 
@@ -17,9 +17,20 @@ const PlaylistDetalle = ({ reproducirLista }) => {
   const [nombrePlaylist, setNombrePlaylist] = useState('');
   const [trackCargando, setTrackCargando] = useState(null);
   const [busqueda, setBusqueda] = useState('');
-
   const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad(null);
   const token = localStorage.getItem('token');
+
+  const [role, setRole] = useState(() => localStorage.getItem("role") || "user");
+
+  useEffect(() => {
+    const handleRolActualizado = () => {
+      setRole(localStorage.getItem("role") || "user");
+    };
+    window.addEventListener("rolActualizado", handleRolActualizado);
+    return () => window.removeEventListener("rolActualizado", handleRolActualizado);
+  }, []);
+
+  const esPremium = role === "premium" || role === "admin";
 
   useEffect(() => {
     const obtenerDatos = async () => {
@@ -68,7 +79,6 @@ const PlaylistDetalle = ({ reproducirLista }) => {
   const reproducirPista = async (cancion, index) => {
     setTrackCargando(index);
     try {
-      // Resolvemos URLs de toda la lista para poder navegar con siguiente/anterior
       const listaConUrls = await Promise.all(
         cancionesFiltradas.map(async (c) => {
           try {
@@ -86,7 +96,6 @@ const PlaylistDetalle = ({ reproducirLista }) => {
           }
         })
       );
-
       conPublicidad(() => reproducirLista(listaConUrls, index));
     } catch (error) {
       console.error("Error consultando Deezer:", error);
@@ -117,31 +126,32 @@ const PlaylistDetalle = ({ reproducirLista }) => {
     }
   };
 
-  if (cargando) return <div className="playlist-loading-view"><p>Cargando playlist...</p></div>;
+  if (cargando) return (
+    <div className="pd-loading">
+      <p style={{ color: esPremium ? '#d0b412' : '' }}>Cargando playlist...</p>
+    </div>
+  );
 
   return (
-    <div className="playlist-container">
+    <div className={`pd-container${esPremium ? ' is-premium' : ''}`}>
       {mostrarPublicidad && <Publicidad onCerrar={cerrarYContinuar} />}
 
-      <header className="playlist-header" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <button
-          onClick={() => navigate('/mi-musica')}
-          style={{ background: 'transparent', border: 'none', color: '#ff2d55', cursor: 'pointer', fontSize: '24px', display: 'flex', alignItems: 'center', flexShrink: 0 }}
-        >
+      <header className="pd-header">
+        <button className="pd-back-btn" onClick={() => navigate('/mi-musica')}>
           <IoArrowBack />
         </button>
-        <div>
-          <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>Playlist</p>
-          <h1 style={{ margin: '4px 0' }}>{nombrePlaylist}</h1>
-          <p className="playlist-subtitle">{canciones.length} canciones</p>
+        <div className="pd-header-info">
+          <p className="pd-label">Playlist</p>
+          <h1 style={{ color: esPremium ? '#d0b412' : '' }}>{nombrePlaylist}</h1>
+          <p className="pd-subtitle">{canciones.length} canciones</p>
         </div>
       </header>
 
-      <div className="playlist-search-wrapper">
-        <FaSearch className="playlist-search-icon" />
+      <div className="pd-search-wrapper">
+        <FaSearch className="pd-search-icon" />
         <input
           type="text"
-          className="playlist-search-input"
+          className="pd-search-input"
           placeholder="Buscar por título, artista o álbum..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
@@ -149,13 +159,13 @@ const PlaylistDetalle = ({ reproducirLista }) => {
       </div>
 
       {cancionesFiltradas.length === 0 ? (
-        <div className="playlist-no-songs">
+        <div className="pd-no-songs">
           <h2>No hay canciones en esta playlist</h2>
           <p>Agregá canciones desde el buscador</p>
         </div>
       ) : (
-        <div className="playlist-tracklist-section">
-          <div className="playlist-tracklist-header">
+        <div className="pd-tracklist-section">
+          <div className="pd-tracklist-header">
             <span>#</span>
             <span>Título</span>
             <span>Álbum</span>
@@ -165,11 +175,11 @@ const PlaylistDetalle = ({ reproducirLista }) => {
           <hr />
           <div className="tracklist">
             {cancionesFiltradas.map((cancion, index) => (
-              <div key={cancion.id} className="playlist-track-row">
-                <div className="playlist-track-number-wrapper">
-                  <span className="playlist-track-number">{index + 1}</span>
+              <div key={cancion.id} className="pd-track-row">
+                <div className="pd-track-number-wrapper">
+                  <span className="pd-track-number">{index + 1}</span>
                   <button
-                    className="playlist-play-row-btn"
+                    className="pd-play-btn"
                     onClick={() => reproducirPista(cancion, index)}
                     disabled={trackCargando === index}
                   >
@@ -179,17 +189,17 @@ const PlaylistDetalle = ({ reproducirLista }) => {
                     }
                   </button>
                 </div>
-                <div className="playlist-meta-container">
-                  <span className="playlist-track-name">{cancion.title}</span>
-                  <span className="playlist-artist-name">{cancion.artist}</span>
+                <div className="pd-meta">
+                  <span className="pd-track-name">{cancion.title}</span>
+                  <span className="pd-artist-name">{cancion.artist}</span>
                 </div>
-                <span className="playlist-album-name">{cancion.album || '—'}</span>
-                <span className="playlist-track-duration">
+                <span className="pd-album-name">{cancion.album || '—'}</span>
+                <span className="pd-duration">
                   {cancion.duration
                     ? `${Math.floor(cancion.duration / 60)}:${(cancion.duration % 60).toString().padStart(2, '0')}`
                     : '0:00'}
                 </span>
-                <button className="playlist-delete-btn" onClick={() => eliminarCancion(cancion.id)}>
+                <button className="pd-delete-btn" onClick={() => eliminarCancion(cancion.id)}>
                   <MdDelete />
                 </button>
               </div>

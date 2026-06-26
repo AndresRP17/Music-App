@@ -184,7 +184,8 @@ function AlbumDetails({ reproducirLista, pausar }) {
 );
 
   return (
-    <div className="album-detail-container">
+      <div className={`album-detail-container${esPremium ? ' is-premium' : ''}`}>
+
       {mostrarPublicidad && <Publicidad onCerrar={cerrarYContinuar} />}
 
       <header className="album-header">
@@ -247,6 +248,7 @@ function AlbumDetails({ reproducirLista, pausar }) {
                         className="play-row-btn"
                         onClick={() => reproducirPista(track.name, index)}
                         disabled={false}
+
                       >
                         {trackCargando === index ? (
                           <span className="mini-spinner">...</span>

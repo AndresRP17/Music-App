@@ -14,10 +14,8 @@ const Favorites = ({ reproducirLista, pausar }) => {
   const [busqueda, setBusqueda] = useState("");
   const { mostrarPublicidad, conPublicidad, cerrarYContinuar } = usePublicidad(pausar);
 
-  // 1. PASO 1: CREAMOS EL ESTADO PARA EL ROL
   const [role, setRole] = useState(() => localStorage.getItem("role") || "user");
 
-  // 2. PASO 2: ESCUCHADOR PARA CAMBIOS EN TIEMPO REAL
   useEffect(() => {
     const handleRolActualizado = () => {
       setRole(localStorage.getItem("role") || "user");
@@ -58,7 +56,6 @@ const Favorites = ({ reproducirLista, pausar }) => {
         setCargando(false);
       }
     };
-
     obtenerFavoritos();
   }, []);
 
@@ -100,9 +97,7 @@ const Favorites = ({ reproducirLista, pausar }) => {
     setTrackCargando(index);
     try {
       const query = `${cancion.artist} ${cancion.title}`;
-      const response = await fetch(
-        `/deezer/search?q=${encodeURIComponent(query)}`,
-      );
+      const response = await fetch(`/deezer/search?q=${encodeURIComponent(query)}`);
       const data = await response.json();
 
       if (data.data && data.data.length > 0) {
@@ -121,23 +116,16 @@ const Favorites = ({ reproducirLista, pausar }) => {
                 cover: track?.album?.cover_medium || "https://via.placeholder.com/150",
               };
             } catch {
-              return {
-                title: c.title,
-                artist: c.artist,
-                url: null,
-                cover: "https://via.placeholder.com/150",
-              };
+              return { title: c.title, artist: c.artist, url: null, cover: "https://via.placeholder.com/150" };
             }
           }),
         );
 
-        // 🔥 BENEFICIO PREMIUM: Si es premium, reproduce directo. Si no, se fuma la publicidad.
         if (esPremium) {
           reproducirLista(listaConUrls, index);
         } else {
           conPublicidad(() => reproducirLista(listaConUrls, index));
         }
-
       } else {
         alert(`No se encontró vista previa para "${cancion.title}"`);
       }
@@ -148,29 +136,27 @@ const Favorites = ({ reproducirLista, pausar }) => {
     }
   };
 
-  // 3. PASO 3: APLICAR ESTILO CONDICIONAL (DORADO SI ES PREMIUM)
-  if (cargando)
-    return (
-      <div className="playlist-loading-view">
-        <p style={{ color: esPremium ? '#d0b412' : '' }}>Cargando favoritos...</p>
-      </div>
-    );
+  if (cargando) return (
+    <div className="fav-loading">
+      <p style={{ color: esPremium ? '#d0b412' : '' }}>Cargando favoritos...</p>
+    </div>
+  );
 
   return (
-    <div className="playlist-container">
+    <div className={`fav-container${esPremium ? ' is-premium' : ''}`}>
       {mostrarPublicidad && <Publicidad onCerrar={cerrarYContinuar} />}
 
-      <header className="playlist-header">
-        <h1 style={{ color: esPremium ? '#d0b412' : '' }} >Tus Favoritos</h1>
-        <p className="playlist-subtitle">Tu colección de música favorita</p>
+      <header className="fav-header">
+        <h1 style={{ color: esPremium ? '#d0b412' : '' }}>Tus Favoritos</h1>
+        <p className="fav-subtitle">Tu colección de música favorita</p>
       </header>
 
       {cancionesFavoritas.length > 0 && (
-        <div className="playlist-search-wrapper">
-          <FaSearch className="playlist-search-icon" />
+        <div className="fav-search-wrapper">
+          <FaSearch className="fav-search-icon" />
           <input
             type="text"
-            className="playlist-search-input"
+            className="fav-search-input"
             placeholder="Buscar por título, artista o álbum..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
@@ -179,30 +165,22 @@ const Favorites = ({ reproducirLista, pausar }) => {
       )}
 
       {cancionesFavoritas.length === 0 ? (
-        <div className="playlist-no-songs">
+        <div className="fav-no-songs">
           <h2>Aquí aparecerán tus canciones</h2>
-          <p>
-            No tienes favoritos agregados todavía. ¡Explora álbumes para sumar
-            música!
-          </p>
+          <p>No tienes favoritos agregados todavía. ¡Explorá álbumes para sumar música!</p>
         </div>
       ) : cancionesFiltradas.length === 0 ? (
-        <div className="playlist-no-songs">
+        <div className="fav-no-songs">
           <h2>Sin resultados</h2>
-          <p>
-            No se encontraron canciones que coincidan con "
-            <strong>{busqueda}</strong>"
-          </p>
+          <p>No se encontraron canciones que coincidan con "<strong>{busqueda}</strong>"</p>
         </div>
       ) : (
-        <div className="playlist-tracklist-section">
-          <div className="playlist-tracklist-header">
+        <div className="fav-tracklist-section">
+          <div className="fav-tracklist-header">
             <span>#</span>
             <span>TÍTULO</span>
             <span>ÁLBUM</span>
-            <span style={{ textAlign: "right", paddingRight: "4px" }}>
-              DURACIÓN
-            </span>
+            <span style={{ textAlign: "right" }}>DURACIÓN</span>
             <span></span>
           </div>
           <hr />
@@ -216,43 +194,35 @@ const Favorites = ({ reproducirLista, pausar }) => {
                 albumDetectado = partes[1].trim();
               }
               return (
-                <div key={cancion.id || index} className="playlist-track-row">
-                  <div className="playlist-track-number-wrapper">
-                    <span className="playlist-track-number">{index + 1}</span>
+                <div key={cancion.id || index} className="fav-track-row">
+                  <div className="fav-track-number-wrapper">
+                    <span className="fav-track-number">{index + 1}</span>
                     <button
-                      className="playlist-play-row-btn"
+                      className="fav-play-btn"
                       onClick={() => reproducirPista(cancion, index)}
                       disabled={trackCargando === index}
                     >
                       {trackCargando === index ? (
                         <span className="mini-spinner">...</span>
                       ) : (
-                        <FaPlay
-                          style={{ fontSize: "15px", marginLeft: "1px" }}
-                        />
+                        <FaPlay style={{ fontSize: "15px", marginLeft: "1px" }} />
                       )}
                     </button>
                   </div>
-                  <div className="playlist-meta-container">
-                    <span className="playlist-track-name">{tituloLimpio}</span>
-                    <span className="playlist-artist-name">
-                      {cancion.artist}
-                    </span>
+                  <div className="fav-meta">
+                    <span className="fav-track-name">{tituloLimpio}</span>
+                    <span className="fav-artist-name">{cancion.artist}</span>
                   </div>
-                  <span className="playlist-album-name">{albumDetectado}</span>
-                  <span className="playlist-track-duration">
+                  <span className="fav-album-name">{albumDetectado}</span>
+                  <span className="fav-duration">
                     {cancion.duration
                       ? `${Math.floor(cancion.duration / 60)}:${(cancion.duration % 60).toString().padStart(2, "0")}`
                       : "0:00"}
                   </span>
                   <button
-                    className="playlist-delete-btn"
+                    className="fav-delete-btn"
                     onClick={() => {
-                      if (
-                        window.confirm(
-                          "¿Estás seguro de que querés eliminar esta canción?",
-                        )
-                      ) {
+                      if (window.confirm("¿Estás seguro de que querés eliminar esta canción?")) {
                         eliminarCancion(cancion.id);
                       }
                     }}

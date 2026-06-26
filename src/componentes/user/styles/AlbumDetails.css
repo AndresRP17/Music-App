@@ -1,11 +1,19 @@
+/* --- VARIABLES Y RESET --- */
+:root{
+  --bg: #121212;
+  --muted: #b3b3b3;
+  --accent: #ff2d55;
+  --premium: #d0b412;
+  --play-bg: rgba(243,241,241,0.12);
+  --card-bg: rgba(255,255,255,0.03);
+}
+
 /* --- RESET Y FUENTE --- */
 body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     margin: 0;
-    background-color: #121212;
+    background-color: var(--bg);
 }
-
-
 
 /* --- CONTENEDOR PRINCIPAL --- */
 .album-detail-container {
@@ -13,7 +21,7 @@ body {
     min-height: 100vh;
     color: white;
     width: 100%;
-    background: linear-gradient(to bottom, #1e1e1e 0%, #121212 100%);
+    background: linear-gradient(to bottom, #1e1e1e 0%, var(--bg) 100%);
     box-sizing: border-box;
 }
 
@@ -32,14 +40,16 @@ body {
     box-shadow: 0 0px 20px rgba(250, 236, 236, 0.6);
     border-radius: 12px;
     object-fit: cover;
-    transition: transform 0.3s ease-in-out;
+    transition: transform .25s ease, box-shadow .12s ease;
+    will-change: transform;
 }
 
-.detail-cover:hover {
-    transform: scale(1.05); /* Agranda suavemente sin dar vuelta la foto */
-    cursor: pointer;        /* De paso le pone la manito al mouse */
+@media (hover: hover) {
+  .detail-cover:hover {
+    transform: scale(1.05);
+    cursor: pointer;
+  }
 }
-
 
 .header-info {
     flex: 1;
@@ -51,7 +61,7 @@ body {
     font-weight: bold;
     letter-spacing: 1px;
     margin-bottom: 5px;
-    color: #b3b3b3;
+    color: var(--muted);
 }
 
 .header-info h1 {
@@ -70,15 +80,23 @@ body {
 
 .artist-name-main {
     color: #fff;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.artist-name-main:hover,
+.artist-name-main:focus {
+  text-decoration: underline;
+  outline: none;
 }
 
 .genre-tag {
-    color: #ff2d55;
+    color: var(--accent);
     text-transform: capitalize;
 }
 
 .extra-info {
-    color: #b3b3b3;
+    color: var(--muted);
 }
 
 /* --- LAYOUT DE DOS COLUMNAS --- */
@@ -92,27 +110,23 @@ body {
 /* --- LISTA DE CANCIONES --- */
 .tracklist-section {
     width: 100%;
-    
 }
 
 .tracklist-header, .track-row {
     display: grid;
-    /* N°, Nombre, Play, Duración */
-    grid-template-columns: 50px 1fr 50px 100px; 
+    grid-template-columns: 50px 1fr 50px 100px;
     padding: 12px 10px;
     align-items: center;
     border-bottom: 1px solid gray;
 }
 
 .tracklist-header {
-    color: #b3b3b3;
+    color: var(--muted);
     font-weight: bold;
     text-transform: uppercase;
     font-size: 0.75rem;
     letter-spacing: 1px;
 }
-
-
 
 .tracklist-section hr {
     border: 0;
@@ -121,94 +135,114 @@ body {
 }
 
 .track-row {
-    transition: background 0.2s ease;
+    transition: background .12s ease;
     border-bottom: 1px solid gray;
+    background: transparent;
+    will-change: background;
 }
 
-.track-row:hover {
+@media (hover: hover) {
+  .track-row:hover {
     background: rgba(255, 255, 255, 0.05);
+  }
 }
 
-/* --- CONTENEDOR NUEVO (N° Y PLAY EN EL MISMO LUGAR) --- */
+/* --- CONTENEDOR N° Y PLAY --- */
 .track-number-wrapper {
     position: relative;
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    
 }
 
-/* El número visible por defecto */
 .track-number {
-    color: #b3b3b3;
+    color: var(--muted);
     font-size: 0.9rem;
     opacity: 1;
-    transition: opacity 0.15s ease;
+    transition: opacity .12s ease;
 }
 
-/* El botón circular de Play (arranca invisible y en el centro exacto) */
 .play-row-btn {
     position: absolute;
     top: 50%;
     left: 50%;
-    /* El translate(-50%, -50%) lo centra perfecto sin importar el tamaño del botón */
-    transform: translate(-50%, -50%) scale(0.8); 
-    background: red;
+    transform: translate(-50%, -50%) scale(.8);
+    background: transparent;
     border: none;
-    color: #b00b2a; /* Rojo Apple Music directo */
+    color: var(--accent);
     font-size: 12px;
     cursor: pointer;
     opacity: 0;
-    pointer-events: none; /* Desactivado para que no estorbe si no hay hover */
-    transition: all 0.15s ease;
+    pointer-events: none;
+    transition: transform .15s ease, opacity .15s ease, background .15s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    will-change: transform, opacity;
+    padding: 8px;
+    border-radius: 50%;
+    outline: none; /* sin outline nativo */
 }
 
 /* ===================================================
-   ¡EFECTO HOVER ESTILO APPLE MUSIC! 
+   EFECTO HOVER / FOCUS ESTILO APPLE MUSIC
    =================================================== */
-   
-/* Cuando pasas el mouse por la fila, el número se desvanece */
-.track-row:hover .track-number {
-    opacity: 0;
+
+@media (hover: hover) {
+  .track-row:hover .track-number { opacity: 0; }
+  .track-row:hover .play-row-btn {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1);
+    background: var(--play-bg);
+  }
 }
 
-/* Al mismo tiempo, el botón de play aparece y toma su tamaño normal */
-.track-row:hover .play-row-btn {
+@media (hover: none) {
+  .play-row-btn {
     opacity: 1;
-    pointer-events: auto; /* Habilitamos el click */
+    pointer-events: auto;
     transform: translate(-50%, -50%) scale(1);
-    background: rgba(243, 241, 241, 0.1);
-    border-radius: 50%;
-    padding: 8px;
+    background: var(--play-bg);
+  }
+}
+
+.track-row:focus-within .track-number { opacity: 0; }
+.track-row:focus-within .play-row-btn {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+  background: var(--play-bg);
+}
+
+/* Sin box-shadow rojo al hacer foco — era el culpable del borde rojo */
+.play-row-btn:focus {
+  outline: none;
+  box-shadow: none;
 }
 
 .play-row-btn:active {
-    transform: translate(-50%, -50%) scale(0.9);
+    transform: translate(-50%, -50%) scale(0.92);
 }
 
-/* Estilo sutil de cargando */
 .mini-spinner {
     font-size: 11px;
-    color: #ff2d55;
+    color: var(--accent);
     font-weight: bold;
 }
 
-
+/* --- NOMBRE Y DURACIÓN --- */
 .track-name {
     font-weight: 500;
     color: #fff;
 }
 
 .track-duration {
-    color: #b3b3b3;
+    color: var(--muted);
     text-align: right;
     font-variant-numeric: tabular-nums;
-    margin-left: 0px;
 }
 
 /* --- BOTÓN PLAY YOUTUBE --- */
@@ -218,7 +252,7 @@ body {
     color: #ff0000;
     font-size: 1.2rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: transform .2s ease, color .2s ease, opacity .15s ease;
     opacity: 0;
     display: flex;
     justify-content: center;
@@ -234,8 +268,6 @@ body {
     color: #ff4d4d;
 }
 
-
-
 /* --- SIDEBAR (WIKI) --- */
 .album-sidebar {
     display: flex;
@@ -243,7 +275,7 @@ body {
 }
 
 .wiki-card {
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--card-bg);
     padding: 30px;
     border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -260,24 +292,24 @@ body {
 .wiki-text {
     font-size: 0.95rem;
     line-height: 1.7;
-    color: #b3b3b3;
+    color: var(--muted);
 }
 
 .release-date {
     margin-top: 25px;
     font-size: 0.85rem;
-    color: #ff2d55;
+    color: var(--accent);
     font-weight: 600;
 }
 
-/* --- MODAL YOUTUBE --- */
+/* --- MODAL --- */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.92);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -292,7 +324,7 @@ body {
     background: #000;
     border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 0 40px rgba(255, 0, 0, 0.3);
+    box-shadow: 0 0 40px rgba(255, 0, 0, 0.18);
 }
 
 .close-modal {
@@ -306,10 +338,35 @@ body {
     cursor: pointer;
 }
 
+/* --- BOTÓN AGREGAR PLAYLIST --- */
 .add-playlist-btn--saved {
-  color: #1db954 !important;
+  color: #dce8e0 !important;
   opacity: 0.75;
   cursor: default !important;
+}
+
+.add-playlist-btn {
+  background: black;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: color .2s;
+  padding: 6px;
+  margin-left: 30px;
+  color: #fff;
+  border: none;
+  outline: none;
+}
+
+.add-playlist-btn:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.add-playlist-btn:disabled,
+.add-playlist-btn.add-playlist-btn--locked {
+  opacity: .5;
+  cursor: not-allowed;
+  filter: grayscale(.3);
 }
 
 /* --- RESPONSIVE --- */
@@ -318,7 +375,6 @@ body {
         grid-template-columns: 1fr;
     }
 
-   
     .album-sidebar {
         order: 2;
     }
@@ -343,7 +399,7 @@ body {
     }
 
     .btn-play-yt {
-        opacity: 1; /* Siempre visible en móviles */
+        opacity: 1;
     }
 
     .tracklist-header, .track-row {
@@ -351,27 +407,61 @@ body {
     }
 }
 
+/* --- LOADING --- */
 .loading {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    color: #ff2d55;
+    color: var(--accent);
     font-size: 1.5rem;
-    background-color: #121212;
+    background-color: var(--bg);
 }
 
-.add-playlist-btn {
-  background: black;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: color 0.2s;
-  padding: 6px;
-  margin-left: 30px;
+/* --- MICROOPTIMIZACIONES Y ACCESIBILIDAD --- */
+.play-row-btn { will-change: transform, opacity; }
+
+@media (prefers-reduced-motion: reduce) {
+  .detail-cover, .play-row-btn, .track-row, .btn-play-yt {
+    transition: none !important;
+    transform: none !important;
+  }
 }
 
-
-.add-playlist-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+/* === PREMIUM SKIN === */
+.album-detail-container.is-premium .play-row-btn {
+  color: var(--premium);
 }
+
+@media (hover: hover) {
+  .album-detail-container.is-premium .track-row:hover .play-row-btn {
+    background: rgba(208, 180, 18, 0.18);
+  }
+  .album-detail-container.is-premium .track-row:hover .track-number {
+    color: var(--premium);
+  }
+}
+
+@media (hover: none) {
+  .album-detail-container.is-premium .play-row-btn {
+    background: rgba(208, 180, 18, 0.18);
+  }
+}
+
+.album-detail-container.is-premium .track-row:focus-within .play-row-btn {
+  background: rgba(208, 180, 18, 0.18);
+}
+
+.album-detail-container.is-premium .play-row-btn:focus {
+  box-shadow: none;
+}
+
+.album-detail-container.is-premium .add-playlist-btn:not(:disabled) {
+  color: var(--premium);
+}
+
+/* --- UTILIDADES --- */
+.text-right { text-align: right; }
+.no-tracks, .no-wiki { color: var(--muted); }
+
+/* --- FIN DEL CSS --- */

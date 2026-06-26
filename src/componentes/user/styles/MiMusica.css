@@ -4,6 +4,15 @@
   padding: 24px 24px 0 24px;
 }
 
+.mi-musica-container {
+  width: 100%;
+  height: 100%;
+}
+
+.mi-musica-contenido {
+  width: 100%;
+}
+
 .mi-musica-tab {
   background: transparent;
   border: none;
