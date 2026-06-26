@@ -145,17 +145,17 @@ function Publicidad({ onCerrar }) {
             borderRadius: '12px', padding: '28px 24px',
             textAlign: 'center', color: 'white', maxWidth: '320px'
           }}>
-            <div style={{ fontSize: '36px', marginBottom: '12px' }}>😢</div>
-            <h3 style={{ margin: '0 0 8px', color: 'white' }}>¿Seguro que querés saltar?</h3>
+            <div style={{ fontSize: '36px', marginBottom: '12px' }}>👑</div>
+            <h3 style={{ margin: '0 0 8px', color: 'white' }}>Unite a nuestra comunidad</h3>
             <p style={{ fontSize: '13px', color: '#aaa', marginBottom: '20px' }}>
-              Perdés el 50% de descuento en Premium si cerrás ahora...
+              Aprovecha nuestra oferta con un mes gratis haciendote premium
             </p>
             <div style={{ display: 'flex', gap: '10px' }}>
               <button onClick={onCerrar} style={{
                 flex: 1, background: '#ff4757', color: 'white',
                 border: 'none', padding: '10px', borderRadius: '20px',
                 cursor: 'pointer', fontWeight: 'bold'
-              }}>Sí, saltar</button>
+              }}>Sí, me uniré</button>
               <button onClick={() => setMostrarConfirm(false)} style={{
                 flex: 1, background: '#2f3542', color: 'white',
                 border: 'none', padding: '10px', borderRadius: '20px',

@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import ModalPremiumBienvenida from "./ModalBienvenida";
+import ModalCancelPremium from "./ModalCancelPremium";
 import "./styles/Configuration.css";
 
 function Configuracion() {
@@ -6,7 +8,9 @@ function Configuracion() {
   const userId = localStorage.getItem("id");
 
   const [archivo, setArchivo] = useState(null);
+  const [mostrarModalPremium, setMostrarModalPremium] = useState(false);
   const [mensaje, setMensaje] = useState("");
+  const [mostrarModalCancel, setMostrarModalCancel] = useState(false)
   const [role, setRole] = useState(localStorage.getItem("role") || "user");
   const [logoPreview, setLogoPreview] = useState(() => {
     const logo = localStorage.getItem(`logo_${userId}`);
@@ -58,6 +62,7 @@ const activarPremium = async () => {
     if (window.location.hostname.includes("netlify")) {
       localStorage.setItem("role", "premium");
       setRole("premium");
+      setMostrarModalPremium(true);
       window.dispatchEvent(new Event("rolActualizado")); // Despierta a la Sidebar al toque
       setMensaje("🌟 ¡Ahora sos Premium! Sin anuncios. (Modo Demo)");
       return; // Corta acá para que no use el fetch real
@@ -74,6 +79,7 @@ const activarPremium = async () => {
       if (res.ok) {
         localStorage.setItem("role", "premium");
         setRole("premium");
+        setMostrarModalPremium(true);
         window.dispatchEvent(new Event("rolActualizado"));
         setMensaje("🌟 ¡Ahora sos Premium! Sin anuncios.");
       }
@@ -89,6 +95,7 @@ const activarPremium = async () => {
       setRole("user");
       window.dispatchEvent(new Event("rolActualizado")); // Avisa a toda la app que volviste a ser user
       setMensaje("Plan cambiado a gratuito. (Modo Demo)");
+      setMostrarModalCancel(true);
       return; // Corta acá
     }
 
@@ -105,11 +112,12 @@ const activarPremium = async () => {
         localStorage.setItem("role", "user");
         setRole("user");
         setMensaje("Plan cambiado a gratuito.");
+        setMostrarModalCancel(true);
         window.dispatchEvent(new Event("rolActualizado")); 
       } else {
         setMensaje("❌ No se pudo cancelar el plan");
       }
-    } catch (error) {
+    } catch  {
       setMensaje("❌ Error de conexión");
     }
   
@@ -134,12 +142,11 @@ const activarPremium = async () => {
             onChange={handleFileChange}
             hidden
           />
-        </label>
-        <button onClick={handleUpload}>Guardar logo</button>
+        </label  >
+        <button  onClick={handleUpload} >Guardar logo</button>
         {mensaje && <p className="mensaje">{mensaje}</p>}
       </div>
 
-      {/* SECCIÓN PREMIUM ADAPTADA */}
       <div className="premium-section">
         {esPremiumOAdmin ? (
           <>
@@ -147,12 +154,10 @@ const activarPremium = async () => {
               {role === "admin" ? "🛠️ Cuenta Administrador" : "🌟 Sos usuario Premium"}
             </div>
             <p className="premium-desc">
-              {role === "admin" 
-                ? "Tenés acceso total a la app por ser Administrador." 
+              {role === "admin"
+                ? "Tenés acceso total a la app por ser Administrador."
                 : "Estás disfrutando de la app sin anuncios."}
             </p>
-            
-            {/* Si es Admin, no le dejamos ver el botón de cancelar su suscripción */}
             {role !== "admin" && (
               <button className="btn-cancelar-premium" onClick={cancelarPremium}>
                 Cancelar Premium
@@ -171,8 +176,22 @@ const activarPremium = async () => {
           </>
         )}
       </div>
-    </div>
-  );
+{/* Modal de bienvenida */}
+{mostrarModalPremium && (
+  <ModalPremiumBienvenida
+    onClose={() => setMostrarModalPremium(false)}
+  />
+)}
+
+{/* Modal para cancelar premium */}
+{mostrarModalCancel && (
+  <ModalCancelPremium
+    onClose={() => setMostrarModalCancel(false)}
+  />
+)}
+
+</div>
+);
 }
 
 export default Configuracion;

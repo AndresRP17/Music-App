@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaPlay, FaPlus, FaLock } from "react-icons/fa";
+import { usePublicidad } from "../../hooks/usePublicidad";
 import Publicidad from "./Publicidad";
 import ModalPlaylist from "./ModalPlaylist";
-import { usePublicidad } from "../../hooks/usePublicidad";
 import "./styles/AlbumDetails.css";
 
 const esProd = window.location.hostname.includes("netlify");
@@ -177,7 +177,11 @@ function AlbumDetails({ reproducirLista, pausar }) {
     }
   };
 
-  if (!albumInfo) return <div className="loading">Cargando...</div>;
+  if (!albumInfo) return (
+  <div className="loading" style={{ color: esPremium ? '#d0b412' : '' }}>
+    Cargando...
+  </div>
+);
 
   return (
     <div className="album-detail-container">

@@ -265,7 +265,12 @@ function Home() {
       <div className="home-carousel" ref={referencia}>
         {albums && albums.length > 0 ? (
           albums.map((album, index) => (
-            <div key={`${titulo}-${index}`} className="home-card" onClick={() => manejarClickAlbum(album)}>
+            <div
+  key={`${titulo}-${index}`}
+  className="home-card"
+  onClick={() => manejarClickAlbum(album)}
+  style={{ borderBottom: esPremium ? '3px solid #d0b412' : '' }}
+>
               <img
                 src={album.image[3]['#text'] || 'https://via.placeholder.com/300'}
                 alt={album.name}

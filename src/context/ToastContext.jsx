@@ -32,7 +32,12 @@ export function ToastProvider({ children }) {
           gap: '10px',
           zIndex: 99999,
           whiteSpace: 'nowrap',
-          animation: 'fadeInUp 0.2s ease'
+          animation: 'fadeInUp 0.2s ease',
+          border: `1px solid ${
+  toast.tipo === 'error' ? '#ff4757' : 
+  toast.tipo === 'premium' ? '#d0b412' : 
+  '#1db954'
+}`,
         }}>
           <span>{toast.tipo === 'error' ? '⚠️' : '✅'}</span>
           {toast.mensaje}
