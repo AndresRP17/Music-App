@@ -124,44 +124,129 @@
 }
 
 /* Álbumes */
+/* Álbumes */
 .artist-albums h2 {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   color: #fff;
+  letter-spacing: -0.5px;
 }
 
 .artist-albums-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 24px;
 }
 
 .artist-album-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 16px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: background 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  flex-direction: column;
 }
 
+/* Efecto Hover en la Card */
 .artist-album-card:hover {
-  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* Contenedor de la imagen para el botón Play */
+.artist-album-img-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .artist-album-card img {
   width: 100%;
-  aspect-ratio: 1;
+  height: 100%;
   object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 8px;
   background: #282828;
+  transition: transform 0.3s ease;
 }
 
+/* Zoom sutil en la imagen al hacer hover */
+.artist-album-card:hover img {
+  transform: scale(1.04);
+}
+
+/* Botón Play Flotante (Opcional, estilo Spotify) */
+.artist-album-play-btn {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ff2d55; /* Usando tu color de acento */
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.artist-album-play-btn:hover {
+  transform: scale(1.05) !important;
+  background: #ff456a;
+}
+
+.artist-album-card:hover .artist-album-play-btn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Textos de la Card */
 .artist-album-card h3 {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
+  margin-top: 102px;
   color: #fff;
+  margin: 0 0 4px 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Subtexto para el año o tipo de álbum */
+.artist-album-year {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Ajuste Mobile */
+@media (max-width: 768px) {
+  .artist-albums-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
+  }
+  
+  .artist-album-card {
+    padding: 12px;
+    border-radius: 8px;
+  }
+  
+  /* En móviles es mejor que el botón play no tape la carátula de forma fija */
+  .artist-album-play-btn {
+    display: none; 
+  }
 }
 
 /* Mobile */

@@ -137,7 +137,7 @@
 /* El estilo base de tus botones de menú */
 .menu-btn {
     padding: 12px 20px;
-    color: #b3b3b3; /* Gris apagado cuando no está activo */
+    color: red; /* Gris apagado cuando no está activo */
     text-decoration: none;
     font-weight: bold;
     border-radius: 8px;
@@ -195,7 +195,7 @@
 
 .carousel-controls button {
     background: #282828;
-    color: #ff2d55;
+    color: white;
     border: 1px solid rgba(255, 255, 255, 0.1);
     width: 45px;
     height: 45px;

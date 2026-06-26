@@ -1,7 +1,7 @@
 // src/components/Sidebar.jsx
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaHome, FaSearch, FaChartBar } from "react-icons/fa"; 
+import { FaHome, FaSearch, FaChartBar, FaShieldAlt } from "react-icons/fa"; 
 import { IoIosMusicalNotes } from 'react-icons/io';
 import { GrConfigure } from "react-icons/gr";
 import { FiLogOut } from "react-icons/fi";
@@ -64,10 +64,16 @@ function Sidebar({ cerrarSesion }) {
   }}
 >
   
-    {/* Cambiado 'none' por '' para el color del texto */}
-    <h2 style={{ color: role === "premium" || role === "admin" ? '#d0b412' : '' }}>
-      MusicApp {role === "premium" || role === "admin" ? <span style={{ verticalAlign: 'middle', position: 'relative', top: '-2px' }}>👑</span> : <IoIosMusicalNotes />}
-    </h2>
+   <h2 style={{ color: role === "premium" || role === "admin" ? "#d0b412" : "" }}>
+  MusicApp{" "}
+  {role === "admin" ? (
+    <FaShieldAlt />
+  ) : role === "premium" ? (
+    <span>👑</span>
+  ) : (
+    <IoIosMusicalNotes />
+  )}
+</h2>
     
     <img 
       src={logoSrc} 

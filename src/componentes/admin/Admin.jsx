@@ -180,7 +180,6 @@ function Admin() {
           <h1>Métricas Globales de Distribución</h1>
           <p className="subtitle">Análisis del ecosistema musical en tiempo real</p>
         </div>
-        <div className="status-badge">Datos Globales Consolidados</div>
       </header>
 
       {/* TARJETAS RÁPIDAS */}

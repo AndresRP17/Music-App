@@ -12,6 +12,8 @@ const ArtistDetail = () => {
   const [albumes, setAlbumes] = useState([]);
   const [imagen, setImagen] = useState('');
   const [cargando, setCargando] = useState(true);
+    const role = localStorage.getItem("role") || "user";
+
 
   useEffect(() => {
     const fetchArtist = async () => {
@@ -51,7 +53,7 @@ const ArtistDetail = () => {
     fetchArtist();
   }, [artistName]);
 
-  if (cargando) return <div className="artist-loading">Cargando artista...</div>;
+  if (cargando) return <div className="artist-loading" className="loading" style={{ color: role ? '#d0b412' : '' }}>Cargando artista...</div>;
   if (!artistInfo) return <div className="artist-loading">No se encontró el artista.</div>;
 
   const bio = artistInfo.bio?.summary?.split('<a href')[0] || 'Sin biografía disponible.';
@@ -95,29 +97,52 @@ const ArtistDetail = () => {
         )}
 
         {/* Álbumes */}
-        {albumes.length > 0 && (
-          <section className="artist-albums">
-            <h2>Discografía</h2>
-            <div className="artist-albums-grid">
-              {albumes.map((album, index) => (
-                <div
-                  key={index}
-                  className="artist-album-card"
-                  onClick={() => navigate(`/album/${encodeURIComponent(album.name)}/${encodeURIComponent(artistInfo.name)}`)}
-                >
-                  <img
-                    src={album.image?.[3]?.['#text'] || 'https://via.placeholder.com/200'}
-                    alt={album.name}
-                  />
-                  <h3>{album.name}</h3>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+{albumes.length > 0 && (
+  <section className="artist-albums">
+    <h2>Discografía</h2>
+    <div className="artist-albums-grid">
+      {albumes.map((album, index) => (
+        <div
+          key={index}
+          className="artist-album-card"
+          style={{
+            borderBottom:
+              role === "premium" || role === "admin"
+                ? "3px solid #d0b412"
+                : "none",
+          }}
+          onClick={() =>
+            navigate(
+              `/album/${encodeURIComponent(album.name)}/${encodeURIComponent(
+                artistInfo.name
+              )}`
+            )
+          }
+        >
+          {/* Contenedor de la imagen + Botón Play */}
+          <div className="artist-album-img-wrapper">
+            <img
+              src={album.image?.[3]?.['#text'] || 'https://via.placeholder.com/200'}
+              alt={album.name}
+            />
+          </div>
+
+          <h3>{album.name}</h3>
+  {/* Opcional: Subtexto por si en el futuro manejas la fecha u otro dato */}
+          {album.playcount && (
+            <p className="artist-album-year">
+              {Number(album.playcount).toLocaleString()} reproducciones
+            </p>
+          )}
+        </div>
+      ))}
+    </div>
+  </section>
+)}
       </div>
     </div>
   );
 };
 
-export default ArtistDetail;
+export default ArtistDetail; // O como lo tengas exportado abajo
+

@@ -188,13 +188,19 @@ function AlbumDetails({ reproducirLista, pausar }) {
       {mostrarPublicidad && <Publicidad onCerrar={cerrarYContinuar} />}
 
       <header className="album-header">
-        <img
-          src={
-            albumInfo.image?.[3]?.["#text"] || "https://via.placeholder.com/300"
-          }
-          alt={albumInfo.name}
-          className="detail-cover"
-        />
+  <img
+    src={
+      albumInfo.image?.[3]?.["#text"] || "https://via.placeholder.com/300"
+    }
+    alt={albumInfo.name}
+    className="detail-cover"
+    style={{
+      boxShadow:
+        role === "premium" || role === "admin"
+          ? "0 8px 24px rgba(208, 180, 18, 0.6)" // El dorado si cumple el rol
+          : "0 8px 24px rgba(0, 0, 0, 0.5)",     // Sombra negra clásica si es user normal
+    }}
+  />
         <div className="header-info">
           <p className="type">Álbum</p>
           <h1>{albumInfo.name}</h1>
@@ -213,7 +219,7 @@ function AlbumDetails({ reproducirLista, pausar }) {
               {albumInfo.artist}
             </span>
             {albumInfo.tags?.tag?.length > 0 && (
-              <span className="genre-tag"> • {albumInfo.tags.tag[0].name}</span>
+              <span className="genre-tag" style={{ color: esPremium ? '#d0b412' : '' }}> • {albumInfo.tags.tag[0].name}</span>
             )}
           </div>
         </div>

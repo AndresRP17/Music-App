@@ -20,6 +20,7 @@ function parseLRC(lrc) {
 }
 
 const SKELETON_WIDTHS = Array.from({ length: 12 }, () => `${55 + Math.random() * 40}%`);
+const role = localStorage.getItem("role") || "user";
 
 function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual, onAnterior, onSiguiente, onCerrar }) {
   const [letra, setLetra] = useState(null);
@@ -168,7 +169,14 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
         </button>
 
         <div className="rep-exp-izq">
-          <img src={trackActual.cover} alt={trackActual.title} className="rep-exp-portada" />
+          <img src={trackActual.cover} alt={trackActual.title} className="rep-exp-portada" 
+          style={{
+                          borderBottom:
+                            role === "premium" || role === "admin"
+                              ? "3px solid #d0b412"
+                              : "none",}}
+                    
+          />
           <h2 className="rep-exp-titulo">{trackActual.title}</h2>
           <p className="rep-exp-artista">{trackActual.artist}</p>
 
@@ -176,21 +184,46 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
             <span className="rep-exp-tiempo">{formatTime(progreso)}</span>
             <div className="rep-exp-progreso-bar" ref={progressRef} onClick={handleProgressClick}>
               <div
-                className="rep-exp-progreso-fill"
-                style={{ width: duracion ? `${(progreso / duracion) * 100}%` : '0%' }}
-              />
+  className="rep-exp-progreso-fill"
+  style={{
+    width: duracion ? `${(progreso / duracion) * 100}%` : "0%",
+    background:
+      role === "premium" || role === "admin"
+        ? "#d0b412"
+        : "#b80f0f",
+  }}
+/>
             </div>
             <span className="rep-exp-tiempo">{formatTime(duracion)}</span>
           </div>
 
           <div className="rep-exp-controles">
-            <button className="rep-exp-skip-btn" onClick={onAnterior} disabled={!hayAnterior} title="Anterior">
+            <button className="rep-exp-skip-btn" onClick={onAnterior} disabled={!hayAnterior} title="Anterior" style={{
+                          backgroundColor:
+                            role === "premium" || role === "admin"
+                              ? "#d0b412"
+                              : "none",}}>
               <FaStepBackward />
             </button>
-            <button className="rep-exp-play-btn" onClick={togglePlay}>
-              {reproduciendo ? <FaPause /> : <FaPlay />}
-            </button>
-            <button className="rep-exp-skip-btn" onClick={onSiguiente} disabled={!haySiguiente} title="Siguiente">
+            <button
+  className="rep-exp-play-btn"
+  onClick={togglePlay}
+  style={{
+    background:
+      role === "premium" || role === "admin"
+        ? "#d0b412"
+        : "#b80f0f",
+  }}
+>
+  {reproduciendo ? <FaPause /> : <FaPlay />}
+</button>
+            <button className="rep-exp-skip-btn" onClick={onSiguiente} disabled={!haySiguiente} title="Siguiente"
+            style={{
+                          backgroundColor:
+                            role === "premium" || role === "admin"
+                              ? "#d0b412"
+                              : "none",}}
+                    >
               <FaStepForward />
             </button>
           </div>

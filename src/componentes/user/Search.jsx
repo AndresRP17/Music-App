@@ -171,11 +171,16 @@ function Search({ reproducirLista, pausar }) {
               </div>
               <div className="album-grid">
                 {historial.map((album, index) => (
-                  <div
-                    key={index}
-                    className="album-card"
-                    onClick={() => manejarClickAlbum(album)}
-                  >
+                   <div
+                      key={`${album.name}-${index}`}
+                      className="album-card"
+                      onClick={() => manejarClickAlbum(album)}
+                        style={{
+                          borderBottom:
+                            role === "premium" || role === "admin"
+                              ? "3px solid #d0b412"
+                              : "none",}}
+                    >
                     <img
                       src={
                         album.image[3]["#text"] ||
@@ -203,7 +208,9 @@ function Search({ reproducirLista, pausar }) {
 
       {busqueda.length > 2 && (
         <>
-          <div className="search-tabs">
+          <div className="search-tabs"  className={`search-tabs ${
+    role === "premium" || role === "admin" ? "premium-tabs" : ""
+  }`} >
             <button
               className={`search-tab ${tab === "albumes" ? "active" : ""}`}
               onClick={() => setTab("albumes")}
@@ -266,6 +273,11 @@ function Search({ reproducirLista, pausar }) {
                       key={`${album.name}-${index}`}
                       className="album-card"
                       onClick={() => manejarClickAlbum(album)}
+                        style={{
+                          borderBottom:
+                            role === "premium" || role === "admin"
+                              ? "3px solid #d0b412"
+                              : "none",}}
                     >
                       <img
                         src={
@@ -420,18 +432,18 @@ function Search({ reproducirLista, pausar }) {
                           conPublicidad(() => reproducirLista(lista, index));
                         }}
                         style={{
-                          background: "#b80f0f",
-                          border: "none",
-                          borderRadius: "50%",
-                          width: "32px",
-                          height: "32px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          cursor: "pointer",
-                          color: "#fff",
-                          flexShrink: 0,
-                        }}
+                            background: role === "premium" || role === "admin" ? "#d0b412" : "#b80f0f",
+                            border: "none",
+                            borderRadius: "50%",
+                            width: "32px",
+                            height: "32px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            cursor: "pointer",
+                            color: "#fff",
+                            flexShrink: 0,
+                          }}
                       >
                         <FaPlay
                           style={{ fontSize: "11px", marginLeft: "1px" }}
