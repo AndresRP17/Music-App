@@ -254,8 +254,8 @@ function ModalPago({ onCerrar, onPagoExitoso }) {
             <p>¡Pago exitoso!</p>
             <span>Activando tu cuenta Premium...</span>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px', width: '100%' }}>
-              <button onClick={descargarPDF} className="mpago-btn-pagar" style={{ background: '#10B981' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px', width: '70%' }}>
+              <button onClick={descargarPDF} className="mpago-btn-pagar" style={{ background: '#bfe630', color: 'black' }}>
                 📄 Descargar Comprobante
               </button>
               <button onClick={finalizarFlujo} style={{ background: 'transparent', border: 'none', color: '#666', cursor: 'pointer', marginTop: '5px' }}>

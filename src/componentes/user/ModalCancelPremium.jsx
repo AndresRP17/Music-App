@@ -16,7 +16,7 @@ function ModalCancelPremium({ onClose }) {
           {[
             { icon: "🚫", texto: "Volverán los anuncios" },
             { icon: "👑", texto: "Perdés el modo dorado" },
-            { icon: "💔", texto: "La app no será lo mismo sin vos" },
+            { icon: "💔", texto: "No podras acceder a tus favoritos ni playlists" },
           ].map((f) => (
             <div key={f.texto} className="modal-premium-feature-item" style={{ opacity: 0.6 }}>
               <span className="modal-premium-feature-icon">{f.icon}</span>
@@ -30,7 +30,7 @@ function ModalCancelPremium({ onClose }) {
           onClick={onClose}
           style={{ background: '#333', color: '#aaa' }}
         >
-          Entendido, hasta pronto 👋
+          Entendido, hasta pronto
         </button>
       </div>
     </div>

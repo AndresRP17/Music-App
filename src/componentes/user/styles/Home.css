@@ -301,6 +301,7 @@
 }
 
 
+
 /* ==========================================================================
    --- ESTADOS GLOBALES Y ANIMACIONES ---
    ========================================================================== */
@@ -425,3 +426,4 @@ display: block;
   border-color: #FFD700 !important;      /* Borde brillante */
   box-shadow: 0 0 10px rgba(208, 180, 18, 0.5); /* Brillo prolijo */
 }
+

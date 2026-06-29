@@ -306,7 +306,9 @@ function Home() {
   key={`${titulo}-${index}`}
   className="home-card"
   onClick={() => manejarClickAlbum(album)}
-  style={{ borderBottom: esPremium ? '3px solid #d0b412' : '' }}
+  style={{ borderBottom: esPremium ? '3px solid #d0b412' : ''
+    
+   }}
 >
               <img
                 src={album.image[3]['#text'] || 'https://via.placeholder.com/300'}

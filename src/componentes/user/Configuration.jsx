@@ -105,7 +105,6 @@ function Configuracion() {
       localStorage.setItem("role", "user");
       setRole("user");
       window.dispatchEvent(new Event("rolActualizado"));
-      setMensaje("Plan cambiado a gratuito. (Modo Demo)");
       setMostrarModalCancel(true);
       return;
     }
