@@ -19,7 +19,7 @@ function AlbumDetails({ reproducirLista, pausar }) {
 
   const { mostrarPublicidad, conPublicidad, cerrarYContinuar } =
     usePublicidad(pausar);
-  // NUEVO FUNCIONAMIENTO EN BASE A TU ROL REAL
+ 
   const role = localStorage.getItem("role") || "user";
   const esPremium = role === "premium" || role === "admin";
 

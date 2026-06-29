@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import ModalPremiumBienvenida from "./ModalBienvenida";
 import ModalCancelPremium from "./ModalCancelPremium";
+import ModalPago from "./ModalPago";
 import "./styles/Configuration.css";
 
 function Configuracion() {
@@ -10,7 +11,8 @@ function Configuracion() {
   const [archivo, setArchivo] = useState(null);
   const [mostrarModalPremium, setMostrarModalPremium] = useState(false);
   const [mensaje, setMensaje] = useState("");
-  const [mostrarModalCancel, setMostrarModalCancel] = useState(false)
+  const [mostrarModalCancel, setMostrarModalCancel] = useState(false);
+  const [mostrarModalPago, setMostrarModalPago] = useState(false);
   const [role, setRole] = useState(localStorage.getItem("role") || "user");
   const [logoPreview, setLogoPreview] = useState(() => {
     const logo = localStorage.getItem(`logo_${userId}`);
@@ -21,7 +23,6 @@ function Configuracion() {
     // acá dejás solo lo que SÍ necesita el effect, por ejemplo fetches al backend
   }, [userId]);
 
-  // Constante auxiliar: sos premium si tu rol es 'premium' O si sos 'admin'
   const esPremiumOAdmin = role === "premium" || role === "admin";
 
   const handleFileChange = (e) => {
@@ -57,51 +58,59 @@ function Configuracion() {
       setMensaje("❌ Error de conexión");
     }
   };
-const activarPremium = async () => {
-    //  BYPASS PARA NETLIFY (Modo Demo)
-    if (window.location.hostname.includes("netlify")) {
+
+  // Ahora solo abre el modal de pago
+  const activarPremium = () => {
+    setMostrarModalPago(true);
+  };
+
+  // Se llama desde ModalPago cuando el pago es exitoso
+ const onPagoExitoso = async (ultimos, marca) => {
+  if (window.location.hostname.includes("netlify")) {
+    localStorage.setItem("role", "premium");
+    setRole("premium");
+    setMostrarModalPremium(true);
+    window.dispatchEvent(new Event("rolActualizado"));
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/pagos', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        monto: "1.99",
+        ultimos: ultimos,
+        marca: marca
+      })
+    });
+
+    if (res.ok) {
       localStorage.setItem("role", "premium");
       setRole("premium");
       setMostrarModalPremium(true);
-      window.dispatchEvent(new Event("rolActualizado")); // Despierta a la Sidebar al toque
-      setMensaje("🌟 ¡Ahora sos Premium! Sin anuncios. (Modo Demo)");
-      return; // Corta acá para que no use el fetch real
+      window.dispatchEvent(new Event("rolActualizado"));
+      setMensaje("🌟 ¡Ahora sos Premium! Sin anuncios.");
     }
-
-    //  CÓDIGO REAL PARA LOCALHOST
-    try {
-      const res = await fetch('/api/music_users/role', {
-        method: "post",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: token, role: "premium" })
-      });
-
-      if (res.ok) {
-        localStorage.setItem("role", "premium");
-        setRole("premium");
-        setMostrarModalPremium(true);
-        window.dispatchEvent(new Event("rolActualizado"));
-        setMensaje("🌟 ¡Ahora sos Premium! Sin anuncios.");
-      }
-    } catch  {
-      setMensaje("❌ Error de conexión");
-    }
-  };
+  } catch {
+    setMensaje("❌ Error de conexión");
+  }
+};
 
   const cancelarPremium = async () => {
-    // 🌟 BYPASS PARA NETLIFY (Modo Demo)
     if (window.location.hostname.includes("netlify")) {
       localStorage.setItem("role", "user");
       setRole("user");
-      window.dispatchEvent(new Event("rolActualizado")); // Avisa a toda la app que volviste a ser user
+      window.dispatchEvent(new Event("rolActualizado"));
       setMensaje("Plan cambiado a gratuito. (Modo Demo)");
       setMostrarModalCancel(true);
-      return; // Corta acá
+      return;
     }
 
-    // 🖥️ CÓDIGO REAL PARA LOCALHOST
     try {
-      console.log("Enviando petición de cancelación...");
       const res = await fetch('/api/music_users/role', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -113,16 +122,14 @@ const activarPremium = async () => {
         setRole("user");
         setMensaje("Plan cambiado a gratuito.");
         setMostrarModalCancel(true);
-        window.dispatchEvent(new Event("rolActualizado")); 
+        window.dispatchEvent(new Event("rolActualizado"));
       } else {
         setMensaje("❌ No se pudo cancelar el plan");
       }
-    } catch  {
+    } catch {
       setMensaje("❌ Error de conexión");
     }
-  
-  
-  }
+  };
 
   return (
     <div className="configuracion">
@@ -142,8 +149,8 @@ const activarPremium = async () => {
             onChange={handleFileChange}
             hidden
           />
-        </label  >
-        <button  onClick={handleUpload} >Guardar logo</button>
+        </label>
+        <button onClick={handleUpload}>Guardar logo</button>
         {mensaje && <p className="mensaje">{mensaje}</p>}
       </div>
 
@@ -176,22 +183,30 @@ const activarPremium = async () => {
           </>
         )}
       </div>
-{/* Modal de bienvenida */}
-{mostrarModalPremium && (
-  <ModalPremiumBienvenida
-    onClose={() => setMostrarModalPremium(false)}
-  />
-)}
 
-{/* Modal para cancelar premium */}
-{mostrarModalCancel && (
-  <ModalCancelPremium
-    onClose={() => setMostrarModalCancel(false)}
-  />
-)}
+      {/* Modal de pago */}
+      {mostrarModalPago && (
+        <ModalPago
+          onCerrar={() => setMostrarModalPago(false)}
+          onPagoExitoso={onPagoExitoso}
+        />
+      )}
 
-</div>
-);
+      {/* Modal de bienvenida premium */}
+      {mostrarModalPremium && (
+        <ModalPremiumBienvenida
+          onClose={() => setMostrarModalPremium(false)}
+        />
+      )}
+
+      {/* Modal para cancelar premium */}
+      {mostrarModalCancel && (
+        <ModalCancelPremium
+          onClose={() => setMostrarModalCancel(false)}
+        />
+      )}
+    </div>
+  );
 }
 
 export default Configuracion;

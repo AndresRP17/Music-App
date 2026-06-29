@@ -1,0 +1,332 @@
+/* ===== MODAL PAGO ===== */
+
+.mpago-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+}
+
+.mpago-modal {
+  background: #161616;
+  border: 0.5px solid #2a2a2a;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+}
+
+/* HEADER */
+.mpago-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 24px 0;
+}
+
+.mpago-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  color: #d0b412;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 4px;
+}
+
+.mpago-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.mpago-cerrar {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.mpago-cerrar:hover {
+  color: #fff;
+}
+
+/* PRECIO */
+.mpago-precio-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  margin: 16px 24px;
+  background: #1e1e1e;
+  border-radius: 10px;
+  border: 0.5px solid #2a2a2a;
+}
+
+.mpago-precio-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mpago-precio-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.mpago-precio-desc {
+  font-size: 11px;
+  color: #666;
+}
+
+.mpago-precio-valor {
+  font-size: 22px;
+  font-weight: 700;
+  color: #d0b412;
+}
+
+.mpago-precio-valor span {
+  font-size: 13px;
+  font-weight: 400;
+  color: #666;
+}
+
+/* TARJETA VISUAL */
+.mpago-card-visual {
+  margin: 0 24px 20px;
+  background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+  border-radius: 12px;
+  padding: 20px;
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.4s;
+}
+
+.mpago-card-visual::before {
+  content: "";
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.mpago-card-visual--visa {
+  background: linear-gradient(135deg, #1a237e, #283593, #1565c0);
+}
+
+.mpago-card-visual--mastercard {
+  background: linear-gradient(135deg, #b71c1c, #c62828, #880e4f);
+}
+
+.mpago-card-visual--amex {
+  background: linear-gradient(135deg, #004d40, #00695c, #00897b);
+}
+
+.mpago-card-chip {
+  width: 34px;
+  height: 26px;
+  background: linear-gradient(135deg, #d0b412, #f5e642);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mpago-chip-inner {
+  width: 20px;
+  height: 14px;
+  border: 1.5px solid rgba(0,0,0,0.25);
+  border-radius: 3px;
+}
+
+.mpago-card-number {
+  font-size: 15px;
+  font-family: monospace;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 0.1em;
+}
+
+.mpago-card-bottom {
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+}
+
+.mpago-card-label {
+  display: block;
+  font-size: 9px;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+
+.mpago-card-val {
+  font-size: 12px;
+  color: #fff;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.mpago-brand {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.05em;
+}
+
+/* FORM */
+.mpago-form {
+  padding: 0 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mpago-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mpago-field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mpago-field input {
+  background: #1e1e1e;
+  border: 0.5px solid #333;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: monospace;
+}
+
+.mpago-field input:focus {
+  border-color: #d0b412;
+}
+
+.mpago-input--error {
+  border-color: #ff4757 !important;
+}
+
+.mpago-error {
+  font-size: 11px;
+  color: #ff4757;
+}
+
+.mpago-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.mpago-btn-pagar {
+  background: #d0b412;
+  border: none;
+  border-radius: 10px;
+  color: #000;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 14px;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.mpago-btn-pagar:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.mpago-btn-pagar:active {
+  transform: translateY(0);
+}
+
+.mpago-disclaimer {
+  text-align: center;
+  font-size: 11px;
+  color: #444;
+  margin: 0;
+}
+
+/* ESTADOS: procesando / exito */
+.mpago-estado {
+  padding: 40px 24px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.mpago-estado p {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.mpago-estado span {
+  font-size: 13px;
+  color: #666;
+}
+
+/* Spinner */
+.mpago-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #2a2a2a;
+  border-top-color: #d0b412;
+  border-radius: 50%;
+  animation: mpago-spin 0.8s linear infinite;
+}
+
+@keyframes mpago-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Check de éxito */
+.mpago-check {
+  width: 56px;
+  height: 56px;
+  background: #d0b412;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #000;
+  font-weight: 700;
+  animation: mpago-pop 0.3s ease;
+}
+
+@keyframes mpago-pop {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
