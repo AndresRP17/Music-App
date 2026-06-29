@@ -148,7 +148,7 @@ function Publicidad({ onCerrar }) {
             <div style={{ fontSize: '36px', marginBottom: '12px' }}>👑</div>
             <h3 style={{ margin: '0 0 8px', color: 'white' }}>Unite a nuestra comunidad</h3>
             <p style={{ fontSize: '13px', color: '#aaa', marginBottom: '20px' }}>
-              Aprovecha nuestra oferta con un mes gratis haciendote premium
+              Haz click en configuracion y aprovecha nuestra oferta con un mes gratis haciendote premium
             </p>
             <div style={{ display: 'flex', gap: '10px' }}>
               <button onClick={onCerrar} style={{

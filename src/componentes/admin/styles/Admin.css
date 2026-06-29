@@ -1,0 +1,230 @@
+/* ===== ADMIN DASHBOARD ===== */
+
+.admin-dashboard-container {
+  padding: 24px;
+  color: white;
+}
+
+/* HEADER */
+.admin-header {
+  margin-bottom: 24px;
+}
+
+.admin-header h1 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.admin-header .subtitle {
+  color: #888;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* TARJETAS RÁPIDAS */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.stat-card {
+  background: #1a1a1a;
+  border: 0.5px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.stat-card h3 {
+  font-size: 12px;
+  font-weight: 500;
+  color: #888;
+  margin: 0 0 4px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stat-number {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  color: #fff;
+}
+
+.stat-icon {
+  font-size: 26px;
+  flex-shrink: 0;
+}
+
+/* ROLES BADGES */
+.roles-badges {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.role-badge {
+  font-size: 0.82rem;
+  background: #1a1a1a;
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-weight: 600;
+}
+
+.role-badge--admin {
+  border: 1px solid #e70404;
+  color: #e70404;
+}
+
+.role-badge--premium {
+  border: 1px solid #d6e109;
+  color: #d6e109;
+}
+
+.role-badge--free {
+  border: 1px solid #555;
+  color: #aaa;
+}
+
+/* SECCIONES DE GRÁFICOS */
+.admin-charts-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.admin-rankings-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.graph-section {
+  background: #1a1a1a;
+  border: 0.5px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 450px;
+}
+
+.graph-section h2 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+}
+
+.graph-subtitle {
+  color: #888;
+  font-size: 12px;
+  margin: 0 0 20px 0;
+}
+
+.graph-chart-wrapper {
+  flex: 1;
+  position: relative;
+  margin-top: 20px;
+}
+
+/* LOADER */
+.loader {
+  color: #555;
+  font-size: 13px;
+  margin: auto;
+}
+
+/* RANKING: ÁLBUMES */
+.ranking-list {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ranking-item__header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.ranking-item__name {
+  color: #eee;
+  font-size: 0.9rem;
+}
+
+.ranking-item__count {
+  color: #1db954;
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+.ranking-item__bar-track {
+  background: #222;
+  border-radius: 4px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.ranking-item__bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1db954, #d6e109);
+  border-radius: 4px;
+  transition: width 0.8s ease;
+}
+
+/* RANKING: GÉNEROS */
+.genres-list {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.genre-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #1a1a1a;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.genre-item__number {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.85rem;
+  color: #000;
+  flex-shrink: 0;
+}
+
+.genre-item__name {
+  margin: 0;
+  color: #eee;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.genre-item__count {
+  margin: 0;
+  color: #888;
+  font-size: 0.8rem;
+}
+
+.genre-item__pct {
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-left: auto;
+}

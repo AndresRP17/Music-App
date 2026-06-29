@@ -142,6 +142,17 @@ const Favorites = ({ reproducirLista, pausar }) => {
     </div>
   );
 
+
+  if (!esPremium) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', color: 'white', gap: '16px' }}>
+      <span style={{ fontSize: '48px' }}>🔒</span>
+      <h2>Función exclusiva Premium</h2>
+      <p style={{ color: '#aaa' }}>Necesitás una cuenta Premium para acceder a tus favoritos.</p>
+    </div>
+  );
+}
+
   return (
     <div className={`fav-container${esPremium ? ' is-premium' : ''}`}>
       {mostrarPublicidad && <Publicidad onCerrar={cerrarYContinuar} />}

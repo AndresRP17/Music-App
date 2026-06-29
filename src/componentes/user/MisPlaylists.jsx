@@ -164,6 +164,9 @@ const MisPlaylists = () => {
   const role = localStorage.getItem("role") || "user";
   const esPremium = role === "premium" || role === "admin";
 
+
+
+
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '1.4rem', fontWeight: 600, background: '#121212' }}>
       {/* 🌟 CAMBIO ACÁ: Color dinámico directo en el estilo del párrafo */}
@@ -172,8 +175,20 @@ const MisPlaylists = () => {
       </p>
     </div>
   );
+
+
 }
 
+
+if (!esPremium) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', color: 'white', gap: '16px' }}>
+      <span style={{ fontSize: '48px' }}>🔒</span>
+      <h2>Función exclusiva Premium</h2>
+      <p style={{ color: '#aaa' }}>Necesitás una cuenta Premium para acceder a tus playlists.</p>
+    </div>
+  );
+}
 
   return (
     <div style={{ padding: '40px', minHeight: '100vh', color: 'white' }}>

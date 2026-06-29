@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Doughnut, Bar } from "react-chartjs-2";
-import {Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement,} from "chart.js";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from "chart.js";
+import "./styles/Admin.css";
+
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
 function Admin() {
@@ -12,7 +14,6 @@ function Admin() {
 
   // EFFECT 1: Géneros globales de Deezer
   useEffect(() => {
-    
     fetch("/deezer/genre")
       .then((res) => res.json())
       .then((data) => {
@@ -32,7 +33,6 @@ function Admin() {
 
   // EFFECT 2: Estadísticas globales — todos los usuarios + favoritos + playlists
   useEffect(() => {
-    
     const token = localStorage.getItem('token');
     const headers = { Authorization: `Bearer ${token}` };
 
@@ -48,7 +48,6 @@ function Admin() {
           return;
         }
 
-        // Conteo por rol
         const admins  = usuarios.filter(u => u.role === 'admin').length;
         const premium = usuarios.filter(u => u.role === 'premium').length;
         const users   = usuarios.filter(u => u.role === 'user').length;
@@ -170,6 +169,7 @@ function Admin() {
   };
 
   const MEDAL = ["🥇","🥈","🥉","4️⃣","5️⃣"];
+  const GENRE_COLORS = ["#1db954","#d6e109","#e70404","#be1588","#0e7187"];
 
   return (
     <div className="admin-dashboard-container">
@@ -192,7 +192,6 @@ function Admin() {
           </div>
         </div>
 
-        {/* CARD USUARIOS TOTALES */}
         <div className="stat-card">
           <span className="stat-icon">👥</span>
           <div>
@@ -203,7 +202,6 @@ function Admin() {
           </div>
         </div>
 
-        {/* CARD BREAKDOWN DE ROLES */}
         <div className="stat-card" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span className="stat-icon">🎭</span>
@@ -212,14 +210,14 @@ function Admin() {
           {loadingStats ? (
             <p className="stat-number">...</p>
           ) : (
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '0.82rem', background: '#1a1a1a', borderRadius: '20px', padding: '4px 10px', border: '1px solid #e70404', color: '#e70404', fontWeight: 600 }}>
+            <div className="roles-badges">
+              <span className="role-badge role-badge--admin">
                 👑 {rolesStats.admins} admin{rolesStats.admins !== 1 ? 's' : ''}
               </span>
-              <span style={{ fontSize: '0.82rem', background: '#1a1a1a', borderRadius: '20px', padding: '4px 10px', border: '1px solid #d6e109', color: '#d6e109', fontWeight: 600 }}>
+              <span className="role-badge role-badge--premium">
                 ⭐ {rolesStats.premium} premium
               </span>
-              <span style={{ fontSize: '0.82rem', background: '#1a1a1a', borderRadius: '20px', padding: '4px 10px', border: '1px solid #555', color: '#aaa', fontWeight: 600 }}>
+              <span className="role-badge role-badge--free">
                 🎵 {rolesStats.users} gratis
               </span>
             </div>
@@ -236,27 +234,27 @@ function Admin() {
       </section>
 
       {/* FILA 1: Dona global + Barras de artistas */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "30px", marginTop: "30px" }}>
+      <div className="admin-charts-row">
 
-        <section className="graph-section" style={{ margin: 0, display: "flex", flexDirection: "column", minHeight: "450px" }}>
+        <section className="graph-section">
           <h2>🎵 Cuota de Mercado por Género</h2>
           <p className="graph-subtitle">Porcentaje estimado de reproducciones en la plataforma</p>
           {loadingChart ? (
-            <div className="loader" style={{ margin: "auto" }}>Mapeando base de datos de géneros...</div>
+            <div className="loader">Mapeando base de datos de géneros...</div>
           ) : (
-            <div style={{ flex: 1, position: "relative", marginTop: "20px" }}>
+            <div className="graph-chart-wrapper">
               <Doughnut data={dataForChart} options={chartOptions} />
             </div>
           )}
         </section>
 
-        <section className="graph-section" style={{ margin: 0, display: "flex", flexDirection: "column", minHeight: "450px" }}>
+        <section className="graph-section">
           <h2>🎤 Artistas Más Guardados</h2>
           <p className="graph-subtitle">Top global de todos los usuarios</p>
           {loadingStats ? (
-            <div className="loader" style={{ margin: "auto" }}>Analizando la plataforma...</div>
+            <div className="loader">Analizando la plataforma...</div>
           ) : barData ? (
-            <div style={{ flex: 1, position: "relative", marginTop: "20px" }}>
+            <div className="graph-chart-wrapper">
               <Bar data={barData} options={barOptions} />
             </div>
           ) : (
@@ -268,32 +266,23 @@ function Admin() {
 
       {/* FILA 2: Rankings de álbumes y géneros globales */}
       {!loadingStats && userStats && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "30px", marginTop: "30px" }}>
+        <div className="admin-rankings-row">
 
-          <section className="graph-section" style={{ margin: 0 }}>
+          <section className="graph-section">
             <h2>💿 Álbumes Más Guardados</h2>
             <p className="graph-subtitle">Top global de todos los usuarios</p>
-            <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", gap: "12px" }}>
-              {userStats.topAlbums.length === 0 && <p style={{ color: "#aaa" }}>Sin datos.</p>}
+            <div className="ranking-list">
+              {userStats.topAlbums.length === 0 && <p className="detalle-card__empty">Sin datos.</p>}
               {userStats.topAlbums.map(([album, count], i) => {
                 const pct = Math.round((count / userStats.total) * 100);
                 return (
                   <div key={album}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
-                      <span style={{ color: "#eee", fontSize: "0.9rem" }}>
-                        {MEDAL[i]} {album}
-                      </span>
-                      <span style={{ color: "#1db954", fontWeight: "bold", fontSize: "0.85rem" }}>
-                        {count} canción{count !== 1 ? "es" : ""}
-                      </span>
+                    <div className="ranking-item__header">
+                      <span className="ranking-item__name">{MEDAL[i]} {album}</span>
+                      <span className="ranking-item__count">{count} canción{count !== 1 ? "es" : ""}</span>
                     </div>
-                    <div style={{ background: "#222", borderRadius: "4px", height: "6px", overflow: "hidden" }}>
-                      <div style={{
-                        width: `${pct}%`, height: "100%",
-                        background: "linear-gradient(90deg, #1db954, #d6e109)",
-                        borderRadius: "4px",
-                        transition: "width 0.8s ease"
-                      }} />
+                    <div className="ranking-item__bar-track">
+                      <div className="ranking-item__bar-fill" style={{ width: `${pct}%` }} />
                     </div>
                   </div>
                 );
@@ -301,41 +290,34 @@ function Admin() {
             </div>
           </section>
 
-          <section className="graph-section" style={{ margin: 0 }}>
+          <section className="graph-section">
             <h2>🎸 Géneros Más Populares</h2>
             <p className="graph-subtitle">Top global de todos los usuarios</p>
-            <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", gap: "14px" }}>
+            <div className="genres-list">
               {userStats.topGenres.length === 0 && (
-                <p style={{ color: "#aaa" }}>Sin géneros detectados.</p>
+                <p className="detalle-card__empty">Sin géneros detectados.</p>
               )}
-              {userStats.topGenres.map(([genre, count], i) => {
-                const colors = ["#1db954","#d6e109","#e70404","#be1588","#0e7187"];
-                return (
-                  <div key={genre} style={{
-                    display: "flex", alignItems: "center", gap: "14px",
-                    background: "#1a1a1a", borderRadius: "10px", padding: "12px 16px",
-                    border: `1px solid ${colors[i]}33`
-                  }}>
-                    <span style={{
-                      width: "36px", height: "36px", borderRadius: "50%",
-                      background: colors[i], display: "flex", alignItems: "center",
-                      justifyContent: "center", fontWeight: "bold", fontSize: "0.85rem",
-                      color: "#000", flexShrink: 0
-                    }}>
-                      {i + 1}
-                    </span>
-                    <div style={{ flex: 1 }}>
-                      <p style={{ margin: 0, color: "#eee", fontWeight: "600", fontSize: "0.95rem" }}>{genre}</p>
-                      <p style={{ margin: 0, color: "#888", fontSize: "0.8rem" }}>
-                        {count} canción{count !== 1 ? "es" : ""}
-                      </p>
-                    </div>
-                    <span style={{ color: colors[i], fontWeight: "bold", fontSize: "1.1rem" }}>
-                      {Math.round((count / userStats.total) * 100)}%
-                    </span>
+              {userStats.topGenres.map(([genre, count], i) => (
+                <div
+                  key={genre}
+                  className="genre-item"
+                  style={{ border: `1px solid ${GENRE_COLORS[i]}33` }}
+                >
+                  <span
+                    className="genre-item__number"
+                    style={{ background: GENRE_COLORS[i] }}
+                  >
+                    {i + 1}
+                  </span>
+                  <div style={{ flex: 1 }}>
+                    <p className="genre-item__name">{genre}</p>
+                    <p className="genre-item__count">{count} canción{count !== 1 ? "es" : ""}</p>
                   </div>
-                );
-              })}
+                  <span className="genre-item__pct" style={{ color: GENRE_COLORS[i] }}>
+                    {Math.round((count / userStats.total) * 100)}%
+                  </span>
+                </div>
+              ))}
             </div>
           </section>
 

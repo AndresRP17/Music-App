@@ -1,0 +1,117 @@
+/* ===== LISTA USUARIOS ===== */
+
+.lista-usuarios-container {
+  padding: 24px;
+  color: white;
+}
+
+.lista-usuarios-container h1 {
+  font-size: 22px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.lista-usuarios-subtitle {
+  color: #888;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+/* GRID DE CARDS */
+.usuarios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+/* CARD INDIVIDUAL */
+.usuario-card {
+  background: #1a1a1a;
+  border: 0.5px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 16px 20px;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.usuario-card:hover {
+  border-color: #444;
+}
+
+.usuario-card--admin {
+  border-color: #FAC775;
+}
+
+.usuario-card--admin:hover {
+  border-color: #FAC775;
+}
+
+/* AVATAR + ÍCONO */
+.usuario-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.usuario-card__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.usuario-card__role-icon {
+  font-size: 20px;
+}
+
+/* EMAIL */
+.usuario-card__email {
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* BADGES DE ROL */
+.usuario-card__badges {
+  margin-bottom: 12px;
+}
+
+.role-badge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.role-badge--admin {
+  background: rgba(250, 199, 117, 0.15);
+  color: #FAC775;
+}
+
+.role-badge--premium {
+  background: rgba(181, 212, 244, 0.15);
+  color: #B5D4F4;
+}
+
+.role-badge--free {
+  background: rgba(255, 255, 255, 0.08);
+  color: #888;
+  font-weight: normal;
+}
+
+/* LINK VER ESTADÍSTICAS */
+.usuario-card__footer {
+  color: #555;
+  font-size: 11px;
+  margin-top: 8px;
+  text-align: right;
+}

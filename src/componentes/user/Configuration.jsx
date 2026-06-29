@@ -58,7 +58,7 @@ function Configuracion() {
     }
   };
 const activarPremium = async () => {
-    // 🌟 BYPASS PARA NETLIFY (Modo Demo)
+    //  BYPASS PARA NETLIFY (Modo Demo)
     if (window.location.hostname.includes("netlify")) {
       localStorage.setItem("role", "premium");
       setRole("premium");
@@ -68,7 +68,7 @@ const activarPremium = async () => {
       return; // Corta acá para que no use el fetch real
     }
 
-    // 🖥️ CÓDIGO REAL PARA LOCALHOST
+    //  CÓDIGO REAL PARA LOCALHOST
     try {
       const res = await fetch('/api/music_users/role', {
         method: "post",

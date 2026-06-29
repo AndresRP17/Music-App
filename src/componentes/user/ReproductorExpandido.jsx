@@ -20,7 +20,6 @@ function parseLRC(lrc) {
 }
 
 const SKELETON_WIDTHS = Array.from({ length: 12 }, () => `${55 + Math.random() * 40}%`);
-const role = localStorage.getItem("role") || "user";
 
 function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual, onAnterior, onSiguiente, onCerrar }) {
   const [letra, setLetra] = useState(null);
@@ -35,6 +34,7 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
   const progressRef = useRef(null);
   const letraContenedorRef = useRef(null);
   const lineaActivaRef = useRef(null);
+  const role = localStorage.getItem("role") || "user";
 
   const hayAnterior = listaActual.length > 0 && indexActual > 0;
   const haySiguiente = listaActual.length > 0 && indexActual < listaActual.length - 1;

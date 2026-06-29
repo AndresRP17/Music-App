@@ -15,6 +15,7 @@ const MIS_ÁLBUMES_ELEGIDOS = {
     { name: "Somewhere in Time", artist: "Iron Maiden" },
     { name: "Peace sells... but whos buying?", artist: "Megadeth" },
     { name: "Master of Puppets", artist: "Metallica" },
+    {name:"Post Human: Nex Gen", artist:"Bring Me the Horizon"},
     { name: "Discovery", artist: "Daft Punk" },
     { name: "Debí tirar más fotos", artist: "Bad Bunny" }
   ],
@@ -25,7 +26,7 @@ const MIS_ÁLBUMES_ELEGIDOS = {
     { name: "Appetite for Destruction", artist: "Guns N' Roses" },
     { name: "The Dark Side of the Moon", artist: "Pink Floyd" },
     { name: "Highway to hell", artist: "AC/DC" },
-    { name: "Abbey Road", artist: "The Beatles" },
+    { name: "Dark Necessities", artist: "Red Hot Chili Peppers" },
     { name: "Phobia", artist: "Breaking Benjamin" },
     { name: "Nevermind", artist: "Nirvana" },
     { name: "A Night at the Opera", artist: "Queen" },
@@ -41,6 +42,7 @@ const MIS_ÁLBUMES_ELEGIDOS = {
     { name: "Nightmare", artist: "Avenged Sevenfold" },
     { name: "Paranoid", artist: "Black Sabbath" },
     { name: "The Number of the Beast", artist: "Iron Maiden" },
+    { name: "Killing Is My Business...And Business Is Good!", artist: "Megadeth" },
     { name: "Master of Puppets", artist: "Metallica" },
     { name: "Rust in Peace", artist: "Megadeth" },
     { name: "British Steel", artist: "Judas Priest" },
@@ -53,7 +55,6 @@ const MIS_ÁLBUMES_ELEGIDOS = {
     { name: "Heaven and Hell", artist: "Black Sabbath" },
     { name: "Holy Diver", artist: "Dio" },
     { name: "Ace of Spades", artist: "Motörhead" },
-    { name: "Killing Is My Business...And Business Is Good!", artist: "Megadeth" }
   ],
   rnb: [
     { name: "After Hours", artist: "The Weeknd" },
@@ -71,10 +72,9 @@ const MIS_ÁLBUMES_ELEGIDOS = {
   ],
   pop: [
     { name: "Thriller", artist: "Michael Jackson" },
-    { name: "Future Nostalgia", artist: "Dua Lipa" },
-    { name: "Fine Line", artist: "Harry Styles" },
-    { name: "Random Access Memories", artist: "Daft Punk" },
     { name: "Bad", artist: "Michael Jackson" },
+    { name: "Future Nostalgia", artist: "Dua Lipa" },
+    { name: "Random Access Memories", artist: "Daft Punk" },
     { name: "Midnights", artist: "Taylor Swift" },
     { name: "Currents", artist: "Tame Impala" },
     { name: "Sour", artist: "Olivia Rodrigo" },
@@ -82,7 +82,35 @@ const MIS_ÁLBUMES_ELEGIDOS = {
     { name: "24K Magic", artist: "Bruno Mars" },
     { name: "When We All Fall Asleep, Where Do We Go?", artist: "Billie Eilish" },
     { name: "Ray of Light", artist: "Madonna" }
-  ]
+  ],
+
+  numetal: [
+  { name: "Hybrid Theory", artist: "Linkin Park" },
+  { name: "Meteora", artist: "Linkin Park" },
+  { name: "Issues", artist: "Korn" },
+  { name: "Follow the Leader", artist: "Korn" },
+  { name: "Significant Other", artist: "Limp Bizkit" },
+  { name: "Chocolate Starfish and the Hot Dog Flavored Water", artist: "Limp Bizkit" },
+  { name: "Vol. 3: The Subliminal Verses", artist: "Slipknot" },
+  { name: "Iowa", artist: "Slipknot" },
+  { name: "White Pony", artist: "Deftones" },
+  { name: "Adrenaline", artist: "Deftones" },
+  { name: "Toxicity", artist: "System of a Down" },
+  { name: "Mezmerize", artist: "System of a Down" },
+],
+metalcore: [
+  { name: "Sempiternal", artist: "Bring Me the Horizon" },
+  { name: "True power", artist: "I prevail" },
+  { name: "Violent Nature", artist: "I prevail" },
+  { name: "Pray", artist: "Vana" },
+  { name: "That's The Spirit", artist: "Bring me the Horizon" },
+  { name: "BITE BACK", artist: "Vana" },
+  { name: "Reckless & Relentless", artist: "Asking Alexandria" },
+  { name: "Step 2 Rhythm", artist: "Turnstile" },
+  { name: "The Devil and God Are Raging Inside Me", artist: "Brand New" },
+  { name: "Waking the Fallen", artist: "Avenged Sevenfold" },
+  { name: "City of Evil", artist: "Avenged Sevenfold" }
+]
 };
 
 function Home() {
@@ -94,6 +122,8 @@ function Home() {
   const [metalAlbums, setMetalAlbums] = useState([]);
   const [rnbAlbums, setRnbAlbums] = useState([]);
   const [popAlbums, setPopAlbums] = useState([]);
+  const [numetalAlbums, setNumetalAlbums] = useState([]);
+  const [metalcoreAlbums, setMetalcoreAlbums] = useState([]);
   const [loading, setLoading] = useState(true);
   const [heroIndex, setHeroIndex] = useState(0);
 
@@ -105,6 +135,8 @@ function Home() {
   const metalRef = useRef(null);
   const rnbRef = useRef(null);
   const popRef = useRef(null);
+  const numetalRef = useRef(null);
+  const metalcoreRef = useRef(null);
 
   const API_KEY = 'aa182e9e95ab101a5f7ae68eba441e09';
 
@@ -196,12 +228,14 @@ function Home() {
           return Promise.all(promesas);
         };
 
-        const [globalData, rockData, metalData, rnbData, popData] = await Promise.all([
+        const [globalData, rockData, metalData, rnbData, popData, numetalData, metalcoreData] = await Promise.all([
           obtenerInfoPersonalizada(MIS_ÁLBUMES_ELEGIDOS.global),
           obtenerInfoPersonalizada(MIS_ÁLBUMES_ELEGIDOS.rock),
           obtenerInfoPersonalizada(MIS_ÁLBUMES_ELEGIDOS.metal),
           obtenerInfoPersonalizada(MIS_ÁLBUMES_ELEGIDOS.rnb),
-          obtenerInfoPersonalizada(MIS_ÁLBUMES_ELEGIDOS.pop)
+          obtenerInfoPersonalizada(MIS_ÁLBUMES_ELEGIDOS.pop),
+          obtenerInfoPersonalizada(MIS_ÁLBUMES_ELEGIDOS.numetal),
+          obtenerInfoPersonalizada(MIS_ÁLBUMES_ELEGIDOS.metalcore),
         ]);
 
         setTopAlbums(globalData);
@@ -209,6 +243,8 @@ function Home() {
         setMetalAlbums(metalData);
         setRnbAlbums(rnbData);
         setPopAlbums(popData);
+        setNumetalAlbums(numetalData);
+        setMetalcoreAlbums(metalcoreData);
         setLoading(false);
       } catch (error) {
         console.error("Error cargando el inicio:", error);
@@ -337,6 +373,8 @@ function Home() {
       {renderSection("Puro Metal", metalAlbums, metalRef)}
       {renderSection("Vibras R&B", rnbAlbums, rnbRef)}
       {renderSection("Lo mejor del Pop", popAlbums, popRef)}
+      {renderSection("Nu Metal", numetalAlbums, numetalRef)}
+{renderSection("Metalcore", metalcoreAlbums, metalcoreRef)}
     </div>
   );
 }
