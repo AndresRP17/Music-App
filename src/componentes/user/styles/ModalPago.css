@@ -1,5 +1,8 @@
-/* ===== MODAL PAGO ===== */
+/* ============================================ */
+/* ===== MODAL PAGO - COMPLETO Y OPTIMIZADO ===== */
+/* ============================================ */
 
+/* ===== OVERLAY ===== */
 .mpago-overlay {
   position: fixed;
   inset: 0;
@@ -8,37 +11,44 @@
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  padding: 16px;
+  padding: 12px;
+  overflow-y: auto; /* El overlay maneja el scroll */
+  -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
 }
 
+/* ===== MODAL PRINCIPAL ===== */
 .mpago-modal {
   background: #161616;
   border: 0.5px solid #2a2a2a;
   border-radius: 16px;
   width: 100%;
   max-width: 420px;
-  overflow: hidden;
+  overflow: visible; /* SIN scroll propio */
+  margin: auto;
 }
 
-/* HEADER */
+/* ============================================ */
+/* ===== HEADER ===== */
+/* ============================================ */
+
 .mpago-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 20px 24px 0;
+  padding: 16px 18px 0;
 }
 
 .mpago-eyebrow {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   color: #d0b412;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin: 0 0 4px;
+  margin: 0 0 2px;
 }
 
 .mpago-title {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: #fff;
   margin: 0;
@@ -48,24 +58,38 @@
   background: none;
   border: none;
   color: #666;
-  font-size: 22px;
+  font-size: 20px;
   cursor: pointer;
-  padding: 0;
+  padding: 4px;
   line-height: 1;
-  transition: color 0.15s;
+  transition: color 0.15s, transform 0.15s;
+  margin-top: -4px;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .mpago-cerrar:hover {
   color: #fff;
 }
 
-/* PRECIO */
+.mpago-cerrar:active {
+  transform: scale(0.9);
+}
+
+/* ============================================ */
+/* ===== PRECIO ===== */
+/* ============================================ */
+
 .mpago-precio-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 24px;
-  margin: 16px 24px;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+  padding: 14px 16px;
+  margin: 12px 16px;
   background: #1e1e1e;
   border-radius: 10px;
   border: 0.5px solid #2a2a2a;
@@ -78,35 +102,39 @@
 }
 
 .mpago-precio-label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: #fff;
 }
 
 .mpago-precio-desc {
-  font-size: 11px;
+  font-size: 10px;
   color: #666;
 }
 
 .mpago-precio-valor {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   color: #d0b412;
+  text-align: left;
 }
 
 .mpago-precio-valor span {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 400;
   color: #666;
 }
 
-/* TARJETA VISUAL */
+/* ============================================ */
+/* ===== TARJETA VISUAL ===== */
+/* ============================================ */
+
 .mpago-card-visual {
-  margin: 0 24px 20px;
+  margin: 0 16px 16px;
   background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
   border-radius: 12px;
-  padding: 20px;
-  height: 140px;
+  padding: 16px;
+  height: 120px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -118,10 +146,10 @@
 .mpago-card-visual::before {
   content: "";
   position: absolute;
-  top: -40px;
-  right: -40px;
-  width: 150px;
-  height: 150px;
+  top: -30px;
+  right: -30px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.04);
 }
@@ -139,46 +167,47 @@
 }
 
 .mpago-card-chip {
-  width: 34px;
-  height: 26px;
+  width: 30px;
+  height: 22px;
   background: linear-gradient(135deg, #d0b412, #f5e642);
-  border-radius: 5px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .mpago-chip-inner {
-  width: 20px;
-  height: 14px;
-  border: 1.5px solid rgba(0,0,0,0.25);
-  border-radius: 3px;
+  width: 18px;
+  height: 12px;
+  border: 1.5px solid rgba(0, 0, 0, 0.25);
+  border-radius: 2px;
 }
 
 .mpago-card-number {
-  font-size: 15px;
+  font-size: 13px;
   font-family: monospace;
   color: rgba(255, 255, 255, 0.9);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
+  margin: 4px 0;
 }
 
 .mpago-card-bottom {
   display: flex;
-  gap: 20px;
+  gap: 16px;
   align-items: flex-end;
 }
 
 .mpago-card-label {
   display: block;
-  font-size: 9px;
-  color: rgba(255,255,255,0.4);
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.4);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 
 .mpago-card-val {
-  font-size: 12px;
+  font-size: 10px;
   color: #fff;
   font-weight: 500;
   text-transform: uppercase;
@@ -186,28 +215,31 @@
 
 .mpago-brand {
   margin-left: auto;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 800;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
   letter-spacing: 0.05em;
 }
 
-/* FORM */
+/* ============================================ */
+/* ===== FORMULARIO ===== */
+/* ============================================ */
+
 .mpago-form {
-  padding: 0 24px 24px;
+  padding: 0 16px 16px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .mpago-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .mpago-field label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: #888;
   text-transform: uppercase;
@@ -218,16 +250,28 @@
   background: #1e1e1e;
   border: 0.5px solid #333;
   border-radius: 8px;
-  padding: 10px 12px;
+  padding: 9px 12px;
   color: #fff;
-  font-size: 14px;
+  font-size: 13px;
   outline: none;
   transition: border-color 0.15s;
   font-family: monospace;
+  -webkit-appearance: none;
+  min-height: 44px;
 }
 
 .mpago-field input:focus {
   border-color: #d0b412;
+}
+
+.mpago-field input:focus-visible {
+  outline: 2px solid #d0b412;
+  outline-offset: 2px;
+}
+
+.mpago-field input::placeholder {
+  color: #444;
+  font-size: 12px;
 }
 
 .mpago-input--error {
@@ -235,15 +279,44 @@
 }
 
 .mpago-error {
-  font-size: 11px;
+  font-size: 10px;
   color: #ff4757;
 }
 
 .mpago-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: 2fr 1fr;
+  gap: 10px;
 }
+
+
+
+
+/* ===== CVV MUY PEQUEÑO ===== */
+.mpago-row .mpago-field:last-child input {
+  min-height: 36px;
+  padding: 4px 6px;
+  font-size: 11px;
+  max-width: 80px;
+  text-align: center;
+  letter-spacing: 0.3em;
+  border-radius: 6px;
+}
+
+/* ===== FECHA MÁS GRANDE ===== */
+.mpago-row .mpago-field:first-child input {
+  min-height: 36px;
+  padding: 4px 6px;
+  font-size: 11px;
+  max-width: 80px;
+  text-align: center;
+  letter-spacing: 0.3em;
+  border-radius: 6px;
+}
+
+/* ============================================ */
+/* ===== BOTÓN PAGAR ===== */
+/* ============================================ */
 
 .mpago-btn-pagar {
   background: #d0b412;
@@ -252,54 +325,59 @@
   color: #000;
   font-size: 14px;
   font-weight: 700;
-  padding: 14px;
+  padding: 13px;
   cursor: pointer;
-  margin-top: 4px;
+  margin-top: 2px;
   transition: opacity 0.15s, transform 0.1s;
+  width: 100%;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 48px;
 }
 
 .mpago-btn-pagar:hover {
   opacity: 0.9;
-  transform: translateY(-1px);
 }
 
 .mpago-btn-pagar:active {
-  transform: translateY(0);
+  transform: scale(0.97);
 }
 
 .mpago-disclaimer {
   text-align: center;
-  font-size: 11px;
+  font-size: 10px;
   color: #444;
   margin: 0;
 }
 
-/* ESTADOS: procesando / exito */
+/* ============================================ */
+/* ===== ESTADOS: PROCESANDO / ÉXITO ===== */
+/* ============================================ */
+
 .mpago-estado {
-  padding: 40px 24px 48px;
+  padding: 32px 18px 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   text-align: center;
 }
 
 .mpago-estado p {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: #fff;
   margin: 0;
 }
 
 .mpago-estado span {
-  font-size: 13px;
+  font-size: 12px;
   color: #666;
 }
 
-/* Spinner */
+/* ===== SPINNER ===== */
 .mpago-spinner {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border: 3px solid #2a2a2a;
   border-top-color: #d0b412;
   border-radius: 50%;
@@ -307,26 +385,460 @@
 }
 
 @keyframes mpago-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* Check de éxito */
+/* ===== CHECK DE ÉXITO ===== */
 .mpago-check {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   background: #d0b412;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+  font-size: 22px;
   color: #000;
   font-weight: 700;
   animation: mpago-pop 0.3s ease;
 }
 
 @keyframes mpago-pop {
-  0% { transform: scale(0.5); opacity: 0; }
-  70% { transform: scale(1.15); }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ============================================ */
+/* ===== RESPONSIVE: TABLETS (600px+) ===== */
+/* ============================================ */
+
+@media (min-width: 600px) {
+  .mpago-overlay {
+    padding: 20px;
+  }
+
+  .mpago-header {
+    padding: 20px 24px 0;
+  }
+
+  .mpago-eyebrow {
+    font-size: 11px;
+  }
+
+  .mpago-title {
+    font-size: 18px;
+  }
+
+  .mpago-cerrar {
+    font-size: 22px;
+  }
+
+  .mpago-precio-row {
+    flex-direction: row;
+    align-items: center;
+    padding: 16px 24px;
+    margin: 16px 24px;
+  }
+
+  .mpago-precio-label {
+    font-size: 13px;
+  }
+
+  .mpago-precio-desc {
+    font-size: 11px;
+  }
+
+  .mpago-precio-valor {
+    font-size: 22px;
+    text-align: right;
+  }
+
+  .mpago-precio-valor span {
+    font-size: 13px;
+  }
+
+  .mpago-card-visual {
+    margin: 0 24px 20px;
+    padding: 20px;
+    height: 140px;
+  }
+
+  .mpago-card-chip {
+    width: 34px;
+    height: 26px;
+    border-radius: 5px;
+  }
+
+  .mpago-chip-inner {
+    width: 20px;
+    height: 14px;
+  }
+
+  .mpago-card-number {
+    font-size: 15px;
+    letter-spacing: 0.1em;
+  }
+
+  .mpago-card-val {
+    font-size: 12px;
+  }
+
+  .mpago-brand {
+    font-size: 13px;
+  }
+
+  .mpago-form {
+    padding: 0 24px 24px;
+    gap: 14px;
+  }
+
+  .mpago-field {
+    gap: 6px;
+  }
+
+  .mpago-field label {
+    font-size: 11px;
+  }
+
+  .mpago-field input {
+    padding: 10px 12px;
+    font-size: 14px;
+    min-height: 44px;
+  }
+
+  .mpago-row {
+    gap: 12px;
+  }
+
+  .mpago-btn-pagar {
+    font-size: 15px;
+    padding: 14px;
+    min-height: 48px;
+  }
+
+  .mpago-disclaimer {
+    font-size: 11px;
+  }
+
+  .mpago-estado {
+    padding: 40px 24px 48px;
+    gap: 12px;
+  }
+
+  .mpago-estado p {
+    font-size: 18px;
+  }
+
+  .mpago-estado span {
+    font-size: 13px;
+  }
+
+  .mpago-spinner {
+    width: 48px;
+    height: 48px;
+  }
+
+  .mpago-check {
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
+  }
+}
+
+/* ============================================ */
+/* ===== RESPONSIVE: ESCRITORIO (1024px+) ===== */
+/* ============================================ */
+
+@media (min-width: 1024px) {
+  .mpago-overlay {
+    padding: 40px;
+    align-items: center;
+  }
+
+  .mpago-modal {
+    max-width: 440px;
+    border-radius: 20px;
+    max-height: none; /* SIN límite de altura */
+    overflow: visible; /* SIN scroll propio */
+  }
+
+  .mpago-header {
+    padding: 24px 28px 0;
+  }
+
+  .mpago-title {
+    font-size: 20px;
+  }
+
+  .mpago-precio-row {
+    padding: 18px 28px;
+    margin: 18px 28px;
+  }
+
+  .mpago-card-visual {
+    margin: 0 28px 24px;
+    padding: 24px;
+    height: 160px;
+    border-radius: 14px;
+  }
+
+  .mpago-card-number {
+    font-size: 17px;
+  }
+
+  .mpago-form {
+    padding: 0 28px 28px;
+    gap: 16px;
+  }
+
+  .mpago-field input {
+    padding: 12px 14px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 1px solid red;
+  }
+
+  .mpago-btn-pagar {
+    font-size: 16px;
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .mpago-btn-pagar:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+}
+
+/* ============================================ */
+/* ===== PANTALLAS MUY PEQUEÑAS (<360px) ===== */
+/* ============================================ */
+
+@media (max-width: 359px) {
+  .mpago-overlay {
+    padding: 8px;
+  }
+
+  .mpago-header {
+    padding: 12px 14px 0;
+  }
+
+  .mpago-title {
+    font-size: 14px;
+  }
+
+  .mpago-cerrar {
+    font-size: 18px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .mpago-precio-row {
+    padding: 10px 12px;
+    margin: 8px 12px;
+    border-radius: 8px;
+  }
+
+  .mpago-precio-valor {
+    font-size: 17px;
+  }
+
+  .mpago-card-visual {
+    margin: 0 12px 12px;
+    padding: 12px;
+    height: 100px;
+    border-radius: 10px;
+  }
+
+  .mpago-card-number {
+    font-size: 11px;
+  }
+
+  .mpago-card-bottom {
+    gap: 12px;
+  }
+
+  .mpago-card-val {
+    font-size: 9px;
+  }
+
+  .mpago-brand {
+    font-size: 10px;
+  }
+
+  .mpago-form {
+    padding: 0 12px 12px;
+    gap: 10px;
+  }
+
+  .mpago-field input {
+    padding: 7px 10px;
+    font-size: 12px;
+    min-height: 40px;
+  }
+
+  .mpago-row {
+    gap: 8px;
+  }
+
+  .mpago-btn-pagar {
+    font-size: 13px;
+    padding: 11px;
+    min-height: 44px;
+  }
+
+  .mpago-estado {
+    padding: 24px 14px 32px;
+  }
+
+  .mpago-estado p {
+    font-size: 14px;
+  }
+
+  .mpago-spinner {
+    width: 32px;
+    height: 32px;
+  }
+
+  .mpago-check {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+}
+
+/* ============================================ */
+/* ===== ORIENTACIÓN HORIZONTAL EN MÓVIL ===== */
+/* ============================================ */
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .mpago-overlay {
+    padding: 8px;
+    align-items: center;
+  }
+
+  .mpago-modal {
+    max-height: 98vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mpago-header {
+    padding: 10px 14px 0;
+  }
+
+  .mpago-title {
+    font-size: 15px;
+  }
+
+  .mpago-precio-row {
+    padding: 8px 12px;
+    margin: 8px 14px;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .mpago-precio-valor {
+    font-size: 18px;
+    text-align: right;
+  }
+
+  .mpago-card-visual {
+    margin: 0 14px 12px;
+    padding: 12px;
+    height: 90px;
+  }
+
+  .mpago-card-number {
+    font-size: 12px;
+  }
+
+  .mpago-form {
+    padding: 0 14px 12px;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .mpago-field input {
+    padding: 6px 10px;
+    font-size: 12px;
+    min-height: 36px;
+  }
+
+  .mpago-row {
+    gap: 8px;
+  }
+
+  .mpago-btn-pagar {
+    padding: 10px;
+    font-size: 13px;
+    min-height: 40px;
+  }
+
+  .mpago-estado {
+    padding: 16px 14px 24px;
+  }
+
+  .mpago-spinner {
+    width: 32px;
+    height: 32px;
+  }
+
+  .mpago-check {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+}
+
+/* ============================================ */
+/* ===== SOLO MÓVIL: SCROLL INTERNO ===== */
+/* ============================================ */
+
+@media (max-width: 767px) {
+  .mpago-modal {
+    max-height: 95vh;
+    overflow-y: auto; /* Scroll solo en móvil si es necesario */
+  }
+}
+
+/* ============================================ */
+/* ===== SCROLLBAR PERSONALIZADO (OPCIONAL) ===== */
+/* ============================================ */
+
+/* Personaliza la barra de scroll en móvil */
+@media (max-width: 767px) {
+  .mpago-modal::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .mpago-modal::-webkit-scrollbar-track {
+    background: #1a1a1a;
+  }
+
+  .mpago-modal::-webkit-scrollbar-thumb {
+    background: #d0b412;
+    border-radius: 10px;
+  }
+
+  .mpago-modal::-webkit-scrollbar-thumb:hover {
+    background: #e0c820;
+  }
+
+  /* Firefox */
+  .mpago-modal {
+    scrollbar-width: thin;
+    scrollbar-color: #d0b412 #1a1a1a;
+  }
 }

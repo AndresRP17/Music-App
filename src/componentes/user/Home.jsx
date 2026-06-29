@@ -53,6 +53,7 @@ const MIS_ÁLBUMES_ELEGIDOS = {
     { name: "Cowboys from Hell", artist: "Pantera" },
     { name: "Vulgar Display of Power", artist: "Pantera" },
     { name: "Heaven and Hell", artist: "Black Sabbath" },
+    {name: "Mate.Feed.Kill.Repeat", artist: "Slipknot"},
     { name: "Holy Diver", artist: "Dio" },
     { name: "Ace of Spades", artist: "Motörhead" },
   ],

@@ -151,7 +151,7 @@ function ModalPago({ onCerrar, onPagoExitoso }) {
         <div className="mpago-precio-row">
           <div className="mpago-precio-info">
             <span className="mpago-precio-label">Premium mensual sin imp.</span>
-            <span className="mpago-precio-desc">Sin anuncios · Playlists · Favoritos</span>
+            <span className="mpago-precio-desc">Sin anuncios · Playlists · Favoritos · Modo dorado</span>
           </div>
           <span className="mpago-precio-valor">$1.99<span>/mes</span></span>
         </div>
