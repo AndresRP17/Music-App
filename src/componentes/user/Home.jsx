@@ -15,7 +15,7 @@ const MIS_ÁLBUMES_ELEGIDOS = {
     { name: "Somewhere in Time", artist: "Iron Maiden" },
     { name: "Peace sells... but whos buying?", artist: "Megadeth" },
     { name: "Master of Puppets", artist: "Metallica" },
-    {name:"Post Human: Nex Gen", artist:"Bring Me the Horizon"},
+    { name: "Post Human: Nex Gen", artist: "Bring Me the Horizon" },
     { name: "Discovery", artist: "Daft Punk" },
     { name: "Debí tirar más fotos", artist: "Bad Bunny" }
   ],
@@ -53,7 +53,7 @@ const MIS_ÁLBUMES_ELEGIDOS = {
     { name: "Cowboys from Hell", artist: "Pantera" },
     { name: "Vulgar Display of Power", artist: "Pantera" },
     { name: "Heaven and Hell", artist: "Black Sabbath" },
-    {name: "Mate.Feed.Kill.Repeat", artist: "Slipknot"},
+    { name: "Mate.Feed.Kill.Repeat", artist: "Slipknot" },
     { name: "Holy Diver", artist: "Dio" },
     { name: "Ace of Spades", artist: "Motörhead" },
   ],
@@ -84,38 +84,36 @@ const MIS_ÁLBUMES_ELEGIDOS = {
     { name: "When We All Fall Asleep, Where Do We Go?", artist: "Billie Eilish" },
     { name: "Ray of Light", artist: "Madonna" }
   ],
-
   numetal: [
-  { name: "Hybrid Theory", artist: "Linkin Park" },
-  { name: "Meteora", artist: "Linkin Park" },
-  { name: "Issues", artist: "Korn" },
-  { name: "Follow the Leader", artist: "Korn" },
-  { name: "Significant Other", artist: "Limp Bizkit" },
-  { name: "Chocolate Starfish and the Hot Dog Flavored Water", artist: "Limp Bizkit" },
-  { name: "Vol. 3: The Subliminal Verses", artist: "Slipknot" },
-  { name: "Iowa", artist: "Slipknot" },
-  { name: "White Pony", artist: "Deftones" },
-  { name: "Adrenaline", artist: "Deftones" },
-  { name: "Toxicity", artist: "System of a Down" },
-  { name: "Mezmerize", artist: "System of a Down" },
-],
-metalcore: [
-  { name: "Sempiternal", artist: "Bring Me the Horizon" },
-  { name: "True power", artist: "I prevail" },
-  { name: "Violent Nature", artist: "I prevail" },
-  { name: "Pray", artist: "Vana" },
-  { name: "That's The Spirit", artist: "Bring me the Horizon" },
-  { name: "BITE BACK", artist: "Vana" },
-  { name: "Reckless & Relentless", artist: "Asking Alexandria" },
-  { name: "Step 2 Rhythm", artist: "Turnstile" },
-  { name: "The Devil and God Are Raging Inside Me", artist: "Brand New" },
-  { name: "Waking the Fallen", artist: "Avenged Sevenfold" },
-  { name: "City of Evil", artist: "Avenged Sevenfold" }
-]
+    { name: "Hybrid Theory", artist: "Linkin Park" },
+    { name: "Meteora", artist: "Linkin Park" },
+    { name: "Issues", artist: "Korn" },
+    { name: "Follow the Leader", artist: "Korn" },
+    { name: "Significant Other", artist: "Limp Bizkit" },
+    { name: "Chocolate Starfish and the Hot Dog Flavored Water", artist: "Limp Bizkit" },
+    { name: "Vol. 3: The Subliminal Verses", artist: "Slipknot" },
+    { name: "Iowa", artist: "Slipknot" },
+    { name: "White Pony", artist: "Deftones" },
+    { name: "Adrenaline", artist: "Deftones" },
+    { name: "Toxicity", artist: "System of a Down" },
+    { name: "Mezmerize", artist: "System of a Down" },
+  ],
+  metalcore: [
+    { name: "Sempiternal", artist: "Bring Me the Horizon" },
+    { name: "True power", artist: "I prevail" },
+    { name: "Violent Nature", artist: "I prevail" },
+    { name: "Pray", artist: "Vana" },
+    { name: "That's The Spirit", artist: "Bring me the Horizon" },
+    { name: "BITE BACK", artist: "Vana" },
+    { name: "Reckless & Relentless", artist: "Asking Alexandria" },
+    { name: "Step 2 Rhythm", artist: "Turnstile" },
+    { name: "The Devil and God Are Raging Inside Me", artist: "Brand New" },
+    { name: "Waking the Fallen", artist: "Avenged Sevenfold" },
+    { name: "City of Evil", artist: "Avenged Sevenfold" }
+  ]
 };
 
 function Home() {
-  // PASO 1: ESTADO INICIAL DEL ROL LEYENDO DEL STORAGE
   const [role, setRole] = useState(() => localStorage.getItem("role") || "user");
 
   const [topAlbums, setTopAlbums] = useState([]);
@@ -141,10 +139,8 @@ function Home() {
 
   const API_KEY = 'aa182e9e95ab101a5f7ae68eba441e09';
 
-  // Variable rápida para los condicionales
   const esPremium = role === "premium" || role === "admin";
 
-  //  PASO 2: ESCUCHADOR EN TIEMPO REAL
   useEffect(() => {
     const handleRolActualizado = () => {
       setRole(localStorage.getItem("role") || "user");
@@ -202,7 +198,6 @@ function Home() {
 
   useEffect(() => {
     const fetchHomeData = async () => {
-      // Re-chequeo veloz antes de cargar la API
       setRole(localStorage.getItem("role") || "user");
       try {
         const obtenerInfoPersonalizada = async (listaDiscos) => {
@@ -272,7 +267,6 @@ function Home() {
     ].slice(0, 5);
     localStorage.setItem('historialBusqueda', JSON.stringify(nuevoHistorial));
 
-    //  BENEFICIO PREMIUM: Si paga, entra directo. Si es gratis, tiene publicidad.
     if (esPremium) {
       navigate(`/album/${encodeURIComponent(album.name)}/${encodeURIComponent(nombreArtista)}`);
     } else {
@@ -282,19 +276,13 @@ function Home() {
     }
   };
 
-  //  PASO 3: RECTIFICACIÓN DE LOS BOTONES CON LA CLASE PREMIUM-HOVER
   const renderSection = (titulo, albums, referencia) => (
     <section className="home-section">
       <div className="section-header">
-       <h2 
-  style={{ 
-    borderLeft: (role === "premium" || role === "admin") ? '5px solid #d0b412' : '5px solid #ff2d55' 
-  }}
->
-  {titulo}
-</h2>
+        <h2 style={{ borderLeft: esPremium ? '5px solid #d0b412' : '5px solid #ff2d55' }}>
+          {titulo}
+        </h2>
         <div className="carousel-controls">
-          {/* Se inyecta la clase 'premium-hover' si corresponde */}
           <button className={esPremium ? "premium-hover" : ""} onClick={() => scroll(referencia, 'left')}>‹</button>
           <button className={esPremium ? "premium-hover" : ""} onClick={() => scroll(referencia, 'right')}>›</button>
         </div>
@@ -303,13 +291,11 @@ function Home() {
         {albums && albums.length > 0 ? (
           albums.map((album, index) => (
             <div
-  key={`${titulo}-${index}`}
-  className={`home-card ${esPremium ? "home-card--premium" : ""}`}
-  onClick={() => manejarClickAlbum(album)}
-  style={{ borderBottom: esPremium ? '3px solid #d0b412' : ''
-    
-   }}
->
+              key={`${titulo}-${index}`}
+              className={`home-card ${esPremium ? "home-card--premium" : ""}`}
+              onClick={() => manejarClickAlbum(album)}
+              style={{ borderBottom: esPremium ? '3px solid #d0b412' : undefined }}
+            >
               <img
                 src={album.image[3]['#text'] || 'https://via.placeholder.com/300'}
                 alt={album.name}
@@ -321,18 +307,17 @@ function Home() {
             </div>
           ))
         ) : (
-          <p className="loading-text" style={{ color: esPremium ? '#d0b412' : '' }}>Cargando sección...</p>
+          <p className="loading-text" style={{ color: esPremium ? '#d0b412' : undefined }}>Cargando sección...</p>
         )}
       </div>
     </section>
   );
 
-  if (loading) return <div className="loading" style={{ color: esPremium ? '#d0b412' : '' }}>Preparando tu música...</div>;
+  if (loading) return <div className="loading" style={{ color: esPremium ? '#d0b412' : undefined }}>Preparando tu música...</div>;
 
   return (
     <div className="home-container">
 
-      {/* Solo mostramos publicidad si NO es premium */}
       {!esPremium && mostrarPublicidad && (
         <Publicidad onCerrar={cerrarYContinuar} />
       )}
@@ -344,32 +329,34 @@ function Home() {
           cursor: 'pointer',
           backgroundImage: `url(${albumHeroActual.bg})`,
           position: 'relative',
-          borderBottom: esPremium ? '4px solid #FFD700' : '' // Detalle premium abajo del banner
+          borderBottom: esPremium ? '4px solid #FFD700' : undefined
         }}
       >
-<button 
-  className={`hero-arrow arrow-left ${(role === "premium" || role === "admin") ? "premium-hover" : ""}`} 
-  onClick={anteriorHero} 
-  style={{ zIndex: 10 }}
->
-  ‹
-</button>        <div className="hero-content" style={{ zIndex: 5 }}>
-          <span className="badge" style={{ backgroundColor: esPremium ? '#d0b412' : '', color: esPremium ? '#000' : '' }}>
+        <button 
+          className={`hero-arrow arrow-left ${esPremium ? "premium-hover" : ""}`}
+          onClick={anteriorHero} 
+          style={{ zIndex: 10 }}
+        >
+          ‹
+        </button>
+        <div className="hero-content" style={{ zIndex: 5 }}>
+          <span className="badge" style={{ backgroundColor: esPremium ? '#d0b412' : undefined, color: esPremium ? '#000' : undefined }}>
             {albumHeroActual.badge} {esPremium && "👑"}
           </span>
           <h1>{albumHeroActual.title}</h1>
           <p>{albumHeroActual.description}</p>
-          <button className="btn-hero" style={{ backgroundColor: esPremium ? '#d0b412' : '', color: esPremium ? '#000' : '' }}>
+          <button className="btn-hero" style={{ backgroundColor: esPremium ? '#d0b412' : undefined, color: esPremium ? '#000' : undefined }}>
             Escuchar ahora
           </button>
         </div>
-<button 
-  className={`hero-arrow arrow-right ${(role === "premium" || role === "admin") ? "premium-hover" : ""}`} 
-  onClick={siguienteHero} 
-  style={{ zIndex: 10 }}
->
-  ›
-</button>      </section>
+        <button 
+          className={`hero-arrow arrow-right ${esPremium ? "premium-hover" : ""}`} 
+          onClick={siguienteHero} 
+          style={{ zIndex: 10 }}
+        >
+          ›
+        </button>
+      </section>
 
       {renderSection("Top Global Seleccionado", topAlbums, topRef)}
       {renderSection("Rock Internacional", rockAlbums, rockRef)}
@@ -377,7 +364,7 @@ function Home() {
       {renderSection("Vibras R&B", rnbAlbums, rnbRef)}
       {renderSection("Lo mejor del Pop", popAlbums, popRef)}
       {renderSection("Nu Metal", numetalAlbums, numetalRef)}
-{renderSection("Metalcore", metalcoreAlbums, metalcoreRef)}
+      {renderSection("Metalcore", metalcoreAlbums, metalcoreRef)}
     </div>
   );
 }

@@ -521,7 +521,7 @@ function ModalPago({ onCerrar, onPagoExitoso, userId }) {
         <>
           <div className="mpago-check">✓</div>
           <p style={{ color:  '#d0b412'  }}>¡Pago exitoso!</p>
-          <span style={{ color: '#d0b412' }}>Se ha activado tu cuenta {planElegido.nombre} ({periodo.label})...</span>
+          <span style={{ color: '#d0b412' }}>Se ha activado tu cuenta {planElegido.nombre} ({periodo.label})</span>
 
           <div style={{ 
   display: 'flex', 
@@ -532,30 +532,15 @@ function ModalPago({ onCerrar, onPagoExitoso, userId }) {
   alignItems: 'center'
 }}>
   <button 
-    onClick={finalizarFlujo} 
-    style={{ 
-      background: '#bfe630', 
-      border: 'none', 
-      color: '#100e0e', 
-      cursor: 'pointer', 
-      padding: '20px 20px', 
-      borderRadius: '20px',
-      width: '80%', 
-      fontWeight: 'bold' //  Letra más gruesa aquí (Negrita)
-    }}
-  >
-    Entrar a MusicApp
-  </button>
+  className="btn-finalizar"
+  onClick={finalizarFlujo} 
+>
+  Entrar a MusicApp
+</button>
   
   <button 
     onClick={descargarPDF} 
-    className="mpago-btn-pagar" 
-    style={{ 
-      background: '#dadec9', 
-      color: 'black',
-      width: '70%',
-      fontWeight: 'bold' //  Letra más gruesa aquí también
-    }}
+    className="comprobante" 
   >
     Descargar Comprobante
   </button>

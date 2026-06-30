@@ -146,7 +146,10 @@
   background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
   border-radius: 12px;
   padding: 16px;
-  height: 120px;
+  min-height: 120px; /* ⭐ FIX: antes era "height: 120px" fijo. Si el contenido
+                         (titular + vencimiento + marca) se envuelve en una
+                         pantalla angosta, con overflow:hidden quedaba cortado.
+                         Con min-height la tarjeta puede crecer si hace falta. ⭐ */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -205,8 +208,12 @@
 
 .mpago-card-bottom {
   display: flex;
+  flex-wrap: wrap; /* ⭐ FIX: si en pantallas muy angostas no entran
+                       Titular + Vence + Marca en una sola fila, que
+                       baje de línea en vez de desbordar/cortarse ⭐ */
   gap: 16px;
   align-items: flex-end;
+  row-gap: 6px;
 }
 
 .mpago-card-label {
@@ -430,9 +437,8 @@
 /* ============================================ */
 
 .mpago-periodos-wrapper {
-  padding: 0 16px 0 0;
+  padding: 0 16px;
   margin-top: 12px;
-  
 }
 
 .mpago-periodos {
@@ -441,25 +447,65 @@
   background: #2a2727;
   padding: 4px;
   border-radius: 10px;
-  
-
 }
+
+.btn-finalizar {
+  background: #bfe630;
+  border: none;
+  color: #100e0e;
+  cursor: pointer;
+  padding: 20px 20px;
+  border-radius: 20px;
+  width: 50%;
+  font-weight: bold;
+  transition: all 0.2s ease-in-out; /* Hace que el hover sea suave */
+}
+
+.btn-finalizar:hover {
+  color: black;
+  background: #a9cf24; /* Un verde un toque más oscuro */
+  transform: scale(1.02); /* Efecto sutil de rebote/crecimiento */
+  box-shadow: 0 5px 15px rgba(191, 230, 48, 0.3); /* Un destello sutil abajo */
+}
+
+.comprobante {
+  margin-top: 20px;
+  background: #bfe630;
+  border: none;
+  color: #100e0e;
+  cursor: pointer;
+  padding: 20px 20px;
+  border-radius: 20px;
+  width: 50%;
+  font-weight: bold;
+  transition: all 0.2s ease-in-out; /* Hace que el hover sea suave */
+}
+
+.comprobante:hover {
+  background: #d0811a; /* Un verde un toque más oscuro */
+  transform: scale(1.02); /* Efecto sutil de rebote/crecimiento */
+  
+}
+
+
+
 
 .mpago-periodo-btn {
   flex: 1 1 0;
-  padding: 8px 10px;
+  padding: 8px 6px;
   border: none;
   border-radius: 8px;
   background: rgb(1, 1, 1);
   cursor: pointer;
   transition: all 0.25s ease;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 2px;
   font-family: inherit;
-  min-height: 36px;
-
+  min-height: 54px;
+  text-align: center;
 }
 
 .mpago-periodo-btn:hover {
@@ -469,18 +515,14 @@
 
 /* ===== ACTIVO (siempre tiene prioridad) ===== */
 .mpago-periodo-btn--active {
-
   background: #d0b412 !important; /* ← El !important fuerza que se aplique siempre */
   box-shadow: 0 2px 12px rgba(208, 180, 18, 0.2);
   cursor: default;
 }
 
-
 .mpago-periodo-btn--active:hover {
   background: #0cad4c;  /* ← Mismo color que active */
 }
-
-
 
 .mpago-periodo-btn--active .mpago-periodo-label {
   color: #0d0d0d;
@@ -492,12 +534,11 @@
 
 .mpago-periodo-label {
   font-weight: 600;
-  font-size: 12px;
+  font-size: 11px;
   color: #5f5959;
   transition: color 0.2s;
+  white-space: nowrap;
 }
-
-
 
 .mpago-periodo-badge {
   font-size: 7px;
@@ -508,12 +549,14 @@
   border-radius: 8px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
+  white-space: nowrap;
 }
 
 .mpago-periodo-precio {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: #555;
+  white-space: nowrap;
 }
 
 /* ============================================ */
@@ -806,7 +849,7 @@
   .mpago-card-visual {
     margin: 0 24px 20px;
     padding: 20px;
-    height: 140px;
+    min-height: 140px;
   }
 
   .mpago-card-chip {
@@ -899,7 +942,9 @@
     padding: 6px;
   }
 
+  /* ⭐ A partir de acá ya hay ancho de sobra: volvemos los tabs a fila ⭐ */
   .mpago-periodo-btn {
+    flex-direction: row;
     padding: 10px 14px;
     min-height: 40px;
     gap: 6px;
@@ -991,7 +1036,7 @@
   .mpago-card-visual {
     margin: 0 28px 24px;
     padding: 24px;
-    height: 160px;
+    min-height: 160px;
     border-radius: 14px;
   }
 
@@ -1094,7 +1139,7 @@
   .mpago-card-visual {
     margin: 0 12px 12px;
     padding: 12px;
-    height: 100px;
+    min-height: 100px;
     border-radius: 10px;
   }
 
@@ -1160,9 +1205,9 @@
   }
 
   .mpago-periodo-btn {
-    padding: 6px 8px;
-    min-height: 30px;
-    gap: 3px;
+    padding: 6px 4px;
+    min-height: 46px;
+    gap: 2px;
   }
 
   .mpago-periodo-label {
@@ -1266,7 +1311,7 @@
   .mpago-card-visual {
     margin: 0 14px 12px;
     padding: 12px;
-    height: 90px;
+    min-height: 90px;
   }
 
   .mpago-card-number {
@@ -1313,6 +1358,14 @@
   .mpago-periodos-wrapper {
     padding: 0 14px;
     margin-top: 8px;
+  }
+
+  /* ⭐ En landscape mobile hay poca altura pero suele haber ancho de
+     sobra (apaisado), así que acá sí conviene volver a fila ⭐ */
+  .mpago-periodo-btn {
+    flex-direction: row;
+    min-height: 30px;
+    gap: 4px;
   }
 
   .mpago-planes {

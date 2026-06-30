@@ -12,27 +12,25 @@ const ArtistDetail = () => {
   const [albumes, setAlbumes] = useState([]);
   const [imagen, setImagen] = useState('');
   const [cargando, setCargando] = useState(true);
-    const role = localStorage.getItem("role") || "user";
-
+  
+  const role = localStorage.getItem("role") || "user";
+  const esPremium = role !== "user";
 
   useEffect(() => {
     const fetchArtist = async () => {
       try {
-        // Info del artista desde Last.fm
         const resInfo = await fetch(
           `https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${encodeURIComponent(artistName)}&api_key=${API_KEY}&format=json&autocorrect=1`
         );
         const dataInfo = await resInfo.json();
         if (dataInfo.artist) setArtistInfo(dataInfo.artist);
 
-        // Foto del artista desde Deezer
         const resFoto = await fetch(`/deezer/search/artist?q=${encodeURIComponent(artistName)}`);
         const dataFoto = await resFoto.json();
         if (dataFoto.data && dataFoto.data.length > 0) {
           setImagen(dataFoto.data[0].picture_xl);
         }
 
-        // Álbumes del artista desde Last.fm
         const resAlbumes = await fetch(
           `https://ws.audioscrobbler.com/2.0/?method=artist.gettopalbums&artist=${encodeURIComponent(artistName)}&api_key=${API_KEY}&format=json&autocorrect=1&limit=12`
         );
@@ -53,7 +51,18 @@ const ArtistDetail = () => {
     fetchArtist();
   }, [artistName]);
 
-  if (cargando) return <div className="artist-loading" className="loading" style={{ color: role ? '#d0b412' : '' }}>Cargando artista...</div>;
+  // ⭐⭐⭐ CORREGIDO ⭐⭐⭐
+  if (cargando) {
+    return (
+      <div 
+        className="artist-loading" 
+        style={{ color: esPremium ? '#d0b412' : '' }}
+      >
+        Cargando artista...
+      </div>
+    );
+  }
+
   if (!artistInfo) return <div className="artist-loading">No se encontró el artista.</div>;
 
   const bio = artistInfo.bio?.summary?.split('<a href')[0] || 'Sin biografía disponible.';
@@ -79,7 +88,6 @@ const ArtistDetail = () => {
       </div>
 
       <div className="artist-body">
-        {/* Bio */}
         {bio && (
           <section className="artist-bio">
             <h2>Sobre el artista</h2>
@@ -87,7 +95,6 @@ const ArtistDetail = () => {
           </section>
         )}
 
-        {/* Tags */}
         {artistInfo.tags?.tag?.length > 0 && (
           <div className="artist-tags">
             {artistInfo.tags.tag.map(tag => (
@@ -96,53 +103,46 @@ const ArtistDetail = () => {
           </div>
         )}
 
-        {/* Álbumes */}
-{albumes.length > 0 && (
-  <section className="artist-albums">
-    <h2>Discografía</h2>
-    <div className="artist-albums-grid">
-      {albumes.map((album, index) => (
-        <div
-          key={index}
-          className="artist-album-card"
-          style={{
-            borderBottom:
-              role === "premium" || role === "admin"
-                ? "3px solid #d0b412"
-                : "none",
-          }}
-          onClick={() =>
-            navigate(
-              `/album/${encodeURIComponent(album.name)}/${encodeURIComponent(
-                artistInfo.name
-              )}`
-            )
-          }
-        >
-          {/* Contenedor de la imagen + Botón Play */}
-          <div className="artist-album-img-wrapper">
-            <img
-              src={album.image?.[3]?.['#text'] || 'https://via.placeholder.com/200'}
-              alt={album.name}
-            />
-          </div>
-
-          <h3>{album.name}</h3>
-  {/* Opcional: Subtexto por si en el futuro manejas la fecha u otro dato */}
-          {album.playcount && (
-            <p className="artist-album-year">
-              {Number(album.playcount).toLocaleString()} reproducciones
-            </p>
-          )}
-        </div>
-      ))}
-    </div>
-  </section>
-)}
+        {albumes.length > 0 && (
+          <section className="artist-albums">
+            <h2>Discografía</h2>
+            <div className="artist-albums-grid">
+              {albumes.map((album, index) => (
+                <div
+                  key={index}
+                  className="artist-album-card"
+                  style={{
+                    borderBottom: esPremium ? "3px solid #d0b412" : "none",
+                  }}
+                  onClick={() =>
+                    navigate(
+                      `/album/${encodeURIComponent(album.name)}/${encodeURIComponent(
+                        artistInfo.name
+                      )}`
+                    )
+                  }
+                >
+                  <div className="artist-album-img-wrapper">
+                    <img
+                      src={album.image?.[3]?.['#text'] || 'https://via.placeholder.com/200'}
+                      alt={album.name}
+                    />
+                  </div>
+                  <h3>{album.name}</h3>
+                  {album.playcount && (
+                    <p className="artist-album-year">
+                      {Number(album.playcount).toLocaleString()} reproducciones
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );
 };
 
-export default ArtistDetail; // O como lo tengas exportado abajo
+export default ArtistDetail;
 

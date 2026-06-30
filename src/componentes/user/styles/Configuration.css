@@ -20,12 +20,13 @@
 }
 
 .upload-label {
-  background: #0a7287;
+  background: #414647;
   color: white;
   padding: 0.5rem 1.2rem;
   border-radius: 20px;
   cursor: pointer;
   font-size: 0.9rem;
+    transition: all 0.3s ease; /* ← Para que sea suave */
 }
 
 .configuracion button {
@@ -92,7 +93,9 @@
 
 .btn-premium:hover {
   transform: scale(1.05);
+  background-color: #ffd200;
   box-shadow: 0 0 20px rgba(255, 210, 0, 0.4);
+  color: black;
 }
 
 .btn-cancelar-premium {
@@ -109,4 +112,35 @@
 .btn-cancelar-premium:hover {
   background: #ff4757;
   color: white;
+}
+
+
+.upload-label:hover{
+  background-color: rgb(20, 173, 152);
+    transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(208, 180, 18, 0.4);
+}
+
+.guardado {
+  /* Tus estilos actuales */
+  background-color: #504f48;
+  color: #000;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease; /* ← Para que sea suave */
+}
+
+/* ⭐ HOVER ⭐ */
+.guardado:hover {
+  background-color: #1d8591;
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(208, 180, 18, 0.4);
+}
+
+/* ⭐ ACTIVE (cuando hacés clic) ⭐ */
+.guardado:active {
+  transform: scale(0.95);
 }

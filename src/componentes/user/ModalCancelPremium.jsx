@@ -26,12 +26,20 @@ function ModalCancelPremium({ onClose }) {
         </div>
 
         <button
-          className="modal-premium-btn"
-          onClick={onClose}
-          style={{ background: '#333', color: '#aaa' }}
-        >
-          Entendido, hasta pronto
-        </button>
+  className="modal-premium-btn"
+  onClick={onClose}
+  style={{ background: '#333', color: '#aaa', cursor: 'pointer', transition: 'all 0.2s' }}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.background = '#444';
+    e.currentTarget.style.color = '#fff';
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.background = '#333';
+    e.currentTarget.style.color = '#aaa';
+  }}
+>
+  Entendido, hasta pronto
+</button>
       </div>
     </div>
   );

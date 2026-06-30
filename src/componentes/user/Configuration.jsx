@@ -51,7 +51,6 @@ const esPremiumOAdmin = role === "premium" || role === "admin" || role === "fami
       if (res.ok) {
         localStorage.setItem(`logo_${userId}`, data.logo);
         window.dispatchEvent(new Event("logoActualizado"));
-        setMensaje("✅ Logo actualizado!");
       } else {
         setMensaje("❌ Error al subir el logo");
       }
@@ -165,7 +164,7 @@ const esPremiumOAdmin = role === "premium" || role === "admin" || role === "fami
             hidden
           />
         </label>
-        <button onClick={handleUpload}>Guardar logo</button>
+        <button onClick={handleUpload} className="guardado">Guardar imagen</button>
         {mensaje && <p className="mensaje">{mensaje}</p>}
       </div>
 
@@ -188,12 +187,12 @@ const esPremiumOAdmin = role === "premium" || role === "admin" || role === "fami
           </>
         ) : (
           <>
-            <div className="premium-badge free">🎵 Plan Gratuito</div>
+            <div className="premium-badge free">Plan Gratuito</div>
             <p className="premium-desc">
-              Actualizate a Premium y olvidate de los anuncios para siempre.
+              Actualizate a Premium y accede a todos los beneficios.
             </p>
             <button className="btn-premium" onClick={activarPremium}>
-              ⭐ Hacerse Premium
+              Hacerse Premium
             </button>
           </>
         )}
@@ -204,7 +203,7 @@ const esPremiumOAdmin = role === "premium" || role === "admin" || role === "fami
         <ModalPago
           onCerrar={() => setMostrarModalPago(false)}
           onPagoExitoso={onPagoExitoso}
-          userId={userId}  // ← PASAR userId
+          userId={userId}  
         />
       )}
 

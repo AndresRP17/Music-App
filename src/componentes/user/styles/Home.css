@@ -412,14 +412,16 @@ display: block;
 }
 
 
-.carousel-controls button.premium-hover:hover {
+/* Esto va a aplicar a CUALQUIER botón de la app que tenga la clase premium-hover */
+button.premium-hover:hover,
+.hero-arrow.premium-hover:hover {
   background-color: #d0b412 !important;
   color: #000000 !important;
   border-color: #FFD700 !important;
-  box-shadow: 0 0 8px rgba(208, 180, 18, 0.6);
+  box-shadow: 0 0 8px rgba(208, 180, 18, 0.6) !important;
 }
 
-
+/* Mantenés lo de las tarjetas igual */
 .home-card--premium:hover {
     box-shadow: 0 8px 20px rgba(208, 180, 18, 0.45);
     transform: translateY(-2px);
