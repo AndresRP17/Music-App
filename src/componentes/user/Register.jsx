@@ -53,7 +53,7 @@ export default function Register() {
   };
 
   return (
-    <div className="login-split-container">
+    <div className="login-split-container register-split-reversed">
 
       {/* Imagen diferente al login */}
       <div className="login-image-side register-image-side">

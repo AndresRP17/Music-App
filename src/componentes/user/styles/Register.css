@@ -30,3 +30,14 @@
 .register-link:hover {
     text-decoration: underline;
 }
+
+.register-split-reversed {
+    flex-direction: row-reverse;
+}
+
+/* En mobile, que vuelva al orden normal (imagen arriba, form abajo) */
+@media (max-width: 850px) {
+    .register-split-reversed {
+        flex-direction: column;
+    }
+}

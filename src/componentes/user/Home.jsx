@@ -115,7 +115,7 @@ metalcore: [
 };
 
 function Home() {
-  // 🌟 PASO 1: ESTADO INICIAL DEL ROL LEYENDO DEL STORAGE
+  // PASO 1: ESTADO INICIAL DEL ROL LEYENDO DEL STORAGE
   const [role, setRole] = useState(() => localStorage.getItem("role") || "user");
 
   const [topAlbums, setTopAlbums] = useState([]);
@@ -144,7 +144,7 @@ function Home() {
   // Variable rápida para los condicionales
   const esPremium = role === "premium" || role === "admin";
 
-  // 🌟 PASO 2: ESCUCHADOR EN TIEMPO REAL
+  //  PASO 2: ESCUCHADOR EN TIEMPO REAL
   useEffect(() => {
     const handleRolActualizado = () => {
       setRole(localStorage.getItem("role") || "user");
@@ -272,7 +272,7 @@ function Home() {
     ].slice(0, 5);
     localStorage.setItem('historialBusqueda', JSON.stringify(nuevoHistorial));
 
-    // 🌟 BENEFICIO PREMIUM: Si paga, entra directo. Si es gratis, tiene publicidad.
+    //  BENEFICIO PREMIUM: Si paga, entra directo. Si es gratis, tiene publicidad.
     if (esPremium) {
       navigate(`/album/${encodeURIComponent(album.name)}/${encodeURIComponent(nombreArtista)}`);
     } else {
@@ -282,7 +282,7 @@ function Home() {
     }
   };
 
-  // 🌟 PASO 3: RECTIFICACIÓN DE LOS BOTONES CON LA CLASE PREMIUM-HOVER
+  //  PASO 3: RECTIFICACIÓN DE LOS BOTONES CON LA CLASE PREMIUM-HOVER
   const renderSection = (titulo, albums, referencia) => (
     <section className="home-section">
       <div className="section-header">
@@ -304,7 +304,7 @@ function Home() {
           albums.map((album, index) => (
             <div
   key={`${titulo}-${index}`}
-  className="home-card"
+  className={`home-card ${esPremium ? "home-card--premium" : ""}`}
   onClick={() => manejarClickAlbum(album)}
   style={{ borderBottom: esPremium ? '3px solid #d0b412' : ''
     

@@ -16,7 +16,7 @@ export default function Login({ setToken, setRole }) {
 if (window.location.hostname.includes("netlify")) {
   setCargando(true);
   setTimeout(() => {
-    // 🌟 LIMPIAMOS EL LOCALSTORAGE para borrar roles viejos (ej: admin de localhost)
+    // LIMPIAMOS EL LOCALSTORAGE para borrar roles viejos (ej: admin de localhost)
     localStorage.clear();
 
     const tokenFalso = "token-demo-netlify-2026";

@@ -297,10 +297,10 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
               margin: 0,
               fontSize: "15px",
               fontWeight: 500,
-              color: "#fff",
+              color: "#d0b412",
             }}
           >
-            Agregar a playlist
+            Opciones para agregar
           </h2>
           <button
             onClick={onCerrar}
@@ -308,7 +308,7 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
               background: "none",
               border: "none",
               cursor: "pointer",
-              color: "#aaa",
+              color: "#d0b412",
               fontSize: "20px",
               display: "flex",
               alignItems: "center",
@@ -353,7 +353,7 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
           >
             <span
               style={{
-                color: yaEnFavoritos ? "#1db954" : "#e25555",
+                color: yaEnFavoritos ? "#d0b412" : "#d0b412",
                 fontSize: "16px",
               }}
             >
@@ -361,7 +361,7 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
             </span>
           </div>
           <div
-            style={{ fontSize: "14px", color: yaEnFavoritos ? "#aaa" : "#fff" }}
+            style={{ fontSize: "14px", color: yaEnFavoritos ? "#d0b412" : "#d0b412" }}
           >
             {yaEnFavoritos ? "Ya está en Favoritos" : "Agregar a Favoritos"}
           </div>
@@ -382,7 +382,7 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
               borderRadius: "8px",
               border: "0.5px solid #444",
               background: "#2a2a2a",
-              color: "#fff",
+              color: "#d0b412",
             }}
           />
         </div>
@@ -390,11 +390,11 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
         {/* Lista de playlists */}
         <div style={{ maxHeight: "220px", overflowY: "auto" }}>
           {cargando ? (
-            <p style={{ padding: "16px", color: "#aaa", fontSize: "14px" }}>
+            <p style={{ padding: "16px", color: "#d0b412", fontSize: "14px" }}>
               Cargando...
             </p>
           ) : playlistsFiltradas.length === 0 ? (
-            <p style={{ padding: "16px", color: "#aaa", fontSize: "14px" }}>
+            <p style={{ padding: "16px", color: "#d0b412", fontSize: "14px" }}>
               No se encontraron playlists
             </p>
           ) : (
@@ -414,7 +414,7 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
                     transition: "background 0.15s",
                   }}
                   onMouseEnter={(e) => {
-                    if (!yaEsta) e.currentTarget.style.background = "#2a2a2a";
+                    if (!yaEsta) e.currentTarget.style.background = "#d0b412";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = "transparent";
@@ -426,7 +426,7 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
                       height: "36px",
                       borderRadius: "8px",
                       background: "#2a2a2a",
-                      border: `0.5px solid ${yaEsta ? "#1db954" : "#444"}`,
+                      border: `0.5px solid ${yaEsta ? "#d0b412" : "#d0b412"}`,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -434,16 +434,16 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
                     }}
                   >
                     {yaEsta ? (
-                      <FaCheck style={{ color: "#1db954", fontSize: "14px" }} />
+                      <FaCheck style={{ color: "#d0b412", fontSize: "14px" }} />
                     ) : (
-                      <FiMusic style={{ color: "#aaa", fontSize: "16px" }} />
+                      <FiMusic style={{ color: "#d0b412", fontSize: "16px" }} />
                     )}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div
                       style={{
                         fontSize: "14px",
-                        color: yaEsta ? "#aaa" : "#fff",
+                        color: yaEsta ? "#d0b412" : "#fff",
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
@@ -455,7 +455,7 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
                       <div
                         style={{
                           fontSize: "11px",
-                          color: "#1db954",
+                          color: "#d0b412",
                           marginTop: "1px",
                         }}
                       >
@@ -487,16 +487,16 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
                   borderRadius: "8px",
                   border: "0.5px solid #444",
                   background: "#2a2a2a",
-                  color: "#fff",
+                  color: "#d0b412",
                 }}
               />
               <button
                 onClick={crearYAgregar}
                 style={{
-                  background: "#1db954",
+                  background: "#d0b412",
                   border: "none",
                   borderRadius: "8px",
-                  color: "#fff",
+                  color: "black",
                   padding: "7px 12px",
                   cursor: "pointer",
                   fontSize: "13px",
@@ -515,7 +515,7 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
                 background: "none",
                 border: "none",
                 cursor: "pointer",
-                color: "#1db954",
+                color: "#d0b412",
                 fontSize: "14px",
                 padding: "4px 0",
               }}

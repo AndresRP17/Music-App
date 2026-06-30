@@ -135,7 +135,7 @@ function ModalPago({ onCerrar, onPagoExitoso }) {
   });
 
   return (
-    <div className="mpago-overlay" onClick={onCerrar}>
+    <div className="mpago-overlay" onClick={step === "exito" ? finalizarFlujo : onCerrar}>
       <div className="mpago-modal" onClick={(e) => e.stopPropagation()}>
 
         {/* Header */}
@@ -144,7 +144,8 @@ function ModalPago({ onCerrar, onPagoExitoso }) {
             <p className="mpago-eyebrow">Plan Premium, primer mes gratis</p>
             <h2 className="mpago-title">Completá tu suscripción</h2>
           </div>
-          <button className="mpago-cerrar" onClick={onCerrar}>×</button>
+          <button className="mpago-cerrar"   onClick={step === "exito" ? finalizarFlujo : onCerrar}
+>×</button>
         </div>
 
         {/* Precio */}
