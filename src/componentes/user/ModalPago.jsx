@@ -1,8 +1,9 @@
-import { useState, useRef } from "react"; 
+import { useState, useRef } from "react";
 import "./styles/ModalPago.css";
-import jsPDF from "jspdf"; 
-import html2canvas from "html2canvas"; 
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
+// -------- HELPERS DE FORMATO --------
 const formatCardNumber = (val) =>
   val.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
 
@@ -23,43 +24,97 @@ function detectBrand(number) {
   return "TARJETA";
 }
 
-function ModalPago({ onCerrar, onPagoExitoso }) {
-  const [step, setStep] = useState("form");
+// -------- PLANES CON PERÍODOS (SOLO PREMIUM Y FAMILIAR) --------
+const PERIODOS = [
+  { id: 'mensual', label: 'Mensual', badge: null },
+  { id: 'semestral', label: 'Semestral'},
+  { id: 'anual', label: 'Anual'}
+];
+
+const PLANES = [
+  {
+    id: 'premium',
+    nombre: 'Premium',
+    descripcion: 'Experiencia completa sin anuncios',
+    icono: '👑',
+    color: '#d0b412',
+    popular: true,
+    precios: {
+      mensual: { precio: 1.99, texto: '$1.99/mes', badge: null, ahorro: null },
+      semestral: { precio: 9.99, texto: '$9.99/6 meses', badge: 'Ahorrá 16%', ahorro: 'vs $11.94' },
+      anual: { precio: 17.99, texto: '$17.99/año', badge: '🔥 Mejor oferta', ahorro: 'vs $23.88' }
+    },
+    caracteristicas: [
+      'Sin anuncios',
+      'Playlists ilimitadas',
+      'Favoritos',
+      'Modo dorado'
+    ]
+  },
+  {
+    id: 'familiar',
+    nombre: 'Familiar',
+    descripcion: 'Plan familiar hasta 6 cuentas',
+    icono: '👨‍👩‍👧‍👦',
+    color: '#10B981',
+    popular: false,
+    precios: {
+      mensual: { precio: 4.99, texto: '$4.99/mes', badge: null, ahorro: null },
+      semestral: { precio: 24.99, texto: '$24.99/6 meses', badge: 'Ahorrá 17%', ahorro: 'vs $29.94' },
+      anual: { precio: 44.99, texto: '$44.99/año', badge: '🔥 Mejor oferta', ahorro: 'vs $59.88' }
+    },
+    caracteristicas: [
+      'Todo lo de Premium',
+      'Hasta 6 cuentas',
+      'Control parental',
+      'Modo familiar'
+    ]
+  }
+];
+
+function ModalPago({ onCerrar, onPagoExitoso, userId }) {
+  // -------- ESTADOS --------
+  const [step, setStep] = useState("plan");
+  const [planSeleccionado, setPlanSeleccionado] = useState(null);
+  const [periodoSeleccionado, setPeriodoSeleccionado] = useState('mensual');
   const [form, setForm] = useState({ numero: "", nombre: "", expiry: "", cvv: "" });
   const [errores, setErrores] = useState({});
   const [fechaPago, setFechaPago] = useState(null);
+  const [suscripcionId, setSuscripcionId] = useState(null);
 
-  const comprobanteRef = useRef(); 
+  const comprobanteRef = useRef();
   const brand = detectBrand(form.numero);
 
+  // El plan que se muestra en los tabs (siempre el seleccionado o Premium por defecto)
+  const plan = planSeleccionado || PLANES[0];
+  const periodo = PERIODOS.find(p => p.id === periodoSeleccionado) || PERIODOS[0];
+
+  // ⭐⭐⭐ ESTO ES LO IMPORTANTE: el plan elegido para el resumen y el pago ⭐⭐⭐
+  const planElegido = planSeleccionado || PLANES[0];
+  const precioElegido = planElegido.precios[periodoSeleccionado];
+
+  // -------- FUNCIONES --------
   const descargarPDF = async () => {
     const elemento = comprobanteRef.current;
-    if (!elemento) {
-      console.error("Elemento del comprobante no encontrado");
-      return;
-    }
+    if (!elemento) return;
 
     try {
-      // Pequeño delay para asegurar que el contenido se renderice
       await new Promise(resolve => setTimeout(resolve, 100));
-      
-      const canvas = await html2canvas(elemento, { 
+      const canvas = await html2canvas(elemento, {
         scale: 2,
         backgroundColor: '#ffffff',
         logging: false,
         useCORS: true
       });
-      
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
       const imgWidth = 210;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
       pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-      pdf.save(`comprobante-premium-${Date.now()}.pdf`);
+      pdf.save(`comprobante-${plan.id}-${periodoSeleccionado}-${Date.now()}.pdf`);
     } catch (error) {
       console.error("Error generando PDF:", error);
-      alert("Hubo un error al generar el comprobante. Por favor, intenta nuevamente.");
+      alert("Error al generar el comprobante");
     }
   };
 
@@ -80,19 +135,16 @@ function ModalPago({ onCerrar, onPagoExitoso }) {
     if (!form.nombre.trim()) nuevos.nombre = "Ingresá el nombre";
 
     const [mm, yy] = form.expiry.split("/");
-    const mesNum  = parseInt(mm);
+    const mesNum = parseInt(mm);
     const anioNum = parseInt("20" + yy);
-    const ahora      = new Date();
+    const ahora = new Date();
     const anioActual = ahora.getFullYear();
-    const mesActual  = ahora.getMonth() + 1;
+    const mesActual = ahora.getMonth() + 1;
 
-    if (
-      !mm || !yy ||
-      isNaN(mesNum) || isNaN(anioNum) ||
-      mesNum < 1 || mesNum > 12 ||
-      anioNum < anioActual ||
-      (anioNum === anioActual && mesNum < mesActual)
-    ) {
+    if (!mm || !yy || isNaN(mesNum) || isNaN(anioNum) ||
+        mesNum < 1 || mesNum > 12 ||
+        anioNum < anioActual ||
+        (anioNum === anioActual && mesNum < mesActual)) {
       nuevos.expiry = "Tarjeta vencida o fecha inválida";
     }
 
@@ -102,174 +154,430 @@ function ModalPago({ onCerrar, onPagoExitoso }) {
     return Object.keys(nuevos).length === 0;
   };
 
-  const handleSubmit = () => {
+  // ⭐⭐⭐ SELECCIONAR PLAN CON LOGS ⭐⭐⭐
+  const seleccionarPlan = (plan, periodo) => {
+    console.log('✅ Plan seleccionado:', plan.nombre);
+    console.log('✅ Período:', periodo);
+    console.log('✅ Precio:', plan.precios[periodo].precio);
+    
+    setPlanSeleccionado(plan);
+    setPeriodoSeleccionado(periodo);
+    const precio = plan.precios[periodo].precio;
+    if (precio === 0) {
+      setStep("exito");
+      setFechaPago(new Date());
+    } else {
+      setStep("form");
+    }
+  };
+
+  const cambiarPeriodo = (periodo) => {
+    console.log('🔄 Cambiando período a:', periodo);
+    setPeriodoSeleccionado(periodo);
+  };
+
+  // ⭐⭐⭐ HANDLE SUBMIT CON EL PLAN CORRECTO ⭐⭐⭐
+  const handleSubmit = async () => {
     if (!validar()) return;
+
+    const planActual = planSeleccionado || PLANES[0];
+    const precioActual = planActual.precios[periodoSeleccionado];
+
+    console.log('💳 Pagando plan:', planActual.nombre);
+    console.log('💳 Período:', periodoSeleccionado);
+    console.log('💳 Precio:', precioActual.precio);
+
+    const payload = {
+      id_user: userId || null,
+      monto: precioActual.precio,
+      fecha: new Date().toISOString(),
+      estado: 'completado',
+      ultimos: form.numero.replace(/\s/g, "").slice(-4) || "0000", 
+      marca: brand || "TARJETA",
+      plan: planActual.id,              
+      periodo: periodoSeleccionado,     
+    };
+
+    console.log('📦 Payload a enviar:', payload);
+
     setStep("procesando");
     setFechaPago(new Date());
-    setTimeout(() => {
+
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        throw new Error('No estás autenticado. Iniciá sesión primero.');
+      }
+
+      const response = await fetch('/api/pagos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al procesar el pago');
+      }
+
+      const data = await response.json();
+      console.log('✅ Pago guardado:', data);
+
+      // ⭐⭐⭐ OJO: acá YA NO tocamos role/user/localStorage ni disparamos
+      // "rolActualizado". Eso ahora lo hace Configuracion.jsx, recién cuando
+      // el usuario cierra el ModalPremiumBienvenida (ver aplicarPremiumYRecargar).
+      // Si lo hacíamos acá, el sidebar/tema dorado se activaba apenas terminaba
+      // el pago, antes de que el usuario llegara a ver el modal de bienvenida. ⭐⭐⭐
+
+      setSuscripcionId(data.id_suscripcion || data.id || 'PENDIENTE');
       setStep("exito");
-    }, 2500);
+
+    } catch (error) {
+      console.error('❌ Error:', error);
+      alert('❌ Error: ' + error.message);
+      setStep("plan");
+    }
   };
 
   const finalizarFlujo = () => {
-    const ultimos = form.numero.replace(/\s/g, "").slice(-4);
-    onPagoExitoso(ultimos, brand || "OTRO");
+    const ultimos = form.numero.replace(/\s/g, "").slice(-4) || "0000";
+    // ⭐ LOG PARA VER QUÉ SE ESTÁ ENVIANDO ⭐
+    console.log('📤 Enviando a onPagoExitoso:', {
+      ultimos,
+      brand: brand || "OTRO",
+      planSeleccionado,
+      periodoSeleccionado
+    });
+    onPagoExitoso(ultimos, brand || "OTRO", planSeleccionado, periodoSeleccionado);
     onCerrar();
+    // ⭐ Sacamos el reload de acá: si recargás ahora, React ni llega a pintar
+    // el ModalPremiumBienvenida que onPagoExitoso recién pidió mostrar.
+    // El refresh real ahora pasa en Configuracion.jsx, cuando el usuario
+    // cierra el modal de bienvenida (ver onClose de ModalPremiumBienvenida).
   };
 
-  // Datos para el comprobante
+  // -------- DATOS PARA COMPROBANTE --------
   const ultimosDigitos = form.numero.replace(/\s/g, "").slice(-4) || "0000";
-  const nombreCliente = form.nombre.toUpperCase() || "SUSCRITO PREMIUM";
+  const nombreCliente = form.nombre.toUpperCase() || "SUSCRITO";
   const fechaFormateada = fechaPago ? fechaPago.toLocaleDateString('es-ES', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
   }) : new Date().toLocaleDateString('es-ES', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
   });
 
+  // -------- RENDER SELECTOR DE PERÍODO (tabs) --------
+  const renderPeriodoTabs = () => (
+    <div className="mpago-periodos-wrapper">
+      <div className="mpago-periodos">
+        {PERIODOS.map((p) => {
+          const isActive = periodoSeleccionado === p.id;
+          const precio = plan.precios[p.id];
+          return (
+            <button
+              key={p.id}
+              className={`mpago-periodo-btn ${isActive ? 'mpago-periodo-btn--active' : ''}`}
+              onClick={() => cambiarPeriodo(p.id)}
+            >
+              <span className="mpago-periodo-label">{p.label}</span>
+              {p.badge && (
+                <span className="mpago-periodo-badge">
+                  {p.badge}
+                </span>
+              )}
+              {precio.precio > 0 && (
+                <span className="mpago-periodo-precio">
+                  {precio.texto}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  // -------- RENDER CARDS DE PLANES (SOLO 2) --------
+  const renderSeleccionPlanes = () => (
+    <div className="mpago-planes">
+      {/* HEADER con la cruz arriba a la derecha */}
+      <div className="mpago-header">
+        <div className="mpago-header-left">
+          <p className="mpago-eyebrow">🎵 Elegí tu plan</p>
+          <h2 className="mpago-title">Suscribite a Music App</h2>
+          <p className="mpago-subtitle">Seleccioná el plan que mejor se adapte a vos</p>
+        </div>
+        <button className="mpago-cerrar" onClick={onCerrar}>×</button>
+      </div>
+
+      {/* TABS DE PERÍODOS */}
+      {renderPeriodoTabs()}
+
+      <div className="mpago-planes-grid">
+        {PLANES.map((p) => {
+          const isSelected = planSeleccionado?.id === p.id;
+          const precio = p.precios[periodoSeleccionado];
+          const isFree = precio.precio === 0;
+
+          return (
+            <div
+              key={p.id}
+              className={`mpago-plan-card ${p.popular ? 'mpago-plan-card--popular' : ''} ${isSelected ? 'mpago-plan-card--selected' : ''}`}
+              onClick={() => seleccionarPlan(p, periodoSeleccionado)}
+            >
+              {p.popular && (
+                <div className="mpago-plan-badge">
+                  ⭐ POPULAR
+                </div>
+              )}
+
+              <div className="mpago-plan-header">
+                <div className="mpago-plan-icon" style={{ color: p.color }}>
+                  {p.icono}
+                </div>
+                <h3 className="mpago-plan-nombre">{p.nombre}</h3>
+                <p className="mpago-plan-desc">{p.descripcion}</p>
+              </div>
+
+              <div className="mpago-plan-precio-container">
+                {isFree ? (
+                  <div className="mpago-plan-precio-free">
+                    Gratis
+                    <span className="mpago-plan-precio-free-sub">para siempre</span>
+                  </div>
+                ) : (
+                  <>
+                    <span className="mpago-plan-precio-number" style={{ color: p.color }}>
+                      {precio.texto}
+                    </span>
+                    {precio.ahorro && (
+                      <span className="mpago-plan-precio-ahorro">
+                        {precio.ahorro}
+                      </span>
+                    )}
+                    {precio.badge && (
+                      <span className="mpago-plan-precio-badge" style={{ backgroundColor: p.color }}>
+                        {precio.badge}
+                      </span>
+                    )}
+                  </>
+                )}
+              </div>
+
+              <ul className="mpago-plan-caracteristicas">
+                {p.caracteristicas.map((c, idx) => (
+                  <li key={idx}>
+                    <span className="mpago-check-icon">✓</span>
+                    {c}
+                  </li>
+                ))}
+              </ul>
+
+              <button
+                className={`mpago-plan-btn ${isSelected ? 'mpago-plan-btn--selected' : ''}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  seleccionarPlan(p, periodoSeleccionado);
+                }}
+              >
+                {isSelected ? '✓ Seleccionado' : (isFree ? 'Comenzar Gratis' : 'Seleccionar')}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      <p className="mpago-disclaimer">
+        🔒 Podés cancelar cuando quieras · Todos los precios son en USD
+      </p>
+    </div>
+  );
+
+  // -------- RENDER FORMULARIO DE PAGO --------
+  const renderFormularioPago = () => (
+    <>
+      <div className="mpago-header">
+        <div className="mpago-header-left">
+          <p className="mpago-eyebrow">
+            {planElegido.nombre} · {periodo.label}
+          </p>
+          <h2 className="mpago-title">Completá tu pago</h2>
+        </div>
+        <button
+          className="mpago-cerrar"
+          onClick={() => setStep("plan")}
+        >
+          ←
+        </button>
+      </div>
+
+      <div className="mpago-resumen-plan">
+        <div className="mpago-resumen-icon" style={{ color: planElegido.color }}>
+          {planElegido.icono}
+        </div>
+        <div className="mpago-resumen-info">
+          <span className="mpago-resumen-nombre">{planElegido.nombre}</span>
+          <span className="mpago-resumen-periodo">{periodo.label}</span>
+        </div>
+        <span className="mpago-resumen-precio" style={{ color: planElegido.color }}>
+          {precioElegido.texto}
+        </span>
+      </div>
+
+      <div className={`mpago-card-visual ${brand ? "mpago-card-visual--" + brand.toLowerCase().replace(" ", "") : ""}`}>
+        <div className="mpago-card-chip"><div className="mpago-chip-inner" /></div>
+        <div className="mpago-card-number">
+          {form.numero || "•••• •••• •••• ••••"}
+        </div>
+        <div className="mpago-card-bottom">
+          <div>
+            <span className="mpago-card-label">Titular</span>
+            <span className="mpago-card-val">{form.nombre || "TU NOMBRE"}</span>
+          </div>
+          <div>
+            <span className="mpago-card-label">Vence</span>
+            <span className="mpago-card-val">{form.expiry || "MM/AA"}</span>
+          </div>
+          {brand && <span className="mpago-brand">{brand}</span>}
+        </div>
+      </div>
+
+      <div className="mpago-form">
+        <div className="mpago-field">
+          <label>Número de tarjeta</label>
+          <input
+            name="numero"
+            value={form.numero}
+            onChange={handleChange}
+            placeholder="1234 5678 9012 3456"
+            className={errores.numero ? "mpago-input--error" : ""}
+          />
+          {errores.numero && <span className="mpago-error">{errores.numero}</span>}
+        </div>
+
+        <div className="mpago-field">
+          <label>Nombre en la tarjeta</label>
+          <input
+            name="nombre"
+            value={form.nombre}
+            onChange={handleChange}
+            placeholder="JUAN PEREZ"
+            style={{ textTransform: "uppercase" }}
+            className={errores.nombre ? "mpago-input--error" : ""}
+          />
+          {errores.nombre && <span className="mpago-error">{errores.nombre}</span>}
+        </div>
+
+        <div className="mpago-row">
+          <div className="mpago-field">
+            <label>Vencimiento</label>
+            <input
+              name="expiry"
+              value={form.expiry}
+              onChange={handleChange}
+              placeholder="MM/AA"
+              className={errores.expiry ? "mpago-input--error" : ""}
+            />
+            {errores.expiry && <span className="mpago-error">{errores.expiry}</span>}
+          </div>
+          <div className="mpago-field">
+            <label>CVV</label>
+            <input
+              name="cvv"
+              value={form.cvv}
+              onChange={handleChange}
+              placeholder="123"
+              type="password"
+              className={errores.cvv ? "mpago-input--error" : ""}
+            />
+            {errores.cvv && <span className="mpago-error">{errores.cvv}</span>}
+          </div>
+        </div>
+
+        <button className="mpago-btn-pagar" onClick={handleSubmit}>
+          Pagar {precioElegido.texto}
+        </button>
+
+        <p className="mpago-disclaimer">🔒 Pago simulado — no se realizan cargos reales</p>
+      </div>
+    </>
+  );
+
+  // -------- RENDER ESTADO --------
+  const renderEstado = () => (
+    <div className="mpago-estado">
+      {step === "procesando" ? (
+        <>
+          <div className="mpago-spinner" />
+          <p>Procesando pago...</p>
+          <span>Aguarde por favor</span>
+        </>
+      ) : (
+        <>
+          <div className="mpago-check">✓</div>
+          <p style={{ color:  '#d0b412'  }}>¡Pago exitoso!</p>
+          <span style={{ color: '#d0b412' }}>Se ha activado tu cuenta {planElegido.nombre} ({periodo.label})...</span>
+
+          <div style={{ 
+  display: 'flex', 
+  flexDirection: 'column', 
+  gap: '10px', 
+  marginTop: '20px', 
+  width: '70%', 
+  alignItems: 'center'
+}}>
+  <button 
+    onClick={finalizarFlujo} 
+    style={{ 
+      background: '#bfe630', 
+      border: 'none', 
+      color: '#100e0e', 
+      cursor: 'pointer', 
+      padding: '20px 20px', 
+      borderRadius: '20px',
+      width: '80%', 
+      fontWeight: 'bold' //  Letra más gruesa aquí (Negrita)
+    }}
+  >
+    Entrar a MusicApp
+  </button>
+  
+  <button 
+    onClick={descargarPDF} 
+    className="mpago-btn-pagar" 
+    style={{ 
+      background: '#dadec9', 
+      color: 'black',
+      width: '70%',
+      fontWeight: 'bold' //  Letra más gruesa aquí también
+    }}
+  >
+    Descargar Comprobante
+  </button>
+</div>
+        </>
+      )}
+    </div>
+  );
+
+  // -------- RENDER MODAL --------
   return (
     <div className="mpago-overlay" onClick={step === "exito" ? finalizarFlujo : onCerrar}>
       <div className="mpago-modal" onClick={(e) => e.stopPropagation()}>
 
-        {/* Header */}
-        <div className="mpago-header">
-          <div>
-            <p className="mpago-eyebrow">Plan Premium, primer mes gratis</p>
-            <h2 className="mpago-title">Completá tu suscripción</h2>
-          </div>
-          <button className="mpago-cerrar"   onClick={step === "exito" ? finalizarFlujo : onCerrar}
->×</button>
-        </div>
-
-        {/* Precio */}
-        <div className="mpago-precio-row">
-          <div className="mpago-precio-info">
-            <span className="mpago-precio-label">Premium mensual sin imp.</span>
-            <span className="mpago-precio-desc">Sin anuncios · Playlists · Favoritos · Modo dorado</span>
-          </div>
-          <span className="mpago-precio-valor">$1.99<span>/mes</span></span>
-        </div>
-
-        {/* Tarjeta visual */}
-        <div className={`mpago-card-visual ${brand ? "mpago-card-visual--" + brand.toLowerCase().replace(" ", "") : ""}`}>
-          <div className="mpago-card-chip">
-            <div className="mpago-chip-inner" />
-          </div>
-          <div className="mpago-card-number">
-            {form.numero || "•••• •••• •••• ••••"}
-          </div>
-          <div className="mpago-card-bottom">
-            <div>
-              <span className="mpago-card-label">Titular</span>
-              <span className="mpago-card-val">{form.nombre || "TU NOMBRE"}</span>
-            </div>
-            <div>
-              <span className="mpago-card-label">Vence</span>
-              <span className="mpago-card-val">{form.expiry || "MM/AA"}</span>
-            </div>
-            {brand && <span className="mpago-brand">{brand}</span>}
-          </div>
-        </div>
-
-        {step === "form" && (
-          <div className="mpago-form">
-            <div className="mpago-field">
-              <label>Número de tarjeta</label>
-              <input
-                name="numero"
-                value={form.numero}
-                onChange={handleChange}
-                placeholder="1234 5678 9012 3456"
-                className={errores.numero ? "mpago-input--error" : ""}
-              />
-              {errores.numero && <span className="mpago-error">{errores.numero}</span>}
-            </div>
-
-            <div className="mpago-field">
-              <label>Nombre en la tarjeta</label>
-              <input
-                name="nombre"
-                value={form.nombre}
-                onChange={handleChange}
-                placeholder="JUAN PEREZ"
-                style={{ textTransform: "uppercase" }}
-                className={errores.nombre ? "mpago-input--error" : ""}
-              />
-              {errores.nombre && <span className="mpago-error">{errores.nombre}</span>}
-            </div>
-
-            <div className="mpago-row">
-              <div className="mpago-field">
-                <label>Vencimiento</label>
-                <input
-                  name="expiry"
-                  value={form.expiry}
-                  onChange={handleChange}
-                  placeholder="MM/AA"
-                  className={errores.expiry ? "mpago-input--error" : ""}
-                />
-                {errores.expiry && <span className="mpago-error">{errores.expiry}</span>}
-              </div>
-              <div className="mpago-field">
-                <label>CVV</label>
-                <input
-                  name="cvv"
-                  value={form.cvv}
-                  onChange={handleChange}
-                  placeholder="123"
-                  type="password"
-                  className={errores.cvv ? "mpago-input--error" : ""}
-                />
-                {errores.cvv && <span className="mpago-error">{errores.cvv}</span>}
-              </div>
-            </div>
-
-            <button className="mpago-btn-pagar" onClick={handleSubmit}>
-              Pagar $1.99 y activar Premium
-            </button>
-
-            <p className="mpago-disclaimer">
-              🔒 Pago simulado — no se realizan cargos reales
-            </p>
-          </div>
-        )}
-
-        {step === "procesando" && (
-          <div className="mpago-estado">
-            <div className="mpago-spinner" />
-            <p>Procesando pago...</p>
-            <span>No cerrés esta ventana</span>
-          </div>
-        )}
-
-        {step === "exito" && (
-          <div className="mpago-estado">
-            <div className="mpago-check">✓</div>
-            <p>¡Pago exitoso!</p>
-            <span>Activando tu cuenta Premium...</span>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px', width: '70%' }}>
-              <button onClick={descargarPDF} className="mpago-btn-pagar" style={{ background: '#bfe630', color: 'black' }}>
-                📄 Descargar Comprobante
-              </button>
-              <button onClick={finalizarFlujo} style={{ background: 'transparent', border: 'none', color: '#666', cursor: 'pointer', marginTop: '5px' }}>
-                Entrar a la App →
-              </button>
-            </div>
-          </div>
-        )}
+        {step === "plan" && renderSeleccionPlanes()}
+        {step === "form" && renderFormularioPago()}
+        {(step === "procesando" || step === "exito") && renderEstado()}
 
       </div>
 
-      {/* Comprobante oculto para generar PDF */}
-      <div style={{ 
+      {/* COMPROBANTE PDF (oculto) */}
+      <div style={{
         position: 'absolute',
         left: '-9999px',
         top: '-9999px',
@@ -279,175 +587,77 @@ function ModalPago({ onCerrar, onPagoExitoso }) {
         opacity: 0,
         pointerEvents: 'none'
       }}>
-        <div 
-          ref={comprobanteRef} 
-          style={{ 
-            width: '600px', 
-            padding: '40px', 
-            background: '#ffffff', 
-            color: '#000000', 
-            fontFamily: 'Arial, sans-serif',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            borderRadius: '8px'
-          }}
-        >
-          {/* Header del comprobante */}
-          <div style={{ 
-            borderBottom: '3px solid #4F46E5',
+        <div ref={comprobanteRef} style={{
+          width: '600px',
+          padding: '40px',
+          background: '#ffffff',
+          color: '#000000',
+          fontFamily: 'Arial, sans-serif',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          borderRadius: '8px'
+        }}>
+          <div style={{
+            borderBottom: `3px solid ${planElegido.color || '#d0b412'}`,
             paddingBottom: '15px',
             marginBottom: '20px'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <h2 style={{ 
-                  color: '#d6ed44', 
-                  margin: '0 0 5px 0', 
-                  fontSize: '24px',
-                  fontWeight: 'bold'
-                }}>
-                  COMPROBANTE DE COMPRA
+                <h2 style={{ color: planElegido.color, margin: '0 0 5px 0', fontSize: '24px', fontWeight: 'bold' }}>
+                  {planElegido.icono} COMPROBANTE
                 </h2>
-                
-                <p style={{ 
-                  fontSize: '14px', 
-                  color: '#666', 
-                  margin: '0',
-                  fontWeight: '500'
-                }}>
-                  Suscripción Premium - Music App
-                </p>
-                <p style={{ 
-                  fontSize: '14px', 
-                  color: '#666', 
-                  margin: '0',
-                  fontWeight: '500'
-                }}>
-                  Se cobra el mes proximo.
+                <p style={{ fontSize: '14px', color: '#666', margin: '0', fontWeight: '500' }}>
+                  Plan {planElegido.nombre} - {periodo.label} - Music App
                 </p>
               </div>
-              <div style={{ 
-                background: '#10B981',
-                color: 'white',
-                padding: '8px 16px',
-                borderRadius: '20px',
-                fontSize: '12px',
-                fontWeight: 'bold'
-              }}>
+              <div style={{ background: '#10B981', color: 'white', padding: '8px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
                 #PAGO-{Date.now().toString().slice(-6)}
               </div>
             </div>
           </div>
 
-          {/* Datos del comprobante */}
           <div style={{ padding: '10px 0' }}>
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              padding: '12px 0', 
-              borderBottom: '1px solid #e5e7eb' 
-            }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid #e5e7eb' }}>
               <span style={{ fontWeight: 'bold', color: '#4B5563' }}>Cliente:</span>
               <span style={{ fontWeight: '500', color: '#1F2937' }}>{nombreCliente}</span>
             </div>
-            
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              padding: '12px 0', 
-              borderBottom: '1px solid #e5e7eb' 
-            }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid #e5e7eb' }}>
               <span style={{ fontWeight: 'bold', color: '#4B5563' }}>Método de Pago:</span>
               <span style={{ fontWeight: '500', color: '#1F2937' }}>{brand || 'TARJETA'} (•••• {ultimosDigitos})</span>
             </div>
-
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              padding: '12px 0', 
-              borderBottom: '1px solid #e5e7eb' 
-            }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid #e5e7eb' }}>
               <span style={{ fontWeight: 'bold', color: '#4B5563' }}>Plan:</span>
-              <span style={{ fontWeight: '500', color: '#1F2937' }}>Premium Mensual</span>
+              <span style={{ fontWeight: '500', color: '#1F2937' }}>{planElegido.nombre}</span>
             </div>
-
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              padding: '12px 0', 
-              borderBottom: '1px solid #e5e7eb' 
-            }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid #e5e7eb' }}>
+              <span style={{ fontWeight: 'bold', color: '#4B5563' }}>Período:</span>
+              <span style={{ fontWeight: '500', color: '#1F2937' }}>{periodo.label}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid #e5e7eb' }}>
               <span style={{ fontWeight: 'bold', color: '#4B5563' }}>Monto:</span>
-              <span style={{ 
-                fontWeight: 'bold', 
-                fontSize: '20px', 
-                color: '#10B981'
-              }}>
-                $1.99 USD
+              <span style={{ fontWeight: 'bold', fontSize: '20px', color: precioElegido.precio === 0 ? '#6B7280' : '#10B981' }}>
+                {precioElegido.precio === 0 ? 'GRATIS' : `${precioElegido.texto}`}
               </span>
             </div>
-
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              padding: '12px 0', 
-              borderBottom: '1px solid #e5e7eb' 
-            }}>
-              <span style={{ fontWeight: 'bold', color: '#4B5563' }}>Estado:</span>
-              <span style={{ 
-                fontWeight: 'bold', 
-                color: '#10B981',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px'
-              }}>
-                <span style={{ fontSize: '18px' }}>✓</span> Aprobado (Simulación)
-              </span>
-            </div>
-
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              padding: '12px 0' 
-            }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0' }}>
               <span style={{ fontWeight: 'bold', color: '#4B5563' }}>Fecha:</span>
               <span style={{ fontWeight: '500', color: '#1F2937' }}>{fechaFormateada}</span>
             </div>
           </div>
 
-          {/* Footer del comprobante */}
-          <div style={{ 
-            marginTop: '25px',
-            paddingTop: '20px',
-            borderTop: '2px solid #e5e7eb'
-          }}>
-            <div style={{ 
-              background: '#F3F4F6', 
-              padding: '15px', 
-              borderRadius: '8px'
-            }}>
-              <p style={{ 
-                textAlign: 'center', 
-                fontSize: '13px', 
-                color: '#4B5563',
-                margin: '0',
-                fontWeight: '500'
-              }}>
-                ¡Gracias por tu suscripción! Disfruta de todos los beneficios Premium.
+          <div style={{ marginTop: '25px', paddingTop: '20px', borderTop: '2px solid #e5e7eb' }}>
+            <div style={{ background: '#F3F4F6', padding: '15px', borderRadius: '8px' }}>
+              <p style={{ textAlign: 'center', fontSize: '13px', color: '#4B5563', margin: '0', fontWeight: '500' }}>
+                ¡Gracias por tu suscripción! Disfruta de todos los beneficios del plan {planElegido.nombre}.
               </p>
-              <p style={{ 
-                textAlign: 'center', 
-                fontSize: '11px', 
-                color: '#9CA3AF',
-                margin: '8px 0 0 0'
-              }}>
+              <p style={{ textAlign: 'center', fontSize: '11px', color: '#9CA3AF', margin: '8px 0 0 0' }}>
                 * Este comprobante es una simulación para fines demostrativos
               </p>
             </div>
           </div>
         </div>
       </div>
-
-    </div> 
+    </div>
   );
 }
 

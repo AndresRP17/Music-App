@@ -22,8 +22,9 @@ function Configuracion() {
   useEffect(() => {
     // acá dejás solo lo que SÍ necesita el effect, por ejemplo fetches al backend
   }, [userId]);
+  
+const esPremiumOAdmin = role === "premium" || role === "admin" || role === "familiar";
 
-  const esPremiumOAdmin = role === "premium" || role === "admin";
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -59,51 +60,62 @@ function Configuracion() {
     }
   };
 
-  // Ahora solo abre el modal de pago
   const activarPremium = () => {
     setMostrarModalPago(true);
   };
 
-  // Se llama desde ModalPago cuando el pago es exitoso
- const onPagoExitoso = async (ultimos, marca) => {
-  if (window.location.hostname.includes("netlify")) {
-    localStorage.setItem("role", "premium");
-    setRole("premium");
+  // ⭐⭐⭐ GUARDAMOS LOS DATOS DEL PAGO, PERO TODAVÍA NO TOCAMOS role/localStorage ⭐⭐⭐
+  // Así el tema dorado no "flashea" de fondo mientras el usuario todavía está
+  // mirando el modal de bienvenida. La activación real pasa en aplicarPremium(),
+  // que se dispara recién cuando cierra ese modal.
+  const [pagoPendiente, setPagoPendiente] = useState(null);
+
+  const onPagoExitoso = (ultimos, marca, planSeleccionado, periodo) => {
+    console.log('🎉 Pago exitoso!');
+    console.log('Plan:', planSeleccionado);
+    console.log('Período:', periodo);
+    console.log('Últimos 4 dígitos:', ultimos);
+    console.log('Marca:', marca);
+
+    // Guardamos lo necesario para aplicarlo después, al cerrar el modal de bienvenida
+    setPagoPendiente({ planSeleccionado });
+
+    // ⭐ MOSTRAR MODAL DE BIENVENIDA (todavía con el tema viejo, sin gold) ⭐
     setMostrarModalPremium(true);
-    window.dispatchEvent(new Event("rolActualizado"));
-    return;
-  }
+  };
 
-  try {
-    const res = await fetch('/api/pagos', {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        monto: "1.99",
-        ultimos: ultimos,
-        marca: marca
-      })
-    });
+  // ⭐⭐⭐ ACÁ SE APLICA DE VERDAD EL CAMBIO DE PLAN, recién al cerrar el modal ⭐⭐⭐
+  const aplicarPremiumYRecargar = () => {
+    setMostrarModalPremium(false);
 
-    if (res.ok) {
-      localStorage.setItem("role", "premium");
-      setRole("premium");
-      setMostrarModalPremium(true);
+    if (pagoPendiente) {
+      const { planSeleccionado } = pagoPendiente;
+      const nuevoRole = (planSeleccionado?.id === 'familiar') ? 'premium' : (planSeleccionado?.id || 'premium');
+
+      localStorage.setItem("role", nuevoRole);
+      setRole(nuevoRole);
+
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      user.plan = nuevoRole;
+      user.plan_actualizado = new Date().toISOString();
+      localStorage.setItem('user', JSON.stringify(user));
+
       window.dispatchEvent(new Event("rolActualizado"));
-      setMensaje("🌟 ¡Ahora sos Premium! Sin anuncios.");
     }
-  } catch {
-    setMensaje("❌ Error de conexión");
-  }
-};
+
+    // Recargamos recién ahora, con todo ya aplicado y visto por el usuario.
+  
+  };
 
   const cancelarPremium = async () => {
     if (window.location.hostname.includes("netlify")) {
       localStorage.setItem("role", "user");
       setRole("user");
+      
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      user.plan = 'user';
+      localStorage.setItem('user', JSON.stringify(user));
+      
       window.dispatchEvent(new Event("rolActualizado"));
       setMostrarModalCancel(true);
       return;
@@ -119,7 +131,11 @@ function Configuracion() {
       if (res.ok) {
         localStorage.setItem("role", "user");
         setRole("user");
-        setMensaje("Plan cambiado a gratuito.");
+        
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        user.plan = 'user';
+        localStorage.setItem('user', JSON.stringify(user));
+        
         setMostrarModalCancel(true);
         window.dispatchEvent(new Event("rolActualizado"));
       } else {
@@ -157,7 +173,7 @@ function Configuracion() {
         {esPremiumOAdmin ? (
           <>
             <div className="premium-badge">
-              {role === "admin" ? "🛠️ Cuenta Administrador" : "🌟 Sos usuario Premium"}
+              {role === "admin" ? "🛠️ Cuenta Administrador" : "Sos usuario Premium"}
             </div>
             <p className="premium-desc">
               {role === "admin"
@@ -188,13 +204,14 @@ function Configuracion() {
         <ModalPago
           onCerrar={() => setMostrarModalPago(false)}
           onPagoExitoso={onPagoExitoso}
+          userId={userId}  // ← PASAR userId
         />
       )}
 
       {/* Modal de bienvenida premium */}
       {mostrarModalPremium && (
         <ModalPremiumBienvenida
-          onClose={() => setMostrarModalPremium(false)}
+          onClose={aplicarPremiumYRecargar}
         />
       )}
 

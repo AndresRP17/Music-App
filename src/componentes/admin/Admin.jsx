@@ -1,9 +1,44 @@
 import { useState, useEffect } from "react";
-import { Doughnut, Bar } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from "chart.js";
+import { Doughnut, Bar, Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Filler,
+} from "chart.js";
 import "./styles/Admin.css";
 
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
+ChartJS.register(
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  Filler
+);
+
+// ⭐ Formateador de plata, en USD porque así están cargados los precios de los planes ⭐
+const formatMoney = (n) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n || 0);
+
+const PLAN_LABELS = {
+  premium: "Premium",
+  familiar: "Familiar",
+};
+
+const PLAN_COLORS = {
+  premium: "#d0b412",
+  familiar: "#10B981",
+};
 
 function Admin() {
   const [genres, setGenres] = useState([]);
@@ -11,6 +46,10 @@ function Admin() {
   const [userStats, setUserStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(true);
   const [rolesStats, setRolesStats] = useState({ total: 0, admins: 0, premium: 0, users: 0 });
+
+  // ⭐ NUEVO: pagos de toda la plataforma, para los gráficos de ingresos ⭐
+  const [pagos, setPagos] = useState([]);
+  const [loadingPagos, setLoadingPagos] = useState(true);
 
   // EFFECT 1: Géneros globales de Deezer
   useEffect(() => {
@@ -108,6 +147,21 @@ function Admin() {
       });
   }, []);
 
+  // ⭐ EFFECT 3 (NUEVO): Pagos de toda la plataforma, para los gráficos de plata ⭐
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const headers = { Authorization: `Bearer ${token}` };
+
+    fetch(`${import.meta.env.VITE_API_URL}/pagos`, { headers })
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setPagos(Array.isArray(data) ? data : []))
+      .catch(err => {
+        console.error('Error trayendo pagos:', err);
+        setPagos([]);
+      })
+      .finally(() => setLoadingPagos(false));
+  }, []);
+
   const chartLabels = genres.map((g) => g.name);
   const baseValues = [35, 25, 18, 12, 10, 8, 5];
   const chartValues = baseValues.slice(0, genres.length);
@@ -171,6 +225,104 @@ function Admin() {
   const MEDAL = ["🥇","🥈","🥉","4️⃣","5️⃣"];
   const GENRE_COLORS = ["#1db954","#d6e109","#e70404","#be1588","#0e7187"];
 
+  // ⭐⭐⭐ NUEVO: cálculos de plata a partir de "pagos" ⭐⭐⭐
+  // ⭐ OJO: en la tabla "pagos" el estado guardado es "exitoso", no "completado" ⭐
+  const pagosCompletados = pagos.filter(p => p.estado === 'exitoso');
+  const ingresosTotales = pagosCompletados.reduce((acc, p) => acc + Number(p.monto || 0), 0);
+
+  // Agrupar ingresos por mes (clave ordenable "YYYY-MM")
+  const ingresosPorMesMap = {};
+  pagosCompletados.forEach(p => {
+    const fecha = new Date(p.fecha);
+    if (isNaN(fecha.getTime())) return;
+    const key = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
+    ingresosPorMesMap[key] = (ingresosPorMesMap[key] || 0) + Number(p.monto || 0);
+  });
+  const mesesOrdenados = Object.keys(ingresosPorMesMap).sort();
+  const labelsMeses = mesesOrdenados.map((key) => {
+    const [y, m] = key.split('-');
+    return new Date(Number(y), Number(m) - 1).toLocaleDateString('es-ES', { month: 'short', year: '2-digit' });
+  });
+  const valoresMeses = mesesOrdenados.map((key) => ingresosPorMesMap[key]);
+
+  const dataIngresosMes = {
+    labels: labelsMeses,
+    datasets: [{
+      label: "Ingresos (USD)",
+      data: valoresMeses,
+      backgroundColor: "#1db95433",
+      borderColor: "#1db954",
+      borderWidth: 2,
+      fill: true,
+      tension: 0.35,
+      pointBackgroundColor: "#1db954",
+      pointBorderColor: "#121212",
+      pointRadius: 4,
+      pointHoverRadius: 6,
+    }],
+  };
+
+  const lineOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: "#181818", titleColor: "#1db954", bodyColor: "#fff",
+        borderColor: "#282828", borderWidth: 1,
+        callbacks: { label: (ctx) => ` ${formatMoney(ctx.raw)}` }
+      },
+    },
+    scales: {
+      x: { ticks: { color: "#aaa", font: { size: 11 } }, grid: { color: "#222" } },
+      y: {
+        ticks: { color: "#aaa", callback: (v) => formatMoney(v) },
+        grid: { color: "#222" },
+        beginAtZero: true,
+      },
+    },
+  };
+
+  // Ingresos agrupados por plan (Premium vs Familiar)
+  const ingresosPorPlanMap = {};
+  pagosCompletados.forEach(p => {
+    const plan = p.plan || 'otro';
+    ingresosPorPlanMap[plan] = (ingresosPorPlanMap[plan] || 0) + Number(p.monto || 0);
+  });
+  const planesOrdenados = Object.keys(ingresosPorPlanMap);
+
+  const dataIngresosPorPlan = {
+    labels: planesOrdenados.map((p) => PLAN_LABELS[p] || p),
+    datasets: [{
+      data: planesOrdenados.map((p) => ingresosPorPlanMap[p]),
+      backgroundColor: planesOrdenados.map((p) => (PLAN_COLORS[p] || "#0e7187") + "cc"),
+      borderColor: "#121212",
+      borderWidth: 2,
+    }],
+  };
+
+  const donaPlanOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "bottom",
+        labels: { color: "#fff", font: { size: 12, weight: "500" }, padding: 15, usePointStyle: true },
+      },
+      tooltip: {
+        backgroundColor: "#181818", titleColor: "#1db954", bodyColor: "#fff",
+        borderColor: "#282828", borderWidth: 1,
+        callbacks: { label: (ctx) => ` ${ctx.label}: ${formatMoney(ctx.raw)}` }
+      },
+    },
+    cutout: "70%",
+  };
+
+  // Últimas 5 transacciones, para una lista rápida
+  const ultimosPagos = [...pagosCompletados]
+    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+    .slice(0, 5);
+
   return (
     <div className="admin-dashboard-container">
 
@@ -229,6 +381,25 @@ function Admin() {
           <div>
             <h3>Total Canciones (incl. Playlists)</h3>
             <p className="stat-number">{loadingStats ? "..." : `${userStats?.total ?? 0} canciones`}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ⭐ NUEVO: TARJETAS DE PLATA ⭐ */}
+      <section className="stats-grid">
+        <div className="stat-card">
+          <span className="stat-icon">💰</span>
+          <div>
+            <h3>Ingresos Totales</h3>
+            <p className="stat-number">{loadingPagos ? "..." : formatMoney(ingresosTotales)}</p>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <span className="stat-icon">🧾</span>
+          <div>
+            <h3>Pagos Confirmados</h3>
+            <p className="stat-number">{loadingPagos ? "..." : `${pagosCompletados.length} pagos`}</p>
           </div>
         </div>
       </section>
@@ -322,6 +493,63 @@ function Admin() {
           </section>
 
         </div>
+      )}
+
+      {/* ⭐⭐⭐ FILA 3 (NUEVA): Plata — ingresos por mes + por plan ⭐⭐⭐ */}
+      <div className="admin-charts-row">
+
+        <section className="graph-section">
+          <h2>💵 Ingresos por Mes</h2>
+          <p className="graph-subtitle">Evolución de la facturación confirmada</p>
+          {loadingPagos ? (
+            <div className="loader">Sumando los pagos...</div>
+          ) : valoresMeses.length > 0 ? (
+            <div className="graph-chart-wrapper">
+              <Line data={dataIngresosMes} options={lineOptions} />
+            </div>
+          ) : (
+            <p style={{ color: "#aaa", marginTop: "20px" }}>Todavía no hay pagos registrados.</p>
+          )}
+        </section>
+
+        <section className="graph-section">
+          <h2>👑 Ingresos por Plan</h2>
+          <p className="graph-subtitle">Premium vs Familiar</p>
+          {loadingPagos ? (
+            <div className="loader">Sumando los pagos...</div>
+          ) : planesOrdenados.length > 0 ? (
+            <div className="graph-chart-wrapper">
+              <Doughnut data={dataIngresosPorPlan} options={donaPlanOptions} />
+            </div>
+          ) : (
+            <p style={{ color: "#aaa", marginTop: "20px" }}>Todavía no hay pagos registrados.</p>
+          )}
+        </section>
+
+      </div>
+
+      {/* ⭐ NUEVO: últimas transacciones ⭐ */}
+      {!loadingPagos && ultimosPagos.length > 0 && (
+        <section className="graph-section" style={{ marginTop: "20px" }}>
+          <h2>🧾 Últimas Transacciones</h2>
+          <p className="graph-subtitle">Los 5 pagos más recientes de la plataforma</p>
+          <div className="ranking-list">
+            {ultimosPagos.map((p) => (
+              <div key={p.id}>
+                <div className="ranking-item__header">
+                  <span className="ranking-item__name">
+                    {p.plan === 'familiar' ? '👨‍👩‍👧‍👦' : '👑'} {PLAN_LABELS[p.plan] || p.plan} · {p.periodo}
+                  </span>
+                  <span className="ranking-item__count">{formatMoney(p.monto)}</span>
+                </div>
+                <p style={{ color: "#777", fontSize: "12px", margin: "4px 0 12px" }}>
+                  {new Date(p.fecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  {" · "}{p.marca} •••• {p.ultimos}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
       )}
     </div>
   );

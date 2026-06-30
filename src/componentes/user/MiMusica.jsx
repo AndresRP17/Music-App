@@ -36,7 +36,7 @@ const MiMusica = ({ reproducirLista, pausar }) => {
           /* 🌟 LE CLAVAMOS EL ESTILO INLINE DIRECTO QUE MANDA SOBRE TODO EL CSS */
           style={obtenerEstiloTab('favoritos')}
         >
-          ❤️ Favoritos
+          Favoritos
         </button>
         <button
           className={`mi-musica-tab ${pestanaActiva === 'playlists' ? 'active' : ''}`}
@@ -44,7 +44,7 @@ const MiMusica = ({ reproducirLista, pausar }) => {
           /* 🌟 ACÁ TAMBIÉN */
           style={obtenerEstiloTab('playlists')}
         >
-          🎵 Playlists
+           Playlists
         </button>
       </div>
 

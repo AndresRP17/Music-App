@@ -1,19 +1,19 @@
 /* ============================================ */
-/* ===== MODAL PAGO - COMPLETO Y OPTIMIZADO ===== */
+/* ===== MODAL PAGO - TEMA OSCURO UNIFICADO ===== */
 /* ============================================ */
 
 /* ===== OVERLAY ===== */
 .mpago-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
   padding: 12px;
-  overflow-y: auto; /* El overlay maneja el scroll */
-  -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ===== MODAL PRINCIPAL ===== */
@@ -22,8 +22,8 @@
   border: 0.5px solid #2a2a2a;
   border-radius: 16px;
   width: 100%;
-  max-width: 420px;
-  overflow: visible; /* SIN scroll propio */
+  max-width: 580px;
+  overflow: visible;
   margin: auto;
 }
 
@@ -36,6 +36,11 @@
   justify-content: space-between;
   align-items: flex-start;
   padding: 16px 18px 0;
+  margin-bottom: 10px;
+}
+
+.mpago-header-left {
+  flex: 1;
 }
 
 .mpago-eyebrow {
@@ -54,6 +59,12 @@
   margin: 0;
 }
 
+.mpago-subtitle {
+  font-size: 12px;
+  color: #888;
+  margin: 4px 0 0 0;
+}
+
 .mpago-cerrar {
   background: none;
   border: none;
@@ -63,12 +74,13 @@
   padding: 4px;
   line-height: 1;
   transition: color 0.15s, transform 0.15s;
-  margin-top: -4px;
+  margin-top: -2px;
   min-width: 44px;
   min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .mpago-cerrar:hover {
@@ -256,7 +268,6 @@
   outline: none;
   transition: border-color 0.15s;
   font-family: monospace;
-  -webkit-appearance: none;
   min-height: 44px;
 }
 
@@ -289,10 +300,6 @@
   gap: 10px;
 }
 
-
-
-
-/* ===== CVV MUY PEQUEÑO ===== */
 .mpago-row .mpago-field:last-child input {
   min-height: 36px;
   padding: 4px 6px;
@@ -303,7 +310,6 @@
   border-radius: 6px;
 }
 
-/* ===== FECHA MÁS GRANDE ===== */
 .mpago-row .mpago-field:first-child input {
   min-height: 36px;
   padding: 4px 6px;
@@ -345,7 +351,7 @@
 .mpago-disclaimer {
   text-align: center;
   font-size: 10px;
-  color: #444;
+  color: #666;
   margin: 0;
 }
 
@@ -400,7 +406,7 @@
   align-items: center;
   justify-content: center;
   font-size: 22px;
-  color: #000;
+  color: #fff9f9;
   font-weight: 700;
   animation: mpago-pop 0.3s ease;
 }
@@ -417,6 +423,331 @@
     transform: scale(1);
     opacity: 1;
   }
+}
+
+/* ============================================ */
+/* ===== PERÍODOS (TABS) - TEMA OSCURO ===== */
+/* ============================================ */
+
+.mpago-periodos-wrapper {
+  padding: 0 16px 0 0;
+  margin-top: 12px;
+  
+}
+
+.mpago-periodos {
+  display: flex;
+  gap: 4px;
+  background: #2a2727;
+  padding: 4px;
+  border-radius: 10px;
+  
+
+}
+
+.mpago-periodo-btn {
+  flex: 1 1 0;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background: rgb(1, 1, 1);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  min-height: 36px;
+
+}
+
+.mpago-periodo-btn:hover {
+  background: #d3d3c4;
+  color: black;
+}
+
+/* ===== ACTIVO (siempre tiene prioridad) ===== */
+.mpago-periodo-btn--active {
+
+  background: #d0b412 !important; /* ← El !important fuerza que se aplique siempre */
+  box-shadow: 0 2px 12px rgba(208, 180, 18, 0.2);
+  cursor: default;
+}
+
+
+.mpago-periodo-btn--active:hover {
+  background: #0cad4c;  /* ← Mismo color que active */
+}
+
+
+
+.mpago-periodo-btn--active .mpago-periodo-label {
+  color: #0d0d0d;
+}
+
+.mpago-periodo-btn--active .mpago-periodo-precio {
+  color: #0b0a0a;
+}
+
+.mpago-periodo-label {
+  font-weight: 600;
+  font-size: 12px;
+  color: #5f5959;
+  transition: color 0.2s;
+}
+
+
+
+.mpago-periodo-badge {
+  font-size: 7px;
+  font-weight: 700;
+  color: #000;
+  background: #4ade80;
+  padding: 1px 6px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.mpago-periodo-precio {
+  font-size: 11px;
+  font-weight: 600;
+  color: #555;
+}
+
+/* ============================================ */
+/* ===== PLANES - 2 CARDS MÁS GRANDES ===== */
+/* ============================================ */
+
+.mpago-planes {
+  padding: 0 16px 16px;
+}
+
+.mpago-planes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 16px 0;
+}
+
+@media (max-width: 480px) {
+  .mpago-planes-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    max-width: 340px;
+    margin: 16px auto;
+  }
+}
+
+/* ===== CARD DE PLAN - MÁS GRANDE ===== */
+.mpago-plan-card {
+  border: 1.5px solid #2a2a2a;
+  border-radius: 14px;
+  padding: 18px 14px 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #1a1a1a;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 260px;
+  max-height: 340px;
+}
+
+.mpago-plan-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  border-color: #3a3a3a;
+}
+
+.mpago-plan-card--popular {
+  border-color: #d0b412;
+  background: #1e1a0a;
+  transform: scale(1.03);
+}
+
+.mpago-plan-card--popular:hover {
+  transform: scale(1.03) translateY(-4px);
+}
+
+.mpago-plan-card--selected {
+  border-color: #d0b412 !important;
+  box-shadow: 0 0 30px rgba(208, 180, 18, 0.15);
+}
+
+/* ===== BADGE POPULAR ===== */
+.mpago-plan-badge {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #d0b412;
+  color: #000;
+  padding: 3px 14px;
+  border-radius: 20px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* ===== HEADER DE LA CARD ===== */
+.mpago-plan-header {
+  margin-bottom: 6px;
+}
+
+.mpago-plan-icon {
+  font-size: 28px;
+  margin-bottom: 4px;
+}
+
+.mpago-plan-nombre {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 2px 0;
+}
+
+.mpago-plan-desc {
+  font-size: 11px;
+  color: #888;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* ===== PRECIO EN LA CARD ===== */
+.mpago-plan-precio-container {
+  padding: 8px 0;
+  border-top: 1.5px dashed #2a2a2a;
+  border-bottom: 1.5px dashed #2a2a2a;
+  margin: 6px 0 8px 0;
+}
+
+.mpago-plan-precio-number {
+  font-size: 20px;
+  font-weight: 800;
+  color: #d0b412;
+}
+
+.mpago-plan-precio-ahorro {
+  font-size: 10px;
+  color: #4ade80;
+  font-weight: 600;
+  display: block;
+  margin-top: 1px;
+}
+
+.mpago-plan-precio-badge {
+  display: inline-block;
+  color: #000;
+  background: #4ade80;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 12px;
+  margin-top: 3px;
+  text-transform: uppercase;
+}
+
+/* ===== CARACTERÍSTICAS ===== */
+.mpago-plan-caracteristicas {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 10px 0;
+  text-align: left;
+  font-size: 11px;
+  color: #aaa;
+  flex: 1;
+  overflow: hidden;
+}
+
+.mpago-plan-caracteristicas li {
+  padding: 2px 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mpago-check-icon {
+  color: #4ade80;
+  font-weight: 700;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+/* ===== BOTÓN DE LA CARD ===== */
+.mpago-plan-btn {
+  border: none;
+  padding: 9px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.25s ease;
+  background: #2a2a2a;
+  color: #aaa;
+  margin-top: auto;
+}
+
+.mpago-plan-btn:hover {
+  transform: scale(1.02);
+  background: #333;
+  color: #fff;
+}
+
+.mpago-plan-btn--selected {
+  background: #d0b412;
+  color: #000;
+  cursor: default;
+}
+
+.mpago-plan-btn--selected:hover {
+  transform: none;
+}
+
+/* ============================================ */
+/* ===== RESUMEN DEL PLAN (en formulario) ===== */
+/* ============================================ */
+
+.mpago-resumen-plan {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  margin: 0 16px 16px;
+  background: #1a1a1a;
+  border: 0.5px solid #2a2a2a;
+}
+
+.mpago-resumen-icon {
+  font-size: 24px;
+}
+
+.mpago-resumen-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.mpago-resumen-nombre {
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+}
+
+.mpago-resumen-periodo {
+  font-size: 12px;
+  color: #888;
+}
+
+.mpago-resumen-precio {
+  font-weight: 700;
+  font-size: 16px;
+  color: #d0b412;
 }
 
 /* ============================================ */
@@ -438,6 +769,10 @@
 
   .mpago-title {
     font-size: 18px;
+  }
+
+  .mpago-subtitle {
+    font-size: 13px;
   }
 
   .mpago-cerrar {
@@ -554,6 +889,74 @@
     height: 56px;
     font-size: 24px;
   }
+
+  .mpago-periodos-wrapper {
+    padding: 0 24px;
+    margin-top: 16px;
+  }
+
+  .mpago-periodos {
+    padding: 6px;
+  }
+
+  .mpago-periodo-btn {
+    padding: 10px 14px;
+    min-height: 40px;
+    gap: 6px;
+  }
+
+  .mpago-periodo-label {
+    font-size: 13px;
+  }
+
+  .mpago-periodo-precio {
+    font-size: 12px;
+  }
+
+  .mpago-periodo-badge {
+    font-size: 8px;
+    padding: 2px 8px;
+  }
+
+  .mpago-planes {
+    padding: 0 24px 20px;
+  }
+
+  .mpago-planes-grid {
+    gap: 16px;
+  }
+
+  .mpago-plan-card {
+    min-height: 280px;
+    max-height: 360px;
+    padding: 20px 16px 16px;
+    border-radius: 16px;
+  }
+
+  .mpago-plan-icon {
+    font-size: 32px;
+  }
+
+  .mpago-plan-nombre {
+    font-size: 19px;
+  }
+
+  .mpago-plan-desc {
+    font-size: 12px;
+  }
+
+  .mpago-plan-precio-number {
+    font-size: 22px;
+  }
+
+  .mpago-plan-caracteristicas {
+    font-size: 12px;
+  }
+
+  .mpago-resumen-plan {
+    margin: 0 24px 20px;
+    padding: 16px 24px;
+  }
 }
 
 /* ============================================ */
@@ -567,10 +970,9 @@
   }
 
   .mpago-modal {
-    max-width: 440px;
+    max-width: 620px;
     border-radius: 20px;
-    max-height: none; /* SIN límite de altura */
-    overflow: visible; /* SIN scroll propio */
+    overflow: visible;
   }
 
   .mpago-header {
@@ -617,6 +1019,42 @@
   .mpago-btn-pagar:hover {
     opacity: 0.9;
     transform: translateY(-2px);
+  }
+
+  .mpago-periodos-wrapper {
+    padding: 0 28px;
+    margin-top: 18px;
+  }
+
+  .mpago-planes {
+    padding: 0 28px 24px;
+  }
+
+  .mpago-planes-grid {
+    gap: 20px;
+  }
+
+  .mpago-plan-card {
+    min-height: 300px;
+    max-height: 380px;
+    padding: 22px 18px 18px;
+    border-radius: 18px;
+  }
+
+  .mpago-plan-icon {
+    font-size: 36px;
+  }
+
+  .mpago-plan-nombre {
+    font-size: 21px;
+  }
+
+  .mpago-plan-precio-number {
+    font-size: 24px;
+  }
+
+  .mpago-resumen-plan {
+    margin: 0 28px 24px;
   }
 }
 
@@ -715,6 +1153,78 @@
     height: 40px;
     font-size: 18px;
   }
+
+  .mpago-periodos-wrapper {
+    padding: 0 12px;
+    margin-top: 10px;
+  }
+
+  .mpago-periodo-btn {
+    padding: 6px 8px;
+    min-height: 30px;
+    gap: 3px;
+  }
+
+  .mpago-periodo-label {
+    font-size: 10px;
+  }
+
+  .mpago-periodo-precio {
+    font-size: 9px;
+  }
+
+  .mpago-periodo-badge {
+    font-size: 6px;
+    padding: 1px 4px;
+  }
+
+  .mpago-planes {
+    padding: 0 12px 12px;
+  }
+
+  .mpago-planes-grid {
+    gap: 10px;
+  }
+
+  .mpago-plan-card {
+    min-height: 220px;
+    max-height: 300px;
+    padding: 14px 10px 10px;
+  }
+
+  .mpago-plan-icon {
+    font-size: 22px;
+  }
+
+  .mpago-plan-nombre {
+    font-size: 15px;
+  }
+
+  .mpago-plan-desc {
+    font-size: 10px;
+  }
+
+  .mpago-plan-precio-number {
+    font-size: 17px;
+  }
+
+  .mpago-plan-caracteristicas {
+    font-size: 10px;
+  }
+
+  .mpago-plan-caracteristicas li {
+    padding: 1px 0;
+  }
+
+  .mpago-plan-btn {
+    font-size: 11px;
+    padding: 7px 10px;
+  }
+
+  .mpago-resumen-plan {
+    margin: 0 12px 12px;
+    padding: 10px 14px;
+  }
 }
 
 /* ============================================ */
@@ -799,6 +1309,43 @@
     height: 36px;
     font-size: 16px;
   }
+
+  .mpago-periodos-wrapper {
+    padding: 0 14px;
+    margin-top: 8px;
+  }
+
+  .mpago-planes {
+    padding: 0 14px 12px;
+  }
+
+  .mpago-planes-grid {
+    gap: 8px;
+    margin: 8px 0;
+  }
+
+  .mpago-plan-card {
+    min-height: 180px;
+    max-height: 240px;
+    padding: 10px 8px 8px;
+  }
+
+  .mpago-plan-icon {
+    font-size: 18px;
+  }
+
+  .mpago-plan-nombre {
+    font-size: 13px;
+  }
+
+  .mpago-plan-precio-number {
+    font-size: 15px;
+  }
+
+  .mpago-resumen-plan {
+    margin: 0 14px 12px;
+    padding: 10px 14px;
+  }
 }
 
 /* ============================================ */
@@ -808,15 +1355,14 @@
 @media (max-width: 767px) {
   .mpago-modal {
     max-height: 95vh;
-    overflow-y: auto; /* Scroll solo en móvil si es necesario */
+    overflow-y: auto;
   }
 }
 
 /* ============================================ */
-/* ===== SCROLLBAR PERSONALIZADO (OPCIONAL) ===== */
+/* ===== SCROLLBAR PERSONALIZADO ===== */
 /* ============================================ */
 
-/* Personaliza la barra de scroll en móvil */
 @media (max-width: 767px) {
   .mpago-modal::-webkit-scrollbar {
     width: 4px;
@@ -835,7 +1381,6 @@
     background: #e0c820;
   }
 
-  /* Firefox */
   .mpago-modal {
     scrollbar-width: thin;
     scrollbar-color: #d0b412 #1a1a1a;
