@@ -51,7 +51,7 @@ const ArtistDetail = () => {
     fetchArtist();
   }, [artistName]);
 
-  // ⭐⭐⭐ CORREGIDO ⭐⭐⭐
+  
   if (cargando) {
     return (
       <div 

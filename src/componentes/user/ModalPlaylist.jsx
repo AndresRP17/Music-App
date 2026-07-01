@@ -56,9 +56,7 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
       }
 
       try {
-        // 🔧 FIX: pedimos playlists y favoritos EN PARALELO con Promise.all,
-        // en vez de un await atrás del otro. Antes, favoritos se pedía
-        // recién después de terminar todo el tema de playlists (más lento).
+       
         const [playlistsRes, favRes] = await Promise.all([
           fetch("/api/playlists", {
             headers: { Authorization: `Bearer ${token}` },
@@ -321,11 +319,6 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
           </button>
         </div>
 
-        {/* 🔧 FIX: Fila de Favoritos ahora tapada por "cargando",
-            igual que la lista de playlists. Antes se renderizaba
-            siempre como "Agregar a Favoritos" hasta que llegaba
-            la respuesta del fetch, generando el efecto de
-            "tarda en darse cuenta". */}
         {cargando ? (
           <div
             style={{

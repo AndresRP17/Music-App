@@ -385,7 +385,7 @@ function Admin() {
         </div>
       </section>
 
-      {/* ⭐ NUEVO: TARJETAS DE PLATA ⭐ */}
+      {/*  NUEVO: TARJETAS DE PLATA  */}
       <section className="stats-grid">
         <div className="stat-card">
           <span className="stat-icon">💰</span>
@@ -495,7 +495,7 @@ function Admin() {
         </div>
       )}
 
-      {/* ⭐⭐⭐ FILA 3 (NUEVA): Plata — ingresos por mes + por plan ⭐⭐⭐ */}
+      {/*  FILA 3  Plata — ingresos por mes + por plan  */}
       <div className="admin-charts-row">
 
         <section className="graph-section">
@@ -528,7 +528,7 @@ function Admin() {
 
       </div>
 
-      {/* ⭐ NUEVO: últimas transacciones ⭐ */}
+      {/*  NUEVO: últimas transacciones  */}
       {!loadingPagos && ultimosPagos.length > 0 && (
         <section className="graph-section" style={{ marginTop: "20px" }}>
           <h2>🧾 Últimas Transacciones</h2>

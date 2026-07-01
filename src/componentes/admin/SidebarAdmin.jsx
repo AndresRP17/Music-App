@@ -6,13 +6,13 @@ function SidebarAdmin() {
       <h2 style={{ color: "#e9efeb", marginBottom: "30px" }}> MusicAdmin🎵</h2>
       <ul style={{ listStyle: "none", padding: 0 }}>
         <li style={{ margin: "20px 0" }}>
-          <Link to="/admin" style={{ color: "white", textDecoration: "none", fontWeight: "bold" }}>📊 Estadísticas de la app</Link>
+          <Link to="/admin" style={{ color: "white", textDecoration: "none", fontWeight: "bold" }}>Estadísticas de la app</Link>
         </li>
         <li style={{ margin: "20px 0" }}>
         </li>
         
 <li style={{ margin: "20px 0" }}>
-  <Link to="/admin/usuarios" style={{ color: "white", textDecoration: "none", fontWeight: "bold" }}>👤 Gestión de Usuarios</Link>
+  <Link to="/admin/usuarios" style={{ color: "white", textDecoration: "none", fontWeight: "bold" }}> Gestión de Usuarios</Link>
 </li>
         <li style={{ margin: "40px 0 0 0" }}>
           <Link to="/" style={{ color: "#aaa", textDecoration: "none", fontSize: "14px" }}>← Salir al Cliente</Link>

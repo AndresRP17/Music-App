@@ -198,8 +198,8 @@ function AlbumDetails({ reproducirLista, pausar }) {
     style={{
       boxShadow:
         role === "premium" || role === "admin"
-          ? "0 8px 24px rgba(208, 180, 18, 0.6)" // El dorado si cumple el rol
-          : "0 8px 24px rgba(0, 0, 0, 0.5)",     // Sombra negra clásica si es user normal
+          ? "0 8px 24px rgba(208, 180, 18, 0.6)" 
+          : "0 8px 24px rgba(0, 0, 0, 0.5)",     
     }}
   />
         <div className="header-info">

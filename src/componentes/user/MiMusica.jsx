@@ -8,7 +8,7 @@ const MiMusica = ({ reproducirLista, pausar }) => {
   const role = localStorage.getItem("role") || "user";
   const esPremium = role === "premium" || role === "admin";
 
-  // 🌟 FUNCIÓN SÚPER PRECISIÓN: Retorna el estilo exacto que necesita el botón
+
   const obtenerEstiloTab = (nombreTab) => {
     const estaActiva = pestanaActiva === nombreTab;
     
@@ -20,7 +20,7 @@ const MiMusica = ({ reproducirLista, pausar }) => {
       };
     }
     
-    // Si no está activa, mantiene el color gris normal o dorado sutil al estar inactiva
+   
     return {
       color: '#aaa',
       borderBottom: '2px solid transparent'

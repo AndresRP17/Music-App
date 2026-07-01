@@ -20,7 +20,7 @@ function Configuracion() {
   });
 
   useEffect(() => {
-    // acá dejás solo lo que SÍ necesita el effect, por ejemplo fetches al backend
+   
   }, [userId]);
   
 const esPremiumOAdmin = role === "premium" || role === "admin" || role === "familiar";
@@ -63,10 +63,6 @@ const esPremiumOAdmin = role === "premium" || role === "admin" || role === "fami
     setMostrarModalPago(true);
   };
 
-  // ⭐⭐⭐ GUARDAMOS LOS DATOS DEL PAGO, PERO TODAVÍA NO TOCAMOS role/localStorage ⭐⭐⭐
-  // Así el tema dorado no "flashea" de fondo mientras el usuario todavía está
-  // mirando el modal de bienvenida. La activación real pasa en aplicarPremium(),
-  // que se dispara recién cuando cierra ese modal.
   const [pagoPendiente, setPagoPendiente] = useState(null);
 
   const onPagoExitoso = (ultimos, marca, planSeleccionado, periodo) => {
@@ -76,14 +72,12 @@ const esPremiumOAdmin = role === "premium" || role === "admin" || role === "fami
     console.log('Últimos 4 dígitos:', ultimos);
     console.log('Marca:', marca);
 
-    // Guardamos lo necesario para aplicarlo después, al cerrar el modal de bienvenida
+    
     setPagoPendiente({ planSeleccionado });
 
-    // ⭐ MOSTRAR MODAL DE BIENVENIDA (todavía con el tema viejo, sin gold) ⭐
     setMostrarModalPremium(true);
   };
 
-  // ⭐⭐⭐ ACÁ SE APLICA DE VERDAD EL CAMBIO DE PLAN, recién al cerrar el modal ⭐⭐⭐
   const aplicarPremiumYRecargar = () => {
     setMostrarModalPremium(false);
 
@@ -172,7 +166,7 @@ const esPremiumOAdmin = role === "premium" || role === "admin" || role === "fami
         {esPremiumOAdmin ? (
           <>
             <div className="premium-badge">
-              {role === "admin" ? "🛠️ Cuenta Administrador" : "Sos usuario Premium"}
+              {role === "admin" ? "Cuenta Administrador" : "Sos usuario Premium"}
             </div>
             <p className="premium-desc">
               {role === "admin"

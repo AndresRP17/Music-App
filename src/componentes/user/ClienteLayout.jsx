@@ -11,7 +11,7 @@ function ClienteLayout({ trackActual, setTrackActual, listaActual, indexActual, 
   if (onPausarRef) {
     onPausarRef.current = () => audioRef.current?.pause();
   }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
 }, []);
 
   const buscarYReproducir = async (index) => {

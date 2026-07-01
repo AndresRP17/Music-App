@@ -202,7 +202,7 @@ function Publicidad({ onCerrar }) {
               : 'La música continuará automáticamente al finalizar el anuncio...'}
           </p>
 
-          {/* Mensaje de reset */}
+         
           <p style={{
             fontSize: '12px', color: '#ff4757',
             marginBottom: '8px', minHeight: '18px',

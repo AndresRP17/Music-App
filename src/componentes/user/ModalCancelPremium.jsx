@@ -1,4 +1,4 @@
-import "./styles/ModalBienvenida.css"; // reutilizás el mismo CSS base
+import "./styles/ModalBienvenida.css"; 
 
 function ModalCancelPremium({ onClose }) {
   return (

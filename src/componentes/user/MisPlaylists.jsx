@@ -30,7 +30,6 @@ const MisPlaylists = () => {
   const token = localStorage.getItem('token');
   const userId = localStorage.getItem('id');
 
-  // 🌟 PASO 2: AGREGAMOS EL ESCUCHADOR PARA LOS CAMBIOS EN TIEMPO REAL
   useEffect(() => {
     const handleRolActualizado = () => {
       setRole(localStorage.getItem("role") || "user");
@@ -39,7 +38,7 @@ const MisPlaylists = () => {
     return () => window.removeEventListener("rolActualizado", handleRolActualizado);
   }, []);
 
-  // Variable corta para meter en los estilos
+  
   const esPremium = role === "premium" || role === "admin";
 
   const obtenerCantidadesProd = (listas) => {
@@ -72,7 +71,6 @@ const MisPlaylists = () => {
   };
 
   const obtenerPlaylists = async () => {
-    // Forzamos un re-chequeo rápido del storage al arrancar la carga
     setRole(localStorage.getItem("role") || "user");
 
     if (esProd) {
@@ -200,7 +198,6 @@ if (!esPremium) {
     fontSize: '2.8rem', 
     fontWeight: 700, 
     margin: 0,
-    // 🌟 SI ES PREMIUM SE PONE DORADO, SINO MANTIENE SU COLOR ROSA ORIGINAL
     color: role === "premium" || role === "admin" ? '#d0b412' : '#ff2d55' 
   }}
 >
@@ -215,12 +212,12 @@ if (!esPremium) {
     alignItems: 'center', 
     margin: '10px', 
     gap: '8px', 
-    background: esPremium ? '#d0b412' : '#555', // Gris si no es premium
+    background: esPremium ? '#d0b412' : '#555', 
     border: 'none', 
     borderRadius: '20px', 
     color: esPremium ? '#fff' : '#aaa', 
     padding: '12px 22px', 
-    cursor: esPremium ? 'pointer' : 'not-allowed', // Cambia el cursor a prohibido
+    cursor: esPremium ? 'pointer' : 'not-allowed', 
     fontWeight: 700, 
     fontSize: '14px', 
     flexShrink: 0 
@@ -281,7 +278,6 @@ if (!esPremium) {
                   background: '#181818', 
                   transition: 'transform 0.2s, background 0.2s, border-color 0.2s', 
                   position: 'relative',
-                  // 🌟 BORDE DINÁMICO: Si es premium le clava el dorado, si no, un gris oscuro sutil para que mantenga la misma estructura física
                   border: esPremium ? '2px solid #d0b412' : '2px solid transparent',
                   boxShadow: esPremium ? '0 4px 12px rgba(208, 180, 18, 0.15)' : 'none'
                 }}

@@ -79,14 +79,12 @@ function Sidebar({ cerrarSesion }) {
       src={logoSrc} 
       alt="logo" 
       className="logo" 
-    />  {/* 🌟 Antes de tu return, asegurate de tener esta variable definida:
-const esPremium = role === "premium" || role === "admin"; 
-*/}
+    />  
 
 <ul>
   {navItems.map(({ to, icon, label }) => (
     <Link key={to} to={to} style={{ textDecoration: "none" }}>
-      {/* 🌟 CLAVAMOS LA CONDICIÓN DIRECTA ACÁ ADENTRO */}
+     
       <li className={isActive(to) ? `active ${(role === "premium" || role === "admin") ? 'premium' : ''}` : ""}>
         {icon}
         <span>{label}</span>
@@ -94,10 +92,9 @@ const esPremium = role === "premium" || role === "admin";
     </Link>
   ))}
 
-  {/* BOTÓN CONDICIONAL EXCLUSIVO PARA EL ADMIN */}
+
   {role === "admin" && (
     <Link to="/admin" style={{ textDecoration: "none" }} className="hide-on-mobile">
-      {/* Al ser Admin, ya sabemos que entra en la bolsa de premium para el CSS, así que se la dejamos fija si está activo */}
       <li className={isActive("/admin") ? "active premium" : ""}>
         <FaChartBar />
         <span>Estadísticas</span>

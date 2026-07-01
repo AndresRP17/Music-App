@@ -99,7 +99,6 @@ const MIS_ÁLBUMES_ELEGIDOS = {
     { name: "Mezmerize", artist: "System of a Down" },
   ],
   metalcore: [
-    { name: "Sempiternal", artist: "Bring Me the Horizon" },
     { name: "True power", artist: "I prevail" },
     { name: "Violent Nature", artist: "I prevail" },
     { name: "Pray", artist: "Vana" },
@@ -107,6 +106,7 @@ const MIS_ÁLBUMES_ELEGIDOS = {
     { name: "BITE BACK", artist: "Vana" },
     { name: "Reckless & Relentless", artist: "Asking Alexandria" },
     { name: "Step 2 Rhythm", artist: "Turnstile" },
+    { name: "Sempiternal", artist: "Bring Me the Horizon" },
     { name: "The Devil and God Are Raging Inside Me", artist: "Brand New" },
     { name: "Waking the Fallen", artist: "Avenged Sevenfold" },
     { name: "City of Evil", artist: "Avenged Sevenfold" }

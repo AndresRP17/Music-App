@@ -456,7 +456,7 @@ function Search({ reproducirLista, pausar }) {
                         />
                       </button>
 
-                      {/* BOTÓN PRESERVADO Y CORREGIDO */}
+                      
                       <button
                         onClick={() => {
                           if (!esPremium) {

@@ -3,7 +3,7 @@ import "./styles/ModalPago.css";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
-// -------- HELPERS DE FORMATO --------
+
 const formatCardNumber = (val) =>
   val.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
 
@@ -76,7 +76,6 @@ const PLANES = [
 ];
 
 function ModalPago({ onCerrar, onPagoExitoso, userId }) {
-  // -------- ESTADOS --------
   const [step, setStep] = useState("plan");
   const [planSeleccionado, setPlanSeleccionado] = useState(null);
   const [periodoSeleccionado, setPeriodoSeleccionado] = useState('mensual');
@@ -157,7 +156,7 @@ function ModalPago({ onCerrar, onPagoExitoso, userId }) {
     return Object.keys(nuevos).length === 0;
   };
 
-  // ⭐⭐⭐ SELECCIONAR PLAN CON LOGS ⭐⭐⭐
+  //  SELECCIONAR PLAN CON LOGS 
   const seleccionarPlan = (plan, periodo) => {
     console.log('✅ Plan seleccionado:', plan.nombre);
     console.log('✅ Período:', periodo);
@@ -179,12 +178,10 @@ function ModalPago({ onCerrar, onPagoExitoso, userId }) {
     setPeriodoSeleccionado(periodo);
   };
 
-  // 🔧 FIX: agregar arriba del todo del archivo, junto a los demás imports/helpers:
+  //  FIX: que se pueda realizar pagos desde netlify:
 const esProd = window.location.hostname.includes("netlify");
 
-// 🔧 FIX: reemplazar el handleSubmit actual por este,
-// que simula el pago con localStorage cuando esProd es true
-// (en vez de pegarle a un backend que no existe en Netlify).
+
 const handleSubmit = async () => {
   if (!validar()) return;
 
@@ -195,7 +192,7 @@ const handleSubmit = async () => {
     id_user: userId || null,
     monto: precioActual.precio,
     fecha: new Date().toISOString(),
-    estado: 'exitoso', // 👈 mismo valor que usa Admin.jsx para filtrar pagos confirmados
+    estado: 'exitoso', 
     ultimos: form.numero.replace(/\s/g, "").slice(-4) || "0000",
     marca: brand || "TARJETA",
     plan: planActual.id,
@@ -207,7 +204,6 @@ const handleSubmit = async () => {
 
   // -------- RAMA NETLIFY (sin backend real) --------
   if (esProd) {
-    // Simulamos una pequeña demora, como si fuera una llamada real
     await new Promise((resolve) => setTimeout(resolve, 1200));
 
     const pagoSimulado = {
@@ -258,7 +254,6 @@ const handleSubmit = async () => {
 };
   const finalizarFlujo = () => {
     const ultimos = form.numero.replace(/\s/g, "").slice(-4) || "0000";
-    // ⭐ LOG PARA VER QUÉ SE ESTÁ ENVIANDO ⭐
     console.log('📤 Enviando a onPagoExitoso:', {
       ultimos,
       brand: brand || "OTRO",
@@ -267,10 +262,7 @@ const handleSubmit = async () => {
     });
     onPagoExitoso(ultimos, brand || "OTRO", planSeleccionado, periodoSeleccionado);
     onCerrar();
-    // ⭐ Sacamos el reload de acá: si recargás ahora, React ni llega a pintar
-    // el ModalPremiumBienvenida que onPagoExitoso recién pidió mostrar.
-    // El refresh real ahora pasa en Configuracion.jsx, cuando el usuario
-    // cierra el modal de bienvenida (ver onClose de ModalPremiumBienvenida).
+    
   };
 
   // -------- DATOS PARA COMPROBANTE --------
@@ -318,7 +310,6 @@ const handleSubmit = async () => {
   // -------- RENDER CARDS DE PLANES (SOLO 2) --------
   const renderSeleccionPlanes = () => (
     <div className="mpago-planes">
-      {/* HEADER con la cruz arriba a la derecha */}
       <div className="mpago-header">
         <div className="mpago-header-left">
           <p className="mpago-eyebrow">🎵 Elegí tu plan</p>
@@ -345,7 +336,7 @@ const handleSubmit = async () => {
             >
               {p.popular && (
                 <div className="mpago-plan-badge">
-                  ⭐ POPULAR
+                   POPULAR
                 </div>
               )}
 
