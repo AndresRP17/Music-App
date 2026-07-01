@@ -56,13 +56,20 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
       }
 
       try {
-        // Traer playlists
-        const response = await fetch("/api/playlists", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        console.log(playlists); // o data, justo después del fetch de playlists
-        if (response.ok) {
-          const data = await response.json();
+        // 🔧 FIX: pedimos playlists y favoritos EN PARALELO con Promise.all,
+        // en vez de un await atrás del otro. Antes, favoritos se pedía
+        // recién después de terminar todo el tema de playlists (más lento).
+        const [playlistsRes, favRes] = await Promise.all([
+          fetch("/api/playlists", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch("/api/favorites", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+
+        if (playlistsRes.ok) {
+          const data = await playlistsRes.json();
           setPlaylists(data);
 
           // Chequear cada playlist en paralelo
@@ -88,10 +95,6 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
           setCancionEnPlaylist(estadoPlaylists);
         }
 
-        // Chequear favoritos
-        const favRes = await fetch("/api/favorites", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
         if (favRes.ok) {
           const favData = await favRes.json();
           setYaEnFavoritos(yaExisteEnLista(favData));
@@ -318,54 +321,70 @@ const ModalPlaylist = ({ cancion, onCerrar }) => {
           </button>
         </div>
 
-        {/* Fila de Favoritos */}
-        <div
-          onClick={yaEnFavoritos ? undefined : agregarAFavoritos}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            padding: "10px 16px",
-            cursor: yaEnFavoritos ? "default" : "pointer",
-            borderBottom: "0.5px solid #333",
-            opacity: yaEnFavoritos ? 0.6 : 1,
-            transition: "background 0.15s",
-          }}
-          onMouseEnter={(e) => {
-            if (!yaEnFavoritos) e.currentTarget.style.background = "#2a2a2a";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "transparent";
-          }}
-        >
+        {/* 🔧 FIX: Fila de Favoritos ahora tapada por "cargando",
+            igual que la lista de playlists. Antes se renderizaba
+            siempre como "Agregar a Favoritos" hasta que llegaba
+            la respuesta del fetch, generando el efecto de
+            "tarda en darse cuenta". */}
+        {cargando ? (
           <div
             style={{
-              width: "36px",
-              height: "36px",
-              borderRadius: "8px",
-              background: "#2a2a2a",
-              border: "0.5px solid #444",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
+              padding: "10px 16px",
+              borderBottom: "0.5px solid #333",
+              fontSize: "14px",
+              color: "#d0b412",
+              opacity: 0.6,
             }}
           >
-            <span
+            Verificando favoritos...
+          </div>
+        ) : (
+          <div
+            onClick={yaEnFavoritos ? undefined : agregarAFavoritos}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              padding: "10px 16px",
+              cursor: yaEnFavoritos ? "default" : "pointer",
+              borderBottom: "0.5px solid #333",
+              opacity: yaEnFavoritos ? 0.6 : 1,
+              transition: "background 0.15s",
+            }}
+            onMouseEnter={(e) => {
+              if (!yaEnFavoritos) e.currentTarget.style.background = "#2a2a2a";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+            }}
+          >
+            <div
               style={{
-                color: yaEnFavoritos ? "#d0b412" : "#d0b412",
-                fontSize: "16px",
+                width: "36px",
+                height: "36px",
+                borderRadius: "8px",
+                background: "#2a2a2a",
+                border: "0.5px solid #444",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
               }}
             >
-              {yaEnFavoritos ? "✓" : "♥"}
-            </span>
+              <span
+                style={{
+                  color: "#d0b412",
+                  fontSize: "16px",
+                }}
+              >
+                {yaEnFavoritos ? "✓" : "♥"}
+              </span>
+            </div>
+            <div style={{ fontSize: "14px", color: "#d0b412" }}>
+              {yaEnFavoritos ? "Ya está en Favoritos" : "Agregar a Favoritos"}
+            </div>
           </div>
-          <div
-            style={{ fontSize: "14px", color: yaEnFavoritos ? "#d0b412" : "#d0b412" }}
-          >
-            {yaEnFavoritos ? "Ya está en Favoritos" : "Agregar a Favoritos"}
-          </div>
-        </div>
+        )}
 
         {/* Buscador */}
         <div style={{ padding: "10px 16px", borderBottom: "0.5px solid #333" }}>

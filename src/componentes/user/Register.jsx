@@ -1,7 +1,7 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./styles/Register.css";
+import axios from "axios";
 
 export default function Register() {
   const [email, setEmail] = useState("");

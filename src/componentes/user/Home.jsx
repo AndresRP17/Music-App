@@ -341,9 +341,9 @@ function Home() {
         </button>
         <div className="hero-content" style={{ zIndex: 5 }}>
           <span className="badge" style={{ backgroundColor: esPremium ? '#d0b412' : undefined, color: esPremium ? '#000' : undefined }}>
-            {albumHeroActual.badge} {esPremium && "👑"}
+            {albumHeroActual.badge} {esPremium}
           </span>
-          <h1>{albumHeroActual.title}</h1>
+          <h1 >{albumHeroActual.title}</h1>
           <p>{albumHeroActual.description}</p>
           <button className="btn-hero" style={{ backgroundColor: esPremium ? '#d0b412' : undefined, color: esPremium ? '#000' : undefined }}>
             Escuchar ahora

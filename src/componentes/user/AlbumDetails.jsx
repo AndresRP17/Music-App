@@ -204,7 +204,7 @@ function AlbumDetails({ reproducirLista, pausar }) {
   />
         <div className="header-info">
           <p className="type">Álbum</p>
-          <h1>{albumInfo.name}</h1>
+          <h1 style={{ color: esPremium ? '#d0b412' : undefined }}>{albumInfo.name}</h1>
           <div className="album-metadata">
             <span
               className="artist-name-main"

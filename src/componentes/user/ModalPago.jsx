@@ -7,6 +7,9 @@ import html2canvas from "html2canvas";
 const formatCardNumber = (val) =>
   val.replace(/\D/g, "").slice(0, 16).replace(/(.{4})/g, "$1 ").trim();
 
+const esProd = window.location.hostname.includes("netlify");
+
+
 const formatExpiry = (val) => {
   const digits = val.replace(/\D/g, "").slice(0, 4);
   if (digits.length >= 3) return digits.slice(0, 2) + "/" + digits.slice(2);
@@ -89,7 +92,7 @@ function ModalPago({ onCerrar, onPagoExitoso, userId }) {
   const plan = planSeleccionado || PLANES[0];
   const periodo = PERIODOS.find(p => p.id === periodoSeleccionado) || PERIODOS[0];
 
-  // ⭐⭐⭐ ESTO ES LO IMPORTANTE: el plan elegido para el resumen y el pago ⭐⭐⭐
+  // ESTO ES LO IMPORTANTE: el plan elegido para el resumen y el pago 
   const planElegido = planSeleccionado || PLANES[0];
   const precioElegido = planElegido.precios[periodoSeleccionado];
 
@@ -176,73 +179,83 @@ function ModalPago({ onCerrar, onPagoExitoso, userId }) {
     setPeriodoSeleccionado(periodo);
   };
 
-  // ⭐⭐⭐ HANDLE SUBMIT CON EL PLAN CORRECTO ⭐⭐⭐
-  const handleSubmit = async () => {
-    if (!validar()) return;
+  // 🔧 FIX: agregar arriba del todo del archivo, junto a los demás imports/helpers:
+const esProd = window.location.hostname.includes("netlify");
 
-    const planActual = planSeleccionado || PLANES[0];
-    const precioActual = planActual.precios[periodoSeleccionado];
+// 🔧 FIX: reemplazar el handleSubmit actual por este,
+// que simula el pago con localStorage cuando esProd es true
+// (en vez de pegarle a un backend que no existe en Netlify).
+const handleSubmit = async () => {
+  if (!validar()) return;
 
-    console.log('💳 Pagando plan:', planActual.nombre);
-    console.log('💳 Período:', periodoSeleccionado);
-    console.log('💳 Precio:', precioActual.precio);
+  const planActual = planSeleccionado || PLANES[0];
+  const precioActual = planActual.precios[periodoSeleccionado];
 
-    const payload = {
-      id_user: userId || null,
-      monto: precioActual.precio,
-      fecha: new Date().toISOString(),
-      estado: 'completado',
-      ultimos: form.numero.replace(/\s/g, "").slice(-4) || "0000", 
-      marca: brand || "TARJETA",
-      plan: planActual.id,              
-      periodo: periodoSeleccionado,     
-    };
-
-    console.log('📦 Payload a enviar:', payload);
-
-    setStep("procesando");
-    setFechaPago(new Date());
-
-    try {
-      const token = localStorage.getItem('token');
-      
-      if (!token) {
-        throw new Error('No estás autenticado. Iniciá sesión primero.');
-      }
-
-      const response = await fetch('/api/pagos', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Error al procesar el pago');
-      }
-
-      const data = await response.json();
-      console.log('✅ Pago guardado:', data);
-
-      // ⭐⭐⭐ OJO: acá YA NO tocamos role/user/localStorage ni disparamos
-      // "rolActualizado". Eso ahora lo hace Configuracion.jsx, recién cuando
-      // el usuario cierra el ModalPremiumBienvenida (ver aplicarPremiumYRecargar).
-      // Si lo hacíamos acá, el sidebar/tema dorado se activaba apenas terminaba
-      // el pago, antes de que el usuario llegara a ver el modal de bienvenida. ⭐⭐⭐
-
-      setSuscripcionId(data.id_suscripcion || data.id || 'PENDIENTE');
-      setStep("exito");
-
-    } catch (error) {
-      console.error('❌ Error:', error);
-      alert('❌ Error: ' + error.message);
-      setStep("plan");
-    }
+  const payload = {
+    id_user: userId || null,
+    monto: precioActual.precio,
+    fecha: new Date().toISOString(),
+    estado: 'exitoso', // 👈 mismo valor que usa Admin.jsx para filtrar pagos confirmados
+    ultimos: form.numero.replace(/\s/g, "").slice(-4) || "0000",
+    marca: brand || "TARJETA",
+    plan: planActual.id,
+    periodo: periodoSeleccionado,
   };
 
+  setStep("procesando");
+  setFechaPago(new Date());
+
+  // -------- RAMA NETLIFY (sin backend real) --------
+  if (esProd) {
+    // Simulamos una pequeña demora, como si fuera una llamada real
+    await new Promise((resolve) => setTimeout(resolve, 1200));
+
+    const pagoSimulado = {
+      id: Date.now(),
+      ...payload,
+    };
+
+    const pagosGuardados = JSON.parse(localStorage.getItem("pagos") || "[]");
+    localStorage.setItem("pagos", JSON.stringify([...pagosGuardados, pagoSimulado]));
+
+    setSuscripcionId(pagoSimulado.id);
+    setStep("exito");
+    return;
+  }
+
+  // -------- RAMA BACKEND REAL --------
+  try {
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      throw new Error('No estás autenticado. Iniciá sesión primero.');
+    }
+
+    const response = await fetch('/api/pagos', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Error al procesar el pago');
+    }
+
+    const data = await response.json();
+
+    setSuscripcionId(data.id_suscripcion || data.id || 'PENDIENTE');
+    setStep("exito");
+
+  } catch (error) {
+    console.error('❌ Error:', error);
+    alert('❌ Error: ' + error.message);
+    setStep("plan");
+  }
+};
   const finalizarFlujo = () => {
     const ultimos = form.numero.replace(/\s/g, "").slice(-4) || "0000";
     // ⭐ LOG PARA VER QUÉ SE ESTÁ ENVIANDO ⭐
