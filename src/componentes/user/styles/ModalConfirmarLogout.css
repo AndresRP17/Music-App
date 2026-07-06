@@ -1,0 +1,76 @@
+.modal-logout-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-logout-card {
+  background: #181818;
+  border: 2px solid #dc380b;
+  border-radius: 12px;
+  padding: 28px 24px;
+  text-align: center;
+  color: white;
+  max-width: 320px;
+  width: 90%;
+}
+
+.modal-logout-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.modal-logout-titulo {
+  margin: 0 0 8px;
+  color: white;
+}
+
+.modal-logout-texto {
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: 20px;
+}
+
+.modal-logout-botones {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-logout-btn {
+  flex: 1;
+  border: none;
+  padding: 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.modal-logout-btn:hover {
+  transform: scale(1.03);
+}
+
+.modal-logout-btn--confirmar {
+  background: #cf130f;
+  color: black;
+}
+
+.modal-logout-btn--confirmar:hover {
+  background: #a80f0c;
+  color: white;
+}
+
+.modal-logout-btn--cancelar {
+  background: #2f3542;
+  color: black;
+}
+
+.modal-logout-btn--cancelar:hover {
+  background: #464f5e;
+  color: white;
+}
+

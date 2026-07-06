@@ -14,7 +14,7 @@ export default defineConfig({
       },
       // El proxy para tu backend de CodeIgniter 4
       '/api': {
-        target: 'http://localhost:8086', // 👈 Cambiado a 8080 para que coincida con tus errores de hoy
+        target: 'http://localhost:8086', 
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''), 
       },
