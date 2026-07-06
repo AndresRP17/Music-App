@@ -55,13 +55,14 @@
 }
 
 .modal-logout-btn--confirmar {
-  background: #cf130f;
+ background: #a80f0c;
   color: black;
 }
 
 .modal-logout-btn--confirmar:hover {
-  background: #a80f0c;
+ 
   color: white;
+    background: #cf130f;
 }
 
 .modal-logout-btn--cancelar {
