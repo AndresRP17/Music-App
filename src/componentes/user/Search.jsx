@@ -123,6 +123,27 @@ function Search({ reproducirLista, pausar }) {
     return () => clearTimeout(timeoutId);
   }, [busqueda, orden]);
 
+
+  const buscarPorGenero = async (genero) => {
+  setCargando(true);
+  try {
+    const res = await fetch(`/api/albums/genero?genero=${encodeURIComponent(genero)}`);
+    const data = await res.json();
+    const albumesFormateados = data.map((a) => ({
+      name: a.nombre,
+      artist: a.artista,
+      image: [{}, {}, {}, { '#text': a.portada_url }],
+    }));
+    setAlbumes(albumesFormateados);
+    setTab("albumes");
+    // ya NO seteamos busqueda a ""
+  } catch (error) {
+    console.error("Error buscando por género:", error);
+  } finally {
+    setCargando(false);
+  }
+};
+
   return (
     <div className="content">
       <main className="main-header">
@@ -130,6 +151,14 @@ function Search({ reproducirLista, pausar }) {
           <h1 style={{ color: role === "premium" || role === "admin" ? ' #d0b412' : 'none' }}>Bienvenida/o. ¿Qué vas a escuchar hoy?</h1>
         </div>
       </main>
+
+<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', margin: '12px 0' }}>
+  {["rock", "pop", "metal", "hip hop", "r&b", "nu metal", "heavy metal", "hard rock"].map((g) => (
+    <button key={g} onClick={() => buscarPorGenero(g)} style={{ padding: '6px 14px', borderRadius: '20px', border: '1px solid #444', background: 'transparent', color: '#fff', cursor: 'pointer' }}>
+      {g}
+    </button>
+  ))}
+</div>
 
       <div className="search-section">
         <h1 style ={{ color: role === "premium" || role === "admin" ? ' #d0b412' : 'none' }}>Buscar</h1>
@@ -159,7 +188,9 @@ function Search({ reproducirLista, pausar }) {
         </div>
       </div>
 
-      {busqueda.length === 0 && (
+      
+
+      {busqueda.length === 0 && albumes.length === 0 && (
         <div className="historial-section">
           {historial.length > 0 ? (
             <>
@@ -212,7 +243,7 @@ function Search({ reproducirLista, pausar }) {
         </div>
       )}
 
-      {busqueda.length > 2 && (
+      {(busqueda.length > 2 || albumes.length > 0) && (
         <>
           <div className="search-tabs"  className={`search-tabs ${
     role === "premium" || role === "admin" ? "premium-tabs" : ""

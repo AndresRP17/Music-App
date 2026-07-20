@@ -37,7 +37,7 @@ const Favorites = ({ reproducirLista, pausar }) => {
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/favorites`,
+          `/api/favorites`,
           {
             method: "GET",
             headers: {
@@ -79,7 +79,7 @@ const Favorites = ({ reproducirLista, pausar }) => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/favorites/${id}`,
+        `/api/favorites/${id}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },

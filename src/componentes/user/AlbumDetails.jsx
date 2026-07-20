@@ -11,6 +11,7 @@ const esProd = window.location.hostname.includes("netlify");
 function AlbumDetails({ reproducirLista, pausar }) {
   const { albumName, artistName } = useParams();
   const [albumInfo, setAlbumInfo] = useState(null);
+  const [errorCarga, setErrorCarga] = useState(null);
   const [trackCargando, setTrackCargando] = useState(null);
   const [modalPlaylist, setModalPlaylist] = useState(false);
   const [cancionSeleccionada, setCancionSeleccionada] = useState(null);
@@ -19,76 +20,33 @@ function AlbumDetails({ reproducirLista, pausar }) {
 
   const { mostrarPublicidad, conPublicidad, cerrarYContinuar } =
     usePublicidad(pausar);
- 
+
   const role = localStorage.getItem("role") || "user";
   const esPremium = role === "premium" || role === "admin";
 
   useEffect(() => {
     const fetchAlbumDetails = async () => {
       try {
-        const nombreLimpio = artistName.toUpperCase().replace(/[\s/]/g, "");
-        let artistaParaLastFm = artistName;
-        if (nombreLimpio === "ACDC") {
-          artistaParaLastFm = "AC/DC";
-        }
-
+        // Usamos query string (no segmentos de ruta) para evitar que Apache
+        // bloquee barras (%2F) en nombres tipo "AC/DC", y de paso evitamos
+        // problemas con apóstrofes, exclamaciones, etc.
         const response = await fetch(
-          `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=aa182e9e95ab101a5f7ae68eba441e09&artist=${encodeURIComponent(artistaParaLastFm)}&album=${encodeURIComponent(albumName)}&format=json&autocorrect=1`,
+          `/api/albums?nombre=${encodeURIComponent(albumName)}&artista=${encodeURIComponent(artistName)}`,
         );
-        const data = await response.json();
 
-        if (data.album) {
-          const tracks = data.album.tracks?.track;
-          const tracklistRoto = !tracks || !Array.isArray(tracks);
-
-          if (tracklistRoto) {
-            try {
-              const mbRes = await fetch(
-                `https://musicbrainz.org/ws/2/release/?query=release:${encodeURIComponent(albumName)}+artist:${encodeURIComponent(artistaParaLastFm)}&fmt=json&limit=1`,
-                { headers: { "User-Agent": "MusicApp/1.0" } },
-              );
-              const mbData = await mbRes.json();
-              const releaseId = mbData.releases?.[0]?.id;
-
-              if (releaseId) {
-                const mbTracksRes = await fetch(
-                  `https://musicbrainz.org/ws/2/release/${releaseId}?inc=recordings&fmt=json`,
-                  { headers: { "User-Agent": "MusicApp/1.0" } },
-                );
-                const mbTracksData = await mbTracksRes.json();
-                const media = mbTracksData.media?.[0]?.tracks;
-
-                if (media && media.length > 0) {
-                  const tracksFormateados = media.map((t) => ({
-                    name: t.title,
-                    duration: Math.round(t.length / 1000) || 0,
-                    url: "",
-                    streamable: { "#text": "0", fulltrack: "0" },
-                  }));
-                  setAlbumInfo({
-                    ...data.album,
-                    tracks: { track: tracksFormateados },
-                  });
-                  return;
-                }
-              }
-            } catch (mbError) {
-              console.warn("MusicBrainz fallback falló:", mbError);
-            }
-
-            if (tracks && !Array.isArray(tracks)) {
-              data.album.tracks.track = [tracks];
-            }
-          }
-
-          setAlbumInfo(data.album);
-        } else {
-          console.warn(
-            "Last.fm no encontró el álbum con ese formato de nombre.",
-          );
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          const mensaje = errorData?.error || `Error ${response.status} al buscar el álbum.`;
+          console.warn("No se pudo encontrar el álbum en el backend:", mensaje);
+          setErrorCarga(mensaje);
+          return;
         }
+
+        const data = await response.json();
+        setAlbumInfo(data);
       } catch (error) {
         console.error("Error al traer el detalle:", error);
+        setErrorCarga("No se pudo conectar con el servidor.");
       }
     };
 
@@ -124,9 +82,7 @@ function AlbumDetails({ reproducirLista, pausar }) {
   const reproducirPista = async (trackName, index) => {
     setTrackCargando(index);
     try {
-      const tracks = Array.isArray(albumInfo.tracks.track)
-        ? albumInfo.tracks.track
-        : [albumInfo.tracks.track];
+      const tracks = albumInfo.tracks;
 
       const trackLimpio = trackName
         .replace(
@@ -134,7 +90,7 @@ function AlbumDetails({ reproducirLista, pausar }) {
           "",
         )
         .trim();
-      const query = `${albumInfo.artist} ${trackLimpio} ${albumInfo.name}`;
+      const query = `${albumInfo.artista} ${trackLimpio} ${albumInfo.nombre}`;
       const response = await fetch(
         `/deezer/search?q=${encodeURIComponent(query)}`,
       );
@@ -146,19 +102,20 @@ function AlbumDetails({ reproducirLista, pausar }) {
             t.title.toLowerCase().includes(trackLimpio.toLowerCase()),
           ) || data.data[0];
 
-        const portadaLastFm =
-          albumInfo.image?.[2]?.["#text"] || "https://via.placeholder.com/150";
+        const portadaBackend =
+          albumInfo.portada_url || "https://via.placeholder.com/150";
 
         const listaSimple = tracks.map((t, i) => ({
-          title: t.name
+          id: t.id,
+          title: t.nombre
             .replace(
               /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f\u1100-\u11ff\u3130-\u318f\uac00-\ud7af]/g,
               "",
             )
             .trim(),
-          artist: albumInfo.artist,
+          artist: albumInfo.artista,
           url: i === index ? trackEncontrado.preview : null,
-          cover: trackEncontrado.album?.cover_medium || portadaLastFm,
+          cover: trackEncontrado.album?.cover_medium || portadaBackend,
         }));
 
         conPublicidad(() => {
@@ -177,6 +134,12 @@ function AlbumDetails({ reproducirLista, pausar }) {
     }
   };
 
+  if (errorCarga) return (
+    <div className="loading" style={{ color: esPremium ? '#d0b412' : '' }}>
+      <p>😕 {errorCarga}</p>
+    </div>
+  );
+
   if (!albumInfo) return (
   <div className="loading" style={{ color: esPremium ? '#d0b412' : '' }}>
     Cargando...
@@ -190,10 +153,8 @@ function AlbumDetails({ reproducirLista, pausar }) {
 
       <header className="album-header">
   <img
-    src={
-      albumInfo.image?.[3]?.["#text"] || "https://via.placeholder.com/300"
-    }
-    alt={albumInfo.name}
+    src={albumInfo.portada_url || "https://via.placeholder.com/300"}
+    alt={albumInfo.nombre}
     className="detail-cover"
     style={{
       boxShadow:
@@ -204,12 +165,12 @@ function AlbumDetails({ reproducirLista, pausar }) {
   />
         <div className="header-info">
           <p className="type">Álbum</p>
-          <h1 style={{ color: esPremium ? '#d0b412' : undefined }}>{albumInfo.name}</h1>
+          <h1 style={{ color: esPremium ? '#d0b412' : undefined }}>{albumInfo.nombre}</h1>
           <div className="album-metadata">
             <span
               className="artist-name-main"
               onClick={() =>
-                navigate(`/artist/${encodeURIComponent(albumInfo.artist)}`)
+                navigate(`/artist/${encodeURIComponent(albumInfo.artista)}`)
               }
               style={{ cursor: "pointer" }}
               onMouseEnter={(e) =>
@@ -217,10 +178,10 @@ function AlbumDetails({ reproducirLista, pausar }) {
               }
               onMouseLeave={(e) => (e.target.style.textDecoration = "none")}
             >
-              {albumInfo.artist}
+              {albumInfo.artista}
             </span>
-            {albumInfo.tags?.tag?.length > 0 && (
-              <span className="genre-tag" style={{ color: esPremium ? '#d0b412' : '' }}> • {albumInfo.tags.tag[0].name}</span>
+            {albumInfo.genero && (
+              <span className="genre-tag" style={{ color: esPremium ? '#d0b412' : '' }}> • {albumInfo.genero}</span>
             )}
           </div>
         </div>
@@ -235,18 +196,15 @@ function AlbumDetails({ reproducirLista, pausar }) {
           </div>
           <hr />
           <div className="tracklist">
-            {albumInfo.tracks?.track ? (
-              (Array.isArray(albumInfo.tracks.track)
-                ? albumInfo.tracks.track
-                : [albumInfo.tracks.track]
-              ).map((track, index) => {
+            {albumInfo.tracks && albumInfo.tracks.length > 0 ? (
+              albumInfo.tracks.map((track, index) => {
                 return (
-                  <div key={index} className="track-row">
+                  <div key={track.id ?? index} className="track-row">
                     <div className="track-number-wrapper">
                       <span className="track-number">{index + 1}</span>
                       <button
                         className="play-row-btn"
-                        onClick={() => reproducirPista(track.name, index)}
+                        onClick={() => reproducirPista(track.nombre, index)}
                         disabled={false}
 
                       >
@@ -257,10 +215,10 @@ function AlbumDetails({ reproducirLista, pausar }) {
                         )}
                       </button>
                     </div>
-                    <span className="track-name">{track.name}</span>
+                    <span className="track-name">{track.nombre}</span>
                     <span className="track-duration">
-                      {track.duration
-                        ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, "0")}`
+                      {track.duracion
+                        ? `${Math.floor(track.duracion / 60)}:${(track.duracion % 60).toString().padStart(2, "0")}`
                         : "0:00"}
                     </span>
                     <button
@@ -273,13 +231,11 @@ function AlbumDetails({ reproducirLista, pausar }) {
                           return;
                         }
                         setCancionSeleccionada({
-                          title: track.name,
-                          artist: albumInfo.artist,
-                          album: albumInfo.name,
-                          duration: track.duration
-                            ? parseInt(track.duration)
-                            : 0,
-                          genre: albumInfo.tags?.tag?.[0]?.name || "",
+                          title: track.nombre,
+                          artist: albumInfo.artista,
+                          album: albumInfo.nombre,
+                          duration: track.duracion || 0,
+                          genre: albumInfo.genero || "",
                         });
                         setModalPlaylist(true);
                       }}
@@ -304,11 +260,11 @@ function AlbumDetails({ reproducirLista, pausar }) {
         </section>
 
         <aside className="album-sidebar">
-          {albumInfo.wiki ? (
+          {albumInfo.descripcion ? (
             <div className="wiki-card">
               <h3>Sobre el álbum</h3>
               <p className="wiki-text">
-                {albumInfo.wiki.summary.split("<a href")[0]}
+                {albumInfo.descripcion.split("<a href")[0]}
               </p>
             </div>
           ) : (

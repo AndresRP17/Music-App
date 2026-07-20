@@ -40,41 +40,48 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
   const haySiguiente = listaActual.length > 0 && indexActual < listaActual.length - 1;
 
   useEffect(() => {
-    const fetchLetra = async () => {
-      setCargandoLetra(true);
-      setErrorLetra(false);
-      setLetra(null);
-      setLrcLineas(null);
-      setLineaActiva(0);
+  const fetchLetra = async () => {
+    setCargandoLetra(true);
+    setErrorLetra(false);
+    setLetra(null);
+    setLrcLineas(null);
+    setLineaActiva(0);
 
-      try {
-        const artistLimpio = trackActual.artist.replace(/\//g, ' ').replace(/&/g, 'and').trim();
-        const res = await fetch(
-          `https://lrclib.net/api/search?q=${encodeURIComponent(artistLimpio + ' ' + trackActual.title)}`
-        );
-        if (!res.ok) throw new Error("No encontrada");
-        const data = await res.json();
-
-        const resultado = data.find(r =>
-          r.artistName?.toLowerCase().includes(artistLimpio.toLowerCase()) ||
-          r.trackName?.toLowerCase().includes(trackActual.title.toLowerCase())
-        ) || data[0];
-
-        if (resultado?.syncedLyrics) {
-          setLrcLineas(parseLRC(resultado.syncedLyrics));
-        } else if (resultado?.plainLyrics) {
-          setLetra(resultado.plainLyrics);
-        } else {
-          setErrorLetra(true);
-        }
-      } catch {
-        setErrorLetra(true);
-      } finally {
-        setCargandoLetra(false);
+    try {
+      if (!trackActual.id) {
+        // Sin id de track no podemos usar el cache propio, fallback a lrclib directo
+        throw new Error("Sin id de track");
       }
-    };
-    fetchLetra();
-  }, [trackActual.title, trackActual.artist]);
+
+      const url = `/api/lyrics?id_track=${trackActual.id}&artista=${encodeURIComponent(trackActual.artist)}&titulo=${encodeURIComponent(trackActual.title)}`;
+      console.log("Pidiendo letra a:", url, "trackActual:", trackActual);
+
+      const res = await fetch(url);
+
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => null);
+        console.error("Respuesta no OK:", res.status, errBody);
+        throw new Error("No encontrada");
+      }
+      const data = await res.json();
+      console.log("Letra recibida:", data);
+
+      if (data.letra_sincronizada) {
+        setLrcLineas(parseLRC(data.letra_sincronizada));
+      } else if (data.letra_plana) {
+        setLetra(data.letra_plana);
+      } else {
+        setErrorLetra(true);
+      }
+    } catch (error) {
+      console.error("Error trayendo letra:", error, "trackActual:", trackActual);
+      setErrorLetra(true);
+    } finally {
+      setCargandoLetra(false);
+    }
+  };
+  fetchLetra();
+}, [trackActual.title, trackActual.artist, trackActual.id]);
 
   useEffect(() => {
     if (!lrcLineas) return;
