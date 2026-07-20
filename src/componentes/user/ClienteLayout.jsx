@@ -6,6 +6,7 @@ import Sidebar from "./Sidebar";
 function ClienteLayout({ trackActual, setTrackActual, listaActual, indexActual, reproducirLista, cerrarSesion, onPausarRef }) {
   const [expandido, setExpandido] = useState(false);
   const audioRef = useRef(null);
+  const token = localStorage.getItem('token');
 
  useEffect(() => {
   if (onPausarRef) {
@@ -14,14 +15,23 @@ function ClienteLayout({ trackActual, setTrackActual, listaActual, indexActual, 
 
 }, []);
 
-  const buscarYReproducir = async (index) => {
-    const cancion = listaActual[index];
-    if (!cancion) return;
+ const buscarYReproducir = async (index) => {
+  const cancion = listaActual[index];
+  if (!cancion) return;
 
-    if (cancion.url) {
-      reproducirLista(listaActual, index);
-      return;
-    }
+  if (cancion.id) {
+    const token = localStorage.getItem('token');
+    fetch('/api/historial', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ id_track: cancion.id }),
+    }).catch((err) => console.error("Error registrando historial:", err));
+  }
+
+  if (cancion.url) {
+    reproducirLista(listaActual, index);
+    return;
+  }
 
     try {
       const query = `${cancion.artist} ${cancion.title}`;
@@ -48,6 +58,8 @@ function ClienteLayout({ trackActual, setTrackActual, listaActual, indexActual, 
     if (listaActual.length === 0 || indexActual >= listaActual.length - 1) return;
     buscarYReproducir(indexActual + 1);
   };
+
+  
 
   return (
     <div className="container">

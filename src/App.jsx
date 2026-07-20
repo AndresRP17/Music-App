@@ -35,11 +35,35 @@ function App() {
     pausarRef.current?.();
   };
 
-  const reproducirLista = (canciones, index) => {
-    setListaActual(canciones);
-    setIndexActual(index);
-    setTrackActual(canciones[index]);
-  };
+  const esProd = window.location.hostname.includes("netlify");
+
+const reproducirLista = (canciones, index) => {
+  setListaActual(canciones);
+  setIndexActual(index);
+  setTrackActual(canciones[index]);
+
+  const cancion = canciones[index];
+  if (!cancion) return;
+
+  if (esProd) {
+    const historial = JSON.parse(localStorage.getItem("historial_stats") || "[]");
+    historial.push({
+      titulo: cancion.title,
+      artist: cancion.artist,
+      duration: cancion.duration || 0,
+      genre: cancion.genre || "",
+      fecha: new Date().toISOString(),
+    });
+    localStorage.setItem("historial_stats", JSON.stringify(historial));
+  } else if (cancion.id) {
+    const token = localStorage.getItem('token');
+    fetch('/api/historial', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ id_track: cancion.id }),
+    }).catch((err) => console.error("Error registrando historial:", err));
+  }
+};
 
   useEffect(() => {
     const sincronizarRol = () => {

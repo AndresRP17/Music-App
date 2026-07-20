@@ -2,11 +2,14 @@ import { useState, useEffect } from "react";
 import ModalPremiumBienvenida from "./ModalBienvenida";
 import ModalCancelPremium from "./ModalCancelPremium";
 import ModalPago from "./ModalPago";
+import ModalFidelidad from "./ModalFidelidad";
 import "./styles/Configuration.css";
 
 function Configuracion() {
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("id");
+  const [stats, setStats] = useState(null);
+  const [mostrarModalFidelidad, setMostrarModalFidelidad] = useState(false);
 
   const [archivo, setArchivo] = useState(null);
   const [mostrarModalPremium, setMostrarModalPremium] = useState(false);
@@ -18,6 +21,58 @@ function Configuracion() {
     const logo = localStorage.getItem(`logo_${userId}`);
     return logo ? `http://localhost:8086/${logo}` : null;
   });
+
+  useEffect(() => {
+    const esProd = window.location.hostname.includes("netlify");
+
+    const chequearFidelidad = (data) => {
+      if (data.minutos_totales >= 100 && !localStorage.getItem("fidelidad_100_vista")) {
+        setMostrarModalFidelidad(true);
+        localStorage.setItem("fidelidad_100_vista", "true");
+      }
+    };
+
+    if (esProd) {
+      const historial = JSON.parse(localStorage.getItem("historial_stats") || "[]");
+      const minutos = historial.reduce((acc, h) => acc + (h.duration || 0), 0) / 60;
+
+      const contarPorClave = (clave) => {
+        const conteo = {};
+        historial.forEach((h) => {
+          if (h[clave]) conteo[h[clave]] = (conteo[h[clave]] || 0) + 1;
+        });
+        const top = Object.entries(conteo).sort((a, b) => b[1] - a[1])[0];
+        return top ? top[0] : null;
+      };
+
+      const statsCalculadas = {
+        minutos_totales: Math.round(minutos * 10) / 10,
+        total_reproducciones: historial.length,
+        genero_favorito: contarPorClave("genre"),
+        artista_favorito: contarPorClave("artist"),
+      };
+
+      setStats(statsCalculadas);
+      chequearFidelidad(statsCalculadas);
+      return;
+    }
+
+    const obtenerStats = async () => {
+      try {
+        const res = await fetch("/api/stats", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setStats(data);
+          chequearFidelidad(data);
+        }
+      } catch (error) {
+        console.error("Error trayendo estadísticas:", error);
+      }
+    };
+    obtenerStats();
+  }, []);
 
   useEffect(() => {
    
@@ -162,6 +217,8 @@ const esPremiumOAdmin = role === "premium" || role === "admin" || role === "fami
         {mensaje && <p className="mensaje">{mensaje}</p>}
       </div>
 
+      
+
       <div className="premium-section">
         {esPremiumOAdmin ? (
           <>
@@ -214,6 +271,39 @@ const esPremiumOAdmin = role === "premium" || role === "admin" || role === "fami
           onClose={() => setMostrarModalCancel(false)}
         />
       )}
+
+      {/* Modal de fidelidad al superar los 100 minutos */}
+      {mostrarModalFidelidad && (
+        <ModalFidelidad
+          onCerrar={() => setMostrarModalFidelidad(false)}
+        />
+      )}
+
+      {stats && (
+  <div className="stats-section" style={{ marginBottom: "24px" }}>
+    <h3 style={{ color: role === "premium" || role === "admin" ? '#d0b412' : '#fff', marginBottom: "12px" }}>
+      Tus Estadísticas
+    </h3>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "12px" }}>
+      <div style={{ background: "#1a1a1a", borderRadius: "10px", padding: "16px" }}>
+        <p style={{ color: "#aaa", fontSize: "12px", margin: 0 }}>Minutos escuchados</p>
+        <p style={{ color: "#fff", fontSize: "22px", margin: "4px 0 0" }}>{stats.minutos_totales}</p>
+      </div>
+      <div style={{ background: "#1a1a1a", borderRadius: "10px", padding: "16px" }}>
+        <p style={{ color: "#aaa", fontSize: "12px", margin: 0 }}>Reproducciones</p>
+        <p style={{ color: "#fff", fontSize: "22px", margin: "4px 0 0" }}>{stats.total_reproducciones}</p>
+      </div>
+      <div style={{ background: "#1a1a1a", borderRadius: "10px", padding: "16px" }}>
+        <p style={{ color: "#aaa", fontSize: "12px", margin: 0 }}>Género favorito</p>
+        <p style={{ color: "#fff", fontSize: "16px", margin: "4px 0 0" }}>{stats.genero_favorito || "—"}</p>
+      </div>
+      <div style={{ background: "#1a1a1a", borderRadius: "10px", padding: "16px" }}>
+        <p style={{ color: "#aaa", fontSize: "12px", margin: 0 }}>Artista favorito</p>
+        <p style={{ color: "#fff", fontSize: "16px", margin: "4px 0 0" }}>{stats.artista_favorito || "—"}</p>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }

@@ -107,6 +107,7 @@ function AlbumDetails({ reproducirLista, pausar }) {
 
         const listaSimple = tracks.map((t, i) => ({
           id: t.id,
+          offsetPreview: t.offset,
           title: t.nombre
             .replace(
               /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f\u1100-\u11ff\u3130-\u318f\uac00-\ud7af]/g,

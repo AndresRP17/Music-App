@@ -88,15 +88,16 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
     const audio = audioRef.current;
     if (!audio) return;
 
-    const onTimeUpdate = () => {
-      const t = audio.currentTime;
-      let idx = 0;
-      for (let i = 0; i < lrcLineas.length; i++) {
-        if (lrcLineas[i].tiempo <= t) idx = i;
-        else break;
-      }
-      setLineaActiva(idx);
-    };
+   const onTimeUpdate = () => {
+  const offset = trackActual.offsetPreview || 0;
+  const t = audio.currentTime + offset;  // <- ajustado
+  let idx = 0;
+  for (let i = 0; i < lrcLineas.length; i++) {
+    if (lrcLineas[i].tiempo <= t) idx = i;
+    else break;
+  }
+  setLineaActiva(idx);
+};
 
     audio.addEventListener('timeupdate', onTimeUpdate);
     return () => audio.removeEventListener('timeupdate', onTimeUpdate);
@@ -165,6 +166,22 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
     if (audio) audio.currentTime = tiempo;
   };
 
+  const sincronizarConLinea = async (lineaClickeada) => {
+  const audio = audioRef.current;
+  if (!audio) return;
+  const offsetCalculado = lineaClickeada.tiempo - audio.currentTime;
+
+  try {
+    await fetch('/api/tracks/offset', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id_track: trackActual.id, offset: offsetCalculado }),
+    });
+    trackActual.offsetPreview = offsetCalculado; // actualizamos en memoria también
+  } catch (error) {
+    console.error("Error guardando offset:", error);
+  }
+};
   return (
     <div className="rep-exp-overlay" onClick={onCerrar}>
       <div
@@ -263,19 +280,29 @@ function ReproductorExpandido({ trackActual, audioRef, listaActual, indexActual,
           )}
 
           {!cargandoLetra && lrcLineas && (
-            <div className="rep-exp-letra-contenido" ref={letraContenedorRef}>
-              {lrcLineas.map((linea, i) => (
-                <p
-                  key={i}
-                  ref={i === lineaActiva ? lineaActivaRef : null}
-                  className={`rep-exp-linea-lrc ${i === lineaActiva ? 'rep-exp-linea-activa' : ''}`}
-                  onClick={() => saltarALinea(linea.tiempo)}
-                >
-                  {linea.texto || '\u00A0'}
-                </p>
-              ))}
-            </div>
-          )}
+  <div className="rep-exp-letra-contenido" ref={letraContenedorRef}>
+    <p style={{ fontSize: '11px', opacity: 0.5, marginBottom: '8px' }}>
+      Tip: Ctrl+click en una línea para sincronizarla con el audio actual
+    </p>
+    {lrcLineas.map((linea, i) => (
+      <p
+        key={i}
+        ref={i === lineaActiva ? lineaActivaRef : null}
+        className={`rep-exp-linea-lrc ${i === lineaActiva ? 'rep-exp-linea-activa' : ''}`}
+        onClick={(e) => {
+          if (e.ctrlKey || e.metaKey) {
+            sincronizarConLinea(linea);
+          } else {
+            saltarALinea(linea.tiempo);
+          }
+        }}
+      >
+        {linea.texto || '\u00A0'}
+      </p>
+    ))}
+  </div>
+)}
+          
 
           {!cargandoLetra && letra && !lrcLineas && (
             <div className="rep-exp-letra-contenido">
