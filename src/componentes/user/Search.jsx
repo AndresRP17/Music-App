@@ -29,6 +29,7 @@ function Search({ reproducirLista, pausar }) {
   const esPremium = role === "premium" || role === "admin";
 
   const API_KEY = "aa182e9e95ab101a5f7ae68eba441e09";
+  const esProd = window.location.hostname.includes("netlify");
 
   useEffect(() => {
     const guardados =
