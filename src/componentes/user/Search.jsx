@@ -124,9 +124,22 @@ function Search({ reproducirLista, pausar }) {
   }, [busqueda, orden]);
 
 
-  const buscarPorGenero = async (genero) => {
+const buscarPorGenero = async (genero) => {
   setCargando(true);
   try {
+    if (esProd) {
+      // Netlify: no hay backend propio, usamos Last.fm directo
+      const res = await fetch(
+        `https://ws.audioscrobbler.com/2.0/?method=tag.gettopalbums&tag=${encodeURIComponent(genero)}&api_key=${API_KEY}&format=json&limit=20`
+      );
+      const data = await res.json();
+      if (data.albums?.album) {
+        setAlbumes(data.albums.album);
+        setTab("albumes");
+      }
+      return;
+    }
+
     const res = await fetch(`/api/albums/genero?genero=${encodeURIComponent(genero)}`);
     const data = await res.json();
     const albumesFormateados = data.map((a) => ({
@@ -136,13 +149,12 @@ function Search({ reproducirLista, pausar }) {
     }));
     setAlbumes(albumesFormateados);
     setTab("albumes");
-    // ya NO seteamos busqueda a ""
   } catch (error) {
     console.error("Error buscando por género:", error);
   } finally {
     setCargando(false);
   }
-};
+};  
 
   return (
     <div className="content">
