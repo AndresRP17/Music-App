@@ -79,6 +79,14 @@ const PlaylistDetalle = ({ reproducirLista }) => {
   const reproducirPista = async (cancion, index) => {
     setTrackCargando(index);
     try {
+      if (!esProd) {
+        fetch('/api/historial', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ titulo: cancion.title, artist: cancion.artist }),
+        }).catch((err) => console.error("Error registrando historial:", err));
+      }
+
       const listaConUrls = await Promise.all(
         cancionesFiltradas.map(async (c) => {
           try {

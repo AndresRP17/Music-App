@@ -96,6 +96,15 @@ const Favorites = ({ reproducirLista, pausar }) => {
   const reproducirPista = async (cancion, index) => {
     setTrackCargando(index);
     try {
+      if (!esProd) {
+        const token = localStorage.getItem("token");
+        fetch('/api/historial', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ titulo: cancion.title, artist: cancion.artist }),
+        }).catch((err) => console.error("Error registrando historial:", err));
+      }
+
       const query = `${cancion.artist} ${cancion.title}`;
       const response = await fetch(`/deezer/search?q=${encodeURIComponent(query)}`);
       const data = await response.json();
