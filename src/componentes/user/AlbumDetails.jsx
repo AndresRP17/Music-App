@@ -7,6 +7,7 @@ import ModalPlaylist from "./ModalPlaylist";
 import "./styles/AlbumDetails.css";
 
 const esProd = window.location.hostname.includes("netlify");
+const LASTFM_API_KEY = "aa182e9e95ab101a5f7ae68eba441e09";
 
 function AlbumDetails({ reproducirLista, pausar }) {
   const { albumName, artistName } = useParams();
@@ -27,9 +28,46 @@ function AlbumDetails({ reproducirLista, pausar }) {
   useEffect(() => {
     const fetchAlbumDetails = async () => {
       try {
-        // Usamos query string (no segmentos de ruta) para evitar que Apache
-        // bloquee barras (%2F) en nombres tipo "AC/DC", y de paso evitamos
-        // problemas con apóstrofes, exclamaciones, etc.
+        if (esProd) {
+          const response = await fetch(
+            `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=${LASTFM_API_KEY}&artist=${encodeURIComponent(artistName)}&album=${encodeURIComponent(albumName)}&format=json&autocorrect=1`,
+          );
+          const data = await response.json();
+
+          if (!data.album) {
+            setErrorCarga("Álbum no encontrado.");
+            return;
+          }
+
+          const tracksRaw = data.album.tracks?.track ?? [];
+          const tracksArray = Array.isArray(tracksRaw)
+            ? tracksRaw
+            : tracksRaw.name
+              ? [tracksRaw]
+              : [];
+
+          const imagenes = data.album.image ?? [];
+          const portada =
+            [...imagenes].reverse().find((img) => img["#text"])?.["#text"] || null;
+
+          setAlbumInfo({
+            id: null,
+            nombre: data.album.name,
+            artista: data.album.artist,
+            portada_url: portada,
+            descripcion: data.album.wiki?.summary || null,
+            genero: data.album.tags?.tag?.[0]?.name || null,
+            tracks: tracksArray.map((t, i) => ({
+              id: null,
+              nombre: t.name,
+              duracion: parseInt(t.duration || 0, 10),
+              preview: null,
+              orden: i,
+            })),
+          });
+          return;
+        }
+
         const response = await fetch(
           `/api/albums?nombre=${encodeURIComponent(albumName)}&artista=${encodeURIComponent(artistName)}`,
         );
@@ -115,6 +153,8 @@ function AlbumDetails({ reproducirLista, pausar }) {
             )
             .trim(),
           artist: albumInfo.artista,
+          genre: albumInfo.genero || "",
+          duration: t.duracion || 0,
           url: i === index ? trackEncontrado.preview : null,
           cover: trackEncontrado.album?.cover_medium || portadaBackend,
         }));
