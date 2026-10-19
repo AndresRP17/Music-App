@@ -1,23 +1,61 @@
-/* src/pages/Login.css */
+/* src/pages/styles/Login.css */
 
-/* Contenedor partido al medio (Split) */
-.login-split-container {
-    display: flex;
+/* ================================================
+   CONTENEDOR: login + register en la misma pantalla
+   ================================================ */
+.auth-container {
+    position: relative;
+    width: 100%;
     min-height: 100vh;
-    width: 100vw;
     background-color: #0a0a0a;
+    overflow: hidden;
 }
 
-/* --- LADO IZQUIERDO: IMAGEN --- */
-.login-image-side {
-    flex: 1;
-    background: url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1000') center/cover no-repeat;
-    position: relative;
+/* --- PANEL DE IMAGEN (el que se desliza) --- */
+.auth-image-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    z-index: 2;
+    transition: transform 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.auth-container.is-register .auth-image-panel {
+    transform: translateX(100%);
+}
+
+.auth-image-layer {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: opacity 0.5s ease;
+}
+
+.auth-image-login {
+    background-image: url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1000');
+    opacity: 1;
+}
+
+.auth-image-register {
+    background-image: url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=1000');
+    opacity: 0;
+}
+
+.auth-container.is-register .auth-image-login {
+    opacity: 0;
+}
+
+.auth-container.is-register .auth-image-register {
+    opacity: 1;
 }
 
 .login-image-overlay {
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
+    inset: 0;
     background: linear-gradient(to top, rgba(10, 10, 10, 0.95), rgba(10, 10, 10, 0.3));
     display: flex;
     flex-direction: column;
@@ -35,22 +73,56 @@
 .login-image-overlay p {
     color: #b3b3b3;
     font-size: 1.1rem;
-    max-width: 400px; /* Fix: era max-w */
+    max-width: 400px;
 }
 
-/* --- LADO DERECHO: FORMULARIO --- */
-.login-form-side {
-    flex: 1;
+/* --- PANELES DE FORMULARIO --- */
+.auth-form-panel {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 40px;
     background-color: #0d0d0d;
+    overflow-y: auto;
 }
 
+.auth-form-login {
+    left: 50%;
+}
+
+.auth-form-register {
+    left: 0;
+}
+
+/* Formulario visible */
+.auth-form-login,
+.auth-container.is-register .auth-form-register {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 0.5s ease 0.3s, visibility 0s linear 0s;
+}
+
+/* Formulario oculto (queda tapado por la imagen) */
+.auth-form-register,
+.auth-container.is-register .auth-form-login {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0s linear 0.7s;
+}
+
+/* ================================================
+   ESTILOS DEL FORMULARIO
+   ================================================ */
 .login-box {
     width: 100%;
     max-width: 400px;
+    margin: auto;
 }
 
 .login-header {
@@ -69,7 +141,7 @@
     font-size: 0.95rem;
 }
 
-/* Alerta de Error */
+/* Alerta de error */
 .login-error-alert {
     background: rgba(255, 69, 58, 0.1);
     border: 1px solid rgba(255, 69, 58, 0.25);
@@ -81,7 +153,19 @@
     margin-bottom: 25px;
 }
 
-/* Formulario e Inputs */
+/* Mensaje de éxito */
+.register-success-alert {
+    background: rgba(30, 215, 96, 0.1);
+    border: 1px solid rgba(30, 215, 96, 0.25);
+    color: #1ed760;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+/* Formulario e inputs */
 .login-form {
     display: flex;
     flex-direction: column;
@@ -106,8 +190,8 @@
     border-radius: 8px;
     padding: 0 14px;
     height: 50px;
-    font-size: 1rem; /* Fix: evita zoom en iOS */
-    color: #fff; /* Fix: texto visible */
+    font-size: 1rem;
+    color: #fff;
     outline: none;
     transition: all 0.2s ease;
 }
@@ -150,23 +234,74 @@
     transform: none;
 }
 
-/* --- RESPONSIVE --- */
+/* Divisor "o" + botón de Google */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 22px 0;
+    color: #555;
+    font-size: 0.85rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #2c2c2e;
+}
+
+.auth-google {
+    display: flex;
+    justify-content: center;
+}
+
+/* Link para alternar entre login y registro */
+.auth-switch {
+    text-align: center;
+    margin-top: 20px;
+    color: #8a8a8f;
+    font-size: 0.9rem;
+}
+
+.auth-link {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: #ff2d55;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.auth-link:hover {
+    text-decoration: underline;
+}
+
+/* ================================================
+   RESPONSIVE: en mobile no hay deslizamiento,
+   se muestra imagen arriba y un solo formulario
+   ================================================ */
 @media (max-width: 850px) {
 
-    /* Layout vertical: hero arriba, form abajo */
-    .login-split-container {
+    .auth-container {
+        display: flex;
         flex-direction: column;
+        overflow: visible;
     }
 
-    /* La imagen pasa a ser un header compacto */
-    .login-image-side {
-        flex: none;
+    .auth-image-panel,
+    .auth-container.is-register .auth-image-panel {
+        position: relative;
+        width: 100%;
         height: 200px;
+        flex: none;
+        transform: none;
     }
 
     .login-image-overlay {
         padding: 24px;
-        justify-content: flex-end;
     }
 
     .login-image-overlay h2 {
@@ -178,10 +313,26 @@
         font-size: 0.85rem;
     }
 
-    /* Formulario */
-    .login-form-side {
+    .auth-form-panel {
+        position: relative;
+        left: auto;
+        width: 100%;
+        height: auto;
         padding: 28px 20px;
         align-items: flex-start;
+    }
+
+    /* Solo se muestra el formulario activo */
+    .auth-form-register {
+        display: none;
+    }
+
+    .auth-container.is-register .auth-form-login {
+        display: none;
+    }
+
+    .auth-container.is-register .auth-form-register {
+        display: flex;
     }
 
     .login-header {
@@ -192,16 +343,23 @@
         font-size: 1.7rem;
     }
 
-    /* Inputs grandes para touch */
     .login-input-group input {
         height: 52px;
-        font-size: 16px; /* Fix iOS: 16px exacto evita el zoom automático */
+        font-size: 16px;
     }
 
-    /* Botón más alto para el dedo */
     .login-submit-btn {
         padding: 16px;
         font-size: 1rem;
         margin-top: 6px;
+    }
+}
+
+/* Respeta a quien tiene animaciones reducidas */
+@media (prefers-reduced-motion: reduce) {
+    .auth-image-panel,
+    .auth-image-layer,
+    .auth-form-panel {
+        transition: none;
     }
 }

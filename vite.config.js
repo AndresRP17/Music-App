@@ -15,7 +15,7 @@ export default defineConfig({
       // El proxy para tu backend de CodeIgniter 4
       // OJO: sin rewrite, porque tus rutas en CI4 ya incluyen el prefijo "api/"
       '/api': {
-        target: 'http://localhost:8086',
+        target: 'http://localhost:8096',
         changeOrigin: true,
       },
     },

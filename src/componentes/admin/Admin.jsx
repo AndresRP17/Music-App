@@ -26,7 +26,7 @@ ChartJS.register(
   Filler
 );
 
-// ⭐ Formateador de plata, en USD porque así están cargados los precios de los planes ⭐
+//  Formateador de plata, en USD porque así están cargados los precios de los planes 
 const formatMoney = (n) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n || 0);
 
@@ -47,7 +47,7 @@ function Admin() {
   const [loadingStats, setLoadingStats] = useState(true);
   const [rolesStats, setRolesStats] = useState({ total: 0, admins: 0, premium: 0, users: 0 });
 
-  // ⭐ NUEVO: pagos de toda la plataforma, para los gráficos de ingresos ⭐
+  //  NUEVO: pagos de toda la plataforma, para los gráficos de ingresos 
   const [pagos, setPagos] = useState([]);
   const [loadingPagos, setLoadingPagos] = useState(true);
 

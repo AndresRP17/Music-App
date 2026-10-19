@@ -83,8 +83,7 @@ const reproducirLista = (canciones, index) => {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login setToken={setToken} setRole={setRole} />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+   <Route path="/register" element={<Login setToken={setToken} setRole={setRole} initialMode="register" />} />          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     );

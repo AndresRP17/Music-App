@@ -165,7 +165,7 @@ const buscarPorGenero = async (genero) => {
         </div>
       </main>
 
-<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', margin: '12px 0' }}>
+<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', margin: '12px 0', borderBottom: '1px solid transparent' }}>
   {["rock", "pop", "metal", "hip hop", "r&b", "nu metal", "heavy metal", "hard rock"].map((g) => (
     <button key={g} onClick={() => buscarPorGenero(g)} style={{ padding: '6px 14px', borderRadius: '20px', border: '1px solid #444', background: 'transparent', color: '#fff', cursor: 'pointer' }}>
       {g}
