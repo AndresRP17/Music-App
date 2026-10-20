@@ -11,6 +11,8 @@ export default function Login({ setToken, setRole, initialMode = "login" }) {
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
   const [exito, setExito] = useState(false);
+  const [olvido, setOlvido] = useState(false); // "¿Olvidaste tu contraseña?"
+  const [mensajeOk, setMensajeOk] = useState("");
 
   // Campos del login
   const [email, setEmail] = useState("");
@@ -26,12 +28,27 @@ export default function Login({ setToken, setRole, initialMode = "login" }) {
     setModo(nuevoModo);
     setError("");
     setExito(false);
+    setOlvido(false);
+    setMensajeOk("");
   };
 
-  const iniciarSesion = ({ token, role, id, logo }) => {
+  const abrirOlvido = () => {
+    setOlvido(true);
+    setError("");
+    setMensajeOk("");
+  };
+
+  const cerrarOlvido = () => {
+    setOlvido(false);
+    setError("");
+    setMensajeOk("");
+  };
+
+  const iniciarSesion = ({ token, role, id, logo, provider }) => {
     localStorage.setItem("token", token);
     localStorage.setItem("role", role);
     localStorage.setItem("id", id);
+    localStorage.setItem("provider", provider || "local");
     if (logo) localStorage.setItem("logo", logo);
     setToken(token);
     setRole(role);
@@ -46,6 +63,7 @@ export default function Login({ setToken, setRole, initialMode = "login" }) {
         role: "user",
         id: "999",
         logo: "yuuta.jpg",
+        provider: "local",
       });
       setCargando(false);
     }, 1000);
@@ -77,7 +95,12 @@ export default function Login({ setToken, setRole, initialMode = "login" }) {
       });
 
       if (data.token) {
-        iniciarSesion({ token: data.token, role: data.role, id: data.id });
+        iniciarSesion({
+          token: data.token,
+          role: data.role,
+          id: data.id,
+          provider: data.provider,
+        });
       } else {
         setError("El backend no devolvió un token válido.");
       }
@@ -142,6 +165,28 @@ export default function Login({ setToken, setRole, initialMode = "login" }) {
     }
   };
 
+  // ---------- OLVIDÉ MI CONTRASEÑA ----------
+  const handleOlvido = async (e) => {
+    e.preventDefault();
+    setError("");
+    setMensajeOk("");
+    setCargando(true);
+
+    try {
+      // En Netlify (demo) no hay backend: solo se simula
+      if (!esProd) {
+        await axios.post("/api/music_users/forgot-password", { email });
+      }
+      setMensajeOk(
+        "Si el mail está registrado, te enviamos un link para elegir una nueva contraseña."
+      );
+    } catch (err) {
+      setError(err.response?.data?.message || "No se pudo procesar el pedido.");
+    } finally {
+      setCargando(false);
+    }
+  };
+
   // ---------- GOOGLE ----------
   // Sirve para login y registro: si el email no existe, el backend lo crea.
   const handleGoogle = async (credentialResponse) => {
@@ -156,6 +201,7 @@ export default function Login({ setToken, setRole, initialMode = "login" }) {
     try {
       const { data } = await axios.post("/api/music_users/google", {
         credential: credentialResponse.credential,
+        register: esRegistro,
       });
 
       if (data.token) {
@@ -164,6 +210,7 @@ export default function Login({ setToken, setRole, initialMode = "login" }) {
           role: data.role,
           id: data.id,
           logo: data.logo,
+          provider: data.provider,
         });
       } else {
         setError("El backend no devolvió un token válido.");
@@ -199,80 +246,138 @@ export default function Login({ setToken, setRole, initialMode = "login" }) {
 
   const contenido = (
     <div className={`auth-container ${esRegistro ? "is-register" : ""}`}>
-      {/* PANEL DE IMAGEN: se desliza de izquierda a derecha */}
+      {/* PANEL CURVO: se desliza de un lado al otro */}
       <div className="auth-image-panel">
         <div className="auth-image-layer auth-image-login">
           <div className="login-image-overlay">
-            <h2>MusicApp</h2>
+            <h2>¡Bienvenido!</h2>
             <p>Tu música, tus álbumes, tu espacio personal.</p>
+            <button
+              type="button"
+              className="auth-ghost-btn"
+              onClick={() => cambiarModo("register")}
+            >
+              Registrarse
+            </button>
           </div>
         </div>
         <div className="auth-image-layer auth-image-register">
           <div className="login-image-overlay">
-            <h2>Empezá hoy.</h2>
-            <p>Creá tu cuenta y llevá tu música a otro nivel.</p>
+            <h2>¡Hola!</h2>
+            <p>¿Ya tenés cuenta? Iniciá sesión y seguí con tu música.</p>
+            <button
+              type="button"
+              className="auth-ghost-btn"
+              onClick={() => cambiarModo("login")}
+            >
+              Iniciar sesión
+            </button>
           </div>
         </div>
       </div>
 
-      {/* FORMULARIO LOGIN (lado derecho) */}
+      {/* FORMULARIO LOGIN (lado izquierdo) */}
       <div className="auth-form-panel auth-form-login">
         <div className="login-box">
           <div className="login-header">
-            <h2>¡Hola de nuevo!</h2>
-            <p>Ingresa tus datos para acceder a tu cuenta.</p>
+            <h2>{olvido ? "Recuperar contraseña" : "¡Hola de nuevo!"}</h2>
+            <p>
+              {olvido
+                ? "Ingresá tu mail y te mandamos un link para elegir una nueva."
+                : "Ingresa tus datos para acceder a tu cuenta."}
+            </p>
           </div>
 
           {!esRegistro && error && (
             <div className="login-error-alert">{error}</div>
           )}
 
-          <form onSubmit={handleLogin} className="login-form">
-            <div className="login-input-group">
-              <label>Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="tu@email.com"
-                required
-                disabled={cargando}
-              />
-            </div>
+          {!esRegistro && mensajeOk && (
+            <div className="register-success-alert">{mensajeOk}</div>
+          )}
 
-            <div className="login-input-group">
-              <label>Contraseña</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Ingresa tu clave"
-                required
-                disabled={cargando}
-              />
-            </div>
+          {olvido ? (
+            <form onSubmit={handleOlvido} className="login-form">
+              <div className="login-input-group">
+                <label>Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="tu@email.com"
+                  required
+                  disabled={cargando}
+                />
+              </div>
 
-            <button type="submit" disabled={cargando} className="login-submit-btn">
-              {cargando && !esRegistro ? "Validando..." : "Iniciar Sesión"}
-            </button>
-          </form>
+              <button type="submit" disabled={cargando} className="login-submit-btn">
+                {cargando ? "Enviando..." : "Enviar link"}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleLogin} className="login-form">
+              <div className="login-input-group">
+                <label>Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="tu@email.com"
+                  required
+                  disabled={cargando}
+                />
+              </div>
 
-          {!esRegistro && botonGoogle("signin_with")}
+              <div className="login-input-group">
+                <label>Contraseña</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Ingresa tu clave"
+                  required
+                  disabled={cargando}
+                />
+              </div>
+
+              <button
+                type="button"
+                className="auth-link auth-forgot"
+                onClick={abrirOlvido}
+              >
+                ¿Olvidaste tu contraseña?
+              </button>
+
+              <button type="submit" disabled={cargando} className="login-submit-btn">
+                {cargando && !esRegistro ? "Validando..." : "Iniciar Sesión"}
+              </button>
+            </form>
+          )}
+
+          {!esRegistro && !olvido && botonGoogle("signin_with")}
 
           <p className="auth-switch">
-            ¿No tenés cuenta?{" "}
-            <button
-              type="button"
-              className="auth-link"
-              onClick={() => cambiarModo("register")}
-            >
-              Registrate acá
-            </button>
+            {olvido ? (
+              <button type="button" className="auth-link" onClick={cerrarOlvido}>
+                Volver al login
+              </button>
+            ) : (
+              <span className="auth-mobile-only">
+                ¿No tenés cuenta?{" "}
+                <button
+                  type="button"
+                  className="auth-link"
+                  onClick={() => cambiarModo("register")}
+                >
+                  Registrate acá
+                </button>
+              </span>
+            )}
           </p>
         </div>
       </div>
 
-      {/* FORMULARIO REGISTER (lado izquierdo) */}
+      {/* FORMULARIO REGISTER (lado derecho) */}
       <div className="auth-form-panel auth-form-register">
         <div className="login-box">
           <div className="login-header">
@@ -327,14 +432,16 @@ export default function Login({ setToken, setRole, initialMode = "login" }) {
           {esRegistro && botonGoogle("signup_with")}
 
           <p className="auth-switch">
-            ¿Ya tenés cuenta?{" "}
-            <button
-              type="button"
-              className="auth-link"
-              onClick={() => cambiarModo("login")}
-            >
-              Iniciá sesión
-            </button>
+            <span className="auth-mobile-only">
+              ¿Ya tenés cuenta?{" "}
+              <button
+                type="button"
+                className="auth-link"
+                onClick={() => cambiarModo("login")}
+              >
+                Iniciá sesión
+              </button>
+            </span>
           </p>
         </div>
       </div>

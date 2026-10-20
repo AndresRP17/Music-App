@@ -15,6 +15,7 @@ import MiMusica from "./componentes/user//MiMusica";
 import PlaylistDetalle from "./componentes/user/PlaylistDetalle";
 import ArtistDetail from "./componentes/user/ArtistDetail";
 import { ToastProvider } from "./context/ToastContext";
+import ResetPassword from "./componentes/user/ResetPassword"; 
 import './App.css';
 
 function App() {
@@ -83,7 +84,9 @@ const reproducirLista = (canciones, index) => {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login setToken={setToken} setRole={setRole} />} />
-   <Route path="/register" element={<Login setToken={setToken} setRole={setRole} initialMode="register" />} />          <Route path="*" element={<Navigate to="/login" replace />} />
+    <Route path="/register" element={<Login setToken={setToken} setRole={setRole} initialMode="register" />} />
+    <Route path="/reset" element={<ResetPassword />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     );

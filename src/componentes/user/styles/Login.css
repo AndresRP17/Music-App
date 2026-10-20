@@ -1,17 +1,41 @@
 /* src/pages/styles/Login.css */
 
 /* ================================================
+   COLOR DE ACENTO: cambia entre login y register
+   (@property permite que la transición sea animada)
+   ================================================ */
+:root {
+    --accent: #ff2d55; /* valor por defecto fuera del login (ej: perfil) */
+}
+
+@property --accent {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: #ff2d55;
+}
+
+/* ================================================
    CONTENEDOR: login + register en la misma pantalla
    ================================================ */
 .auth-container {
+    --accent: #ff2d55;            /* login: rosa */
     position: relative;
     width: 100%;
     min-height: 100vh;
-    background-color: #0a0a0a;
+    background-color: #0d0d0d;    /* igual al fondo de los formularios */
     overflow: hidden;
+    transition: --accent 0.7s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-/* --- PANEL DE IMAGEN (el que se desliza) --- */
+.auth-container.is-register {
+    --accent: #8b5cf6;            /* register: violeta */
+}
+
+/* ================================================
+   PANEL CURVO QUE SE DESLIZA
+   Login: panel a la derecha (curva del lado izquierdo)
+   Register: panel a la izquierda (curva del lado derecho)
+   ================================================ */
 .auth-image-panel {
     position: absolute;
     top: 0;
@@ -19,13 +43,19 @@
     width: 50%;
     height: 100%;
     z-index: 2;
-    transition: transform 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+    overflow: hidden;
+    transform: translateX(100%);
+    border-radius: 50% 0 0 50% / 50% 0 0 50%;
+    transition: transform 0.7s cubic-bezier(0.65, 0, 0.35, 1),
+                border-radius 0.7s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .auth-container.is-register .auth-image-panel {
-    transform: translateX(100%);
+    transform: translateX(0);
+    border-radius: 0 50% 50% 0 / 0 50% 50% 0;
 }
 
+/* Fotos de fondo: se cruzan con fade al cambiar de modo */
 .auth-image-layer {
     position: absolute;
     inset: 0;
@@ -33,11 +63,13 @@
     background-position: center;
     background-repeat: no-repeat;
     transition: opacity 0.5s ease;
+    pointer-events: none;
 }
 
 .auth-image-login {
     background-image: url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=1000');
     opacity: 1;
+    pointer-events: auto;
 }
 
 .auth-image-register {
@@ -47,33 +79,63 @@
 
 .auth-container.is-register .auth-image-login {
     opacity: 0;
+    pointer-events: none;
 }
 
 .auth-container.is-register .auth-image-register {
     opacity: 1;
+    pointer-events: auto;
 }
 
+/* Capa de color (acento) con el texto centrado, como en el video.
+   Subí/bajá los porcentajes para ver más o menos la foto. */
 .login-image-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(10, 10, 10, 0.95), rgba(10, 10, 10, 0.3));
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--accent) 85%, transparent),
+        color-mix(in srgb, var(--accent) 60%, transparent)
+    );
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    padding: 60px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px;
+    color: #fff;
 }
 
 .login-image-overlay h2 {
-    font-size: 3rem;
+    font-size: 2.8rem;
     font-weight: 700;
     letter-spacing: -1px;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
 }
 
 .login-image-overlay p {
-    color: #b3b3b3;
-    font-size: 1.1rem;
-    max-width: 400px;
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 1.05rem;
+    max-width: 320px;
+    margin-bottom: 30px;
+}
+
+/* Botón con borde blanco del panel */
+.auth-ghost-btn {
+    background: transparent;
+    border: 2px solid #fff;
+    color: #fff;
+    padding: 12px 40px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.auth-ghost-btn:hover {
+    background: #fff;
+    color: var(--accent);
 }
 
 /* --- PANELES DE FORMULARIO --- */
@@ -91,11 +153,11 @@
 }
 
 .auth-form-login {
-    left: 50%;
+    left: 0;
 }
 
 .auth-form-register {
-    left: 0;
+    left: 50%;
 }
 
 /* Formulario visible */
@@ -107,13 +169,18 @@
     transition: opacity 0.5s ease 0.3s, visibility 0s linear 0s;
 }
 
-/* Formulario oculto (queda tapado por la imagen) */
+/* Formulario oculto (queda tapado por el panel) */
 .auth-form-register,
 .auth-container.is-register .auth-form-login {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
     transition: opacity 0.3s ease, visibility 0s linear 0.7s;
+}
+
+/* Los links de abajo ("¿No tenés cuenta?") solo se ven en mobile */
+.auth-mobile-only {
+    display: none;
 }
 
 /* ================================================
@@ -201,13 +268,13 @@
 }
 
 .login-input-group input:focus {
-    border-color: #ff2d55;
+    border-color: var(--accent);
     background-color: #222;
 }
 
 /* Botón principal */
 .login-submit-btn {
-    background-color: #ff2d55;
+    background-color: var(--accent);
     color: white;
     border: none;
     border-radius: 8px;
@@ -220,7 +287,7 @@
 }
 
 .login-submit-btn:hover {
-    background-color: #e02447;
+    background-color: color-mix(in srgb, var(--accent) 85%, black);
     transform: translateY(-1px);
 }
 
@@ -270,7 +337,7 @@
     border: none;
     padding: 0;
     font: inherit;
-    color: #ff2d55;
+    color: var(--accent);
     font-weight: 500;
     cursor: pointer;
 }
@@ -279,9 +346,17 @@
     text-decoration: underline;
 }
 
+/* "¿Olvidaste tu contraseña?" alineado a la derecha, pegado al input
+   (va después de .auth-link para que no le pise el tamaño de letra) */
+.auth-forgot {
+    align-self: flex-end;
+    font-size: 0.85rem;
+    margin-top: -8px;
+}
+
 /* ================================================
    RESPONSIVE: en mobile no hay deslizamiento,
-   se muestra imagen arriba y un solo formulario
+   se muestra el panel arriba y un solo formulario
    ================================================ */
 @media (max-width: 850px) {
 
@@ -298,19 +373,31 @@
         height: 200px;
         flex: none;
         transform: none;
+        border-radius: 0 0 40px 40px;
     }
 
     .login-image-overlay {
-        padding: 24px;
+        padding: 20px;
     }
 
     .login-image-overlay h2 {
-        font-size: 1.6rem;
+        font-size: 1.7rem;
         letter-spacing: -0.5px;
+        margin-bottom: 6px;
     }
 
     .login-image-overlay p {
         font-size: 0.85rem;
+        margin-bottom: 0;
+    }
+
+    /* En mobile el cambio se hace con el link de abajo */
+    .auth-ghost-btn {
+        display: none;
+    }
+
+    .auth-mobile-only {
+        display: inline;
     }
 
     .auth-form-panel {
