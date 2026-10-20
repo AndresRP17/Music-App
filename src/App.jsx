@@ -7,7 +7,6 @@ import Search from "./componentes/user/Search";
 import AlbumDetail from "./componentes/user//AlbumDetails";
 import Admin from "./componentes/admin/Admin";
 import Login from "./componentes/user/Login"; 
-import Register from "./componentes/user//Register";
 import ListaUsuarios from "./componentes/admin/ListaUsuarios";
 import DetalleUsuario from "./componentes/admin/DetalleUsuario";
 import Configuracion from './componentes/user//Configuration';
@@ -84,8 +83,7 @@ const reproducirLista = (canciones, index) => {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login setToken={setToken} setRole={setRole} />} />
-    <Route path="/register" element={<Login setToken={setToken} setRole={setRole} initialMode="register" />} />
-    <Route path="/reset" element={<ResetPassword />} />
+          <Route path="/register" element={<Login setToken={setToken} setRole={setRole} initialMode="register" />} />    <Route path="/reset" element={<ResetPassword />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>

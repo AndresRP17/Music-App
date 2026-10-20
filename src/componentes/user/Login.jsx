@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import AvisoProyecto from "./AvisoProyecto";
 import "./styles/Login.css";
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -11,6 +12,7 @@ export default function Login({ setToken, setRole, initialMode = "login" }) {
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
   const [exito, setExito] = useState(false);
+  const [exitoGoogle, setExitoGoogle] = useState(false); // cuenta creada con Google
   const [olvido, setOlvido] = useState(false); // "¿Olvidaste tu contraseña?"
   const [mensajeOk, setMensajeOk] = useState("");
 
@@ -28,6 +30,7 @@ export default function Login({ setToken, setRole, initialMode = "login" }) {
     setModo(nuevoModo);
     setError("");
     setExito(false);
+    setExitoGoogle(false);
     setOlvido(false);
     setMensajeOk("");
   };
@@ -122,6 +125,9 @@ export default function Login({ setToken, setRole, initialMode = "login" }) {
     setEmail(emailRegistrado);
     setPassword("");
     setRegPassword("");
+    setMensajeOk(
+      "¡Cuenta creada con éxito! Ahora iniciá sesión con tu email y contraseña."
+    );
   };
 
   const handleRegister = async (e) => {
@@ -193,7 +199,13 @@ export default function Login({ setToken, setRole, initialMode = "login" }) {
     setError("");
 
     if (esProd) {
-      sesionDemo();
+      if (esRegistro) {
+        setExito(true);
+        setExitoGoogle(true);
+        setTimeout(sesionDemo, 2000);
+      } else {
+        sesionDemo();
+      }
       return;
     }
 
@@ -205,13 +217,22 @@ export default function Login({ setToken, setRole, initialMode = "login" }) {
       });
 
       if (data.token) {
-        iniciarSesion({
+        const sesion = {
           token: data.token,
           role: data.role,
           id: data.id,
           logo: data.logo,
           provider: data.provider,
-        });
+        };
+
+        if (esRegistro) {
+          // Cuenta nueva: se muestra el aviso antes de entrar a la app
+          setExito(true);
+          setExitoGoogle(true);
+          setTimeout(() => iniciarSesion(sesion), 2500);
+        } else {
+          iniciarSesion(sesion);
+        }
       } else {
         setError("El backend no devolvió un token válido.");
       }
@@ -394,7 +415,9 @@ export default function Login({ setToken, setRole, initialMode = "login" }) {
 
           {exito && (
             <div className="register-success-alert">
-              ¡Usuario creado con éxito! Te llevamos al login...
+              {exitoGoogle
+                ? "¡Cuenta creada con Google! Entrando a MusicApp..."
+                : "¡Usuario creado con éxito! Te llevamos al login..."}
             </div>
           )}
 
@@ -432,7 +455,7 @@ export default function Login({ setToken, setRole, initialMode = "login" }) {
             </button>
           </form>
 
-          {esRegistro && botonGoogle("signup_with")}
+          {esRegistro && !exito && botonGoogle("signup_with")}
 
           <p className="auth-switch">
             <span className="auth-mobile-only">
@@ -449,6 +472,7 @@ export default function Login({ setToken, setRole, initialMode = "login" }) {
         </div>
       </div>
     </div>
+    <AvisoProyecto />
     </div>
   );
 
