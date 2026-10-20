@@ -1,0 +1,271 @@
+/* src/pages/styles/NavInferior.css
+   Barra inferior estilo Apple Music (Liquid Glass) */
+
+.mb {
+    --mb-ease: cubic-bezier(0.32, 0.72, 0, 1);
+    --mb-h-player: 64px;
+    --mb-h-tabs: 68px;
+    --mb-gap: 10px;
+    --mb-acento: var(--accent, #ff2d55);
+
+    position: fixed;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    width: min(calc(100vw - 24px), 460px);
+    height: calc(var(--mb-h-player) + var(--mb-gap) + var(--mb-h-tabs));
+    z-index: 60;
+    transition: height 0.5s var(--mb-ease);
+}
+
+.mb--sin-cancion {
+    height: var(--mb-h-tabs);
+}
+
+.mb--colapsada {
+    height: var(--mb-h-player);
+}
+
+/* ---------- Efecto vidrio (compartido) ---------- */
+.mb-glass {
+    position: absolute;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03)),
+        rgba(28, 28, 32, 0.55);
+    -webkit-backdrop-filter: blur(22px) saturate(170%);
+    backdrop-filter: blur(22px) saturate(170%);
+    box-shadow:
+        0 10px 34px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    transition:
+        top 0.5s var(--mb-ease),
+        left 0.5s var(--mb-ease),
+        width 0.5s var(--mb-ease),
+        height 0.5s var(--mb-ease);
+}
+
+/* ---------- Posiciones: barra abierta ---------- */
+.mb-player {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: var(--mb-h-player);
+}
+
+.mb-tabs {
+    top: calc(var(--mb-h-player) + var(--mb-gap));
+    left: 0;
+    width: calc(100% - var(--mb-h-tabs) - var(--mb-gap));
+    height: var(--mb-h-tabs);
+}
+
+.mb-search {
+    top: calc(var(--mb-h-player) + var(--mb-gap));
+    left: calc(100% - var(--mb-h-tabs));
+    width: var(--mb-h-tabs);
+    height: var(--mb-h-tabs);
+}
+
+/* Sin canción: solo pestañas + buscador */
+.mb--sin-cancion .mb-tabs,
+.mb--sin-cancion .mb-search {
+    top: 0;
+}
+
+/* ---------- Posiciones: barra colapsada (al scrollear) ---------- */
+.mb--colapsada .mb-player {
+    left: calc(var(--mb-h-player) + var(--mb-gap));
+    width: calc(100% - 2 * (var(--mb-h-player) + var(--mb-gap)));
+}
+
+.mb--colapsada .mb-tabs {
+    top: 0;
+    width: var(--mb-h-player);
+    height: var(--mb-h-player);
+}
+
+.mb--colapsada .mb-search {
+    top: 0;
+    left: calc(100% - var(--mb-h-player));
+    width: var(--mb-h-player);
+    height: var(--mb-h-player);
+}
+
+/* ---------- Mini reproductor ---------- */
+.mb-player {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 8px 0 10px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.mb-cover {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3a3a42, #1d1d22) center / cover no-repeat;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.mb-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.mb-title,
+.mb-artist {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mb-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.mb-artist {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.62);
+}
+
+.mb-btn {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #fff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: width 0.4s var(--mb-ease), opacity 0.3s ease, transform 0.15s ease;
+}
+
+.mb-btn svg {
+    width: 26px;
+    height: 26px;
+    display: block;
+}
+
+.mb-btn:active {
+    transform: scale(0.88);
+}
+
+/* Al colapsar, el botón "siguiente" desaparece (como en Apple Music) */
+.mb--colapsada .mb-next {
+    width: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ---------- Pestañas ---------- */
+.mb-tabs {
+    display: flex;
+    align-items: stretch;
+    padding: 6px;
+}
+
+.mb-tab {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #f2f2f7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    cursor: pointer;
+    transition:
+        flex 0.5s var(--mb-ease),
+        opacity 0.3s ease,
+        background-color 0.3s ease,
+        color 0.3s ease;
+}
+
+.mb-tab:hover:not(.mb-tab--activa) {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.mb-tab--activa {
+    background: rgba(255, 255, 255, 0.14);
+    color: var(--mb-acento);
+}
+
+.mb-tab-icon svg {
+    width: 26px;
+    height: 26px;
+    display: block;
+}
+
+.mb-tab-label {
+    max-height: 14px;
+    transition: opacity 0.25s ease, max-height 0.4s var(--mb-ease);
+}
+
+/* Colapsada: solo queda el círculo de la pestaña activa, sin texto */
+.mb--colapsada .mb-tab:not(.mb-tab--activa) {
+    flex: 0 0 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.mb--colapsada .mb-tab--activa {
+    background: transparent;
+}
+
+.mb--colapsada .mb-tab-label {
+    opacity: 0;
+    max-height: 0;
+}
+
+/* ---------- Buscador ---------- */
+.mb-search {
+    padding: 0;
+    color: #fff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+
+.mb-search svg {
+    width: 28px;
+    height: 28px;
+    display: block;
+}
+
+.mb-search:active {
+    transform: scale(0.94);
+}
+
+/* Respeta a quien tiene animaciones reducidas */
+@media (prefers-reduced-motion: reduce) {
+    .mb,
+    .mb-glass,
+    .mb-tab,
+    .mb-tab-label,
+    .mb-btn {
+        transition: none;
+    }
+}
