@@ -245,11 +245,13 @@ export default function Login({ setToken, setRole, initialMode = "login" }) {
     );
 
   const contenido = (
+    <div className={`auth-page ${esRegistro ? "is-register" : ""}`}>
     <div className={`auth-container ${esRegistro ? "is-register" : ""}`}>
       {/* PANEL CURVO: se desliza de un lado al otro */}
       <div className="auth-image-panel">
         <div className="auth-image-layer auth-image-login">
           <div className="login-image-overlay">
+            <div className="auth-vinyl" />
             <h2>¡Bienvenido!</h2>
             <p>Tu música, tus álbumes, tu espacio personal.</p>
             <button
@@ -263,6 +265,7 @@ export default function Login({ setToken, setRole, initialMode = "login" }) {
         </div>
         <div className="auth-image-layer auth-image-register">
           <div className="login-image-overlay">
+            <div className="auth-vinyl" />
             <h2>¡Hola!</h2>
             <p>¿Ya tenés cuenta? Iniciá sesión y seguí con tu música.</p>
             <button
@@ -445,6 +448,7 @@ export default function Login({ setToken, setRole, initialMode = "login" }) {
           </p>
         </div>
       </div>
+    </div>
     </div>
   );
 
